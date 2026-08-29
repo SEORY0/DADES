@@ -61,7 +61,7 @@ const flat = (item: (typeof items)[number]) => ({
     sections.map((section) => (
       <section aria-label={section.meta.ko}>
         <h2 class="section-heading">
-          {section.meta.en} · {section.meta.ko}
+          {section.meta.ko}
           <span class="count">{section.items.length}</span>
         </h2>
         {section.items.map((item) => (
@@ -84,27 +84,3 @@ const flat = (item: (typeof items)[number]) => ({
     </span>
   </nav>
 </Base>
-
-<style>
-  .issue-pager {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    margin-top: 44px;
-    padding-top: 16px;
-    border-top: 3px double var(--rule);
-    font-family: var(--font-mono);
-    font-size: 12px;
-  }
-
-  .issue-pager a {
-    color: var(--ink-soft);
-    text-decoration: none;
-  }
-
-  .issue-pager a:hover {
-    color: var(--electric);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-</style>

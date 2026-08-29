@@ -132,13 +132,21 @@ import { href } from '../lib/mag';
     const entry = el('article', 'entry');
 
     const top = el('div', 'entry-top');
-    const meta = el('div', 'entry-meta');
-    meta.append(el('span', 'src', SOURCE_META[clip.source]?.en ?? clip.source));
-    if (clip.origin) meta.append(el('span', undefined, clip.origin));
-    meta.append(el('span', undefined, `№ ${pad(clip.issue.number)}`));
-    top.append(meta);
+    const headline = el('div', 'entry-headline');
+    const title = el('h2', 'entry-title');
+    const link = el('a', undefined, clip.title);
+    link.href = clip.url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    title.append(link);
+    headline.append(title);
+    const metaText = [SOURCE_META[clip.source]?.ko ?? clip.source, clip.origin]
+      .filter(Boolean)
+      .join(' · ');
+    headline.append(el('span', 'entry-meta', metaText));
+    top.append(headline);
 
-    const remove = el('button', 'scrap-action danger', '✂ 빼기');
+    const remove = el('button', 'clip-btn', '빼기');
     remove.setAttribute('aria-label', `스크랩북에서 빼기: ${clip.title}`);
     remove.addEventListener('click', () => {
       const clips = readClips();
@@ -147,7 +155,7 @@ import { href } from '../lib/mag';
       render();
       announce(`스크랩북에서 뺐습니다 — 남은 조각 ${Object.keys(clips).length}`);
       // 포커스를 다음 항목의 빼기 버튼으로 (마지막이었으면 이전 항목, 다 비었으면 빈 상태로)
-      const removeBtns = listEl.querySelectorAll<HTMLButtonElement>('.scrap-action.danger');
+      const removeBtns = listEl.querySelectorAll<HTMLButtonElement>('.clip-btn');
       if (removeBtns.length > 0) {
         removeBtns[Math.min(index, removeBtns.length - 1)].focus();
       } else {
@@ -157,21 +165,12 @@ import { href } from '../lib/mag';
     top.append(remove);
     entry.append(top);
 
-    const title = el('h2', 'entry-title');
-    const link = el('a', undefined, clip.title);
-    link.href = clip.url;
-    link.target = '_blank';
-    link.rel = 'noopener';
-    link.append(el('span', 'ext', '↗'));
-    title.append(link);
-    entry.append(title);
-
     entry.append(el('p', 'entry-summary', clip.summary));
     if (typeof clip.note === 'string' && clip.note) entry.append(el('p', 'entry-note', clip.note));
 
     if (Array.isArray(clip.tags) && clip.tags.length) {
-      const tags = el('div', 'entry-tags');
-      for (const tag of clip.tags) tags.append(el('span', 'tag-chip', String(tag)));
+      const tags = el('p', 'entry-tags');
+      for (const tag of clip.tags) tags.append(el('span', 'tag-link', `#${String(tag)}`));
       entry.append(tags);
     }
 

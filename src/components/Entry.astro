@@ -1,5 +1,5 @@
 ---
-import { SOURCE_META, clipPayload, fmtDate, issueHref, tagHref, type FlatItem } from '../lib/mag';
+import { SOURCE_META, clipPayload, fmtDate, issueHref, issueNo, tagHref, type FlatItem } from '../lib/mag';
 
 interface Props {
   flat: FlatItem;
@@ -18,10 +18,11 @@ const Heading = headingLevel;
 
 <article class="entry" id={item.id}>
   <div class="entry-top">
-    <div class="entry-meta">
-      <span class="src">{source.en}</span>
-      {item.origin && <span>{item.origin}</span>}
-      <span>№ {String(issue.number).padStart(2, '0')}</span>
+    <div class="entry-headline">
+      <Heading class="entry-title">
+        <a href={item.url} target="_blank" rel="noopener">{item.title}</a>
+      </Heading>
+      <span class="entry-meta">{source.ko}{item.origin && ` · ${item.origin}`}</span>
     </div>
     <button
       class="clip-btn"
@@ -30,36 +31,27 @@ const Heading = headingLevel;
       aria-pressed="false"
       aria-label={`스크랩북에 클립: ${item.title}`}
     >
-      <svg class="clip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-        <circle cx="6" cy="6" r="3"></circle>
-        <circle cx="6" cy="18" r="3"></circle>
-        <path d="M8.1 8.1 20 20M8.1 15.9 20 4"></path>
-      </svg>
       <span class="clip-label">클립</span>
     </button>
   </div>
-
-  <Heading class="entry-title">
-    <a href={item.url} target="_blank" rel="noopener">{item.title}<span class="ext">↗</span></a>
-  </Heading>
 
   <p class="entry-summary">{item.summary}</p>
   {item.note && <p class="entry-note">{item.note}</p>}
 
   {
     item.tags.length > 0 && (
-      <div class="entry-tags">
+      <p class="entry-tags">
         {item.tags.map((tag) => (
-          <a class="tag-chip" href={tagHref(tag)}>{tag}</a>
+          <a class="tag-link" href={tagHref(tag)}>#{tag}</a>
         ))}
-      </div>
+      </p>
     )
   }
 
   {
     showIssueRef && (
       <p class="entry-issue-ref">
-        Issue № {String(issue.number).padStart(2, '0')} · {fmtDate(issue.date)} ·{' '}
+        Issue {issueNo(issue.number)} · {fmtDate(issue.date)} ·{' '}
         <a href={`${issueHref(issue.number)}#${item.id}`}
           >지면에서 보기<span class="sr-only">: {item.title}</span></a
         >

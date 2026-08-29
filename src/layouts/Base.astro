@@ -45,12 +45,6 @@ const nav = [
     <title>{title} — DADES 매거진</title>
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href={href('/favicon.svg')} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
-      rel="stylesheet"
-    />
     <script is:inline>
       // 테마 초기화 — 첫 페인트 전에 적용해 깜빡임을 막는다.
       (function () {
@@ -103,11 +97,7 @@ const nav = [
             <button class="theme-swatch" data-set-theme="white" aria-pressed="false" aria-label="흰색 테마" title="white"></button>
             <button class="theme-swatch" data-set-theme="ink" aria-pressed="false" aria-label="먹색 테마" title="ink"></button>
           </div>
-          <p class="side-colophon">
-            매주 전기양 한 마리씩.<br />
-            사람이 고르고,<br />
-            클로드가 엮습니다.
-          </p>
+          <p class="side-colophon">사람이 고르고,<br />클로드가 엮습니다.</p>
         </div>
       </aside>
 
@@ -116,7 +106,7 @@ const nav = [
           <slot />
         </main>
         <footer class="site-foot">
-          <span>DADES MAGAZINE — DO AGENTS DREAM OF ELECTRIC SHEEP?</span>
+          <span>DADES — Do Agents Dream of Electric Sheep?</span>
           <span>이 매거진은 영원히 발행 중이다.</span>
         </footer>
       </div>

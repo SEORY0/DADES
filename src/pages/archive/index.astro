@@ -27,17 +27,9 @@ const totals = SOURCE_ORDER.map((key) => ({
     </p>
   </header>
 
-  <div class="index-totals">
-    <span>지금까지</span>
-    {totals.map((t) => (
-      <span>
-        {t.meta.ko} <b>{t.count}</b>
-      </span>
-    ))}
-    <span>
-      태그 <b>{tags.length}</b>
-    </span>
-  </div>
+  <p class="index-totals">
+    지금까지 {totals.map((t) => `${t.meta.ko} ${t.count}`).join(' · ')} · 태그 {tags.length}
+  </p>
 
   <ul class="index-list">
     {

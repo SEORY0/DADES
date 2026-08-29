@@ -2,39 +2,35 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Masthead from '../components/Masthead.astro';
-import { fmtDate, issueHref, issueNo, sortIssues, tagHref } from '../lib/mag';
+import { fmtDate, issueHref, issueNo, sortIssues } from '../lib/mag';
 
 const issues = sortIssues(await getCollection('issues'));
 ---
 
 <Base title="발행 목록" active="home">
   <Masthead />
-  <ol class="issue-list">
-    {
-      issues.map((issue, i) => {
-        const tags = [...new Set(issue.data.items.flatMap((it) => it.tags))].slice(0, 5);
-        return (
-          <li class="issue-row">
-            <div class="row-meta">
-              <span class="issue-no">Issue {issueNo(issue.data.number)}</span>
-              <span>{fmtDate(issue.data.date)}</span>
-              <span>아이템 {issue.data.items.length}</span>
-              {i === 0 && <span class="latest-flag">최신호</span>}
-            </div>
-            <h2 class="row-title">
+  <table class="issue-table">
+    <thead>
+      <tr>
+        <th scope="col"><span class="sr-only">호수</span></th>
+        <th scope="col">제목</th>
+        <th scope="col" class="col-count">아이템</th>
+        <th scope="col">발행일</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        issues.map((issue) => (
+          <tr>
+            <td class="col-no">{issueNo(issue.data.number)}</td>
+            <td>
               <a href={issueHref(issue.data.number)}>{issue.data.title}</a>
-            </h2>
-            {issue.data.intro && <p class="row-intro">{issue.data.intro}</p>}
-            {tags.length > 0 && (
-              <div class="row-tags">
-                {tags.map((tag) => (
-                  <a class="tag-chip" href={tagHref(tag)}>{tag}</a>
-                ))}
-              </div>
-            )}
-          </li>
-        );
-      })
-    }
-  </ol>
+            </td>
+            <td class="col-count">{issue.data.items.length}</td>
+            <td class="col-date">{fmtDate(issue.data.date)}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
 </Base>

@@ -2,14 +2,39 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Masthead from '../components/Masthead.astro';
-import { fmtDate, issueHref, issueNo, sortIssues } from '../lib/mag';
+import {
+  SIGNAL_META,
+  flattenChangelog,
+  fmtDate,
+  issueHref,
+  issueNo,
+  signalCounts,
+  sortBoards,
+  sortIssues,
+} from '../lib/mag';
 
 const issues = sortIssues(await getCollection('issues'));
+const boards = sortBoards(await getCollection('boards'));
 const [latest, ...older] = issues;
+const latestSignals = latest ? signalCounts(latest.data.items) : null;
+
+// "지난 방문 이후" 계산용 스냅샷 — 날짜 단위, 정적 페이지에 인라인
+const pulse = {
+  issues: issues.map((i) => ({
+    n: i.data.number,
+    d: i.data.date,
+    action: signalCounts(i.data.items).action,
+    tags: [...new Set(i.data.items.flatMap((it) => it.tags))],
+  })),
+  boardChanges: flattenChangelog(boards).map((c) => c.date),
+};
 ---
 
 <Base title="발행 목록" active="home">
   <Masthead />
+
+  <p class="pulse" data-pulse hidden></p>
+  <script type="application/json" data-pulse-data set:html={JSON.stringify(pulse)} />
 
   {
     latest && (
@@ -22,6 +47,22 @@ const [latest, ...older] = issues;
           <a href={issueHref(latest.data.number)}>{latest.data.title}</a>
         </h2>
         {latest.data.intro && <p class="latest-intro">{latest.data.intro}</p>}
+        {latestSignals && (
+          <p class="signal-legend latest-signals">
+            <span>
+              <span class="key key-action" aria-hidden="true" /> {SIGNAL_META.action.ko}{' '}
+              {latestSignals.action}
+            </span>
+            <span>
+              <span class="key key-context" aria-hidden="true" /> {SIGNAL_META.context.ko}{' '}
+              {latestSignals.context}
+            </span>
+            <span>
+              <span class="key key-noise" aria-hidden="true" /> {SIGNAL_META.noise.ko}{' '}
+              {latestSignals.noise}
+            </span>
+          </p>
+        )}
         <p class="latest-items">{latest.data.items.map((it) => it.title).join('  ·  ')}</p>
       </section>
     )
@@ -61,3 +102,67 @@ const [latest, ...older] = issues;
     )
   }
 </Base>
+
+<script>
+  import { fmtDate, href, issueHref } from '../lib/mag';
+
+  interface Pulse {
+    issues: { n: number; d: string; action: number; tags: string[] }[];
+    boardChanges: string[];
+  }
+
+  const el = document.querySelector<HTMLElement>('[data-pulse]')!;
+  const data: Pulse = JSON.parse(
+    document.querySelector('[data-pulse-data]')?.textContent ?? '{"issues":[],"boardChanges":[]}',
+  );
+
+  function readInterests(): Set<string> {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('dades:interests:v1') ?? '[]');
+      if (Array.isArray(parsed)) return new Set(parsed.filter((t) => typeof t === 'string'));
+    } catch {}
+    return new Set();
+  }
+
+  // 세션 기준선 — Base의 초기화와 같은 멱등 로직이라 실행 순서에 무관하다.
+  // 값이 비어 있으면 첫 방문이라 조용히 넘어간다.
+  let baseline = '';
+  try {
+    const stored = sessionStorage.getItem('dades:baseline');
+    if (stored === null) {
+      baseline = localStorage.getItem('dades:last-seen') ?? '';
+      sessionStorage.setItem('dades:baseline', baseline);
+    } else {
+      baseline = stored;
+    }
+  } catch {}
+
+  if (baseline) {
+    const newIssues = data.issues.filter((i) => i.d > baseline);
+    const boardChanges = data.boardChanges.filter((d) => d > baseline).length;
+
+    if (newIssues.length === 0 && boardChanges === 0) {
+      el.textContent = `지난 방문(${fmtDate(baseline)}) 이후 새로 챙길 것 없음`;
+      el.hidden = false;
+    } else {
+      const actionNeeded = newIssues.reduce((sum, i) => sum + i.action, 0);
+      const interests = readInterests();
+      const hits = newIssues.reduce(
+        (sum, i) => sum + (i.tags.some((t) => interests.has(t)) ? 1 : 0),
+        0,
+      );
+
+      const parts: string[] = [];
+      if (newIssues.length > 0) {
+        const target = newIssues.reduce((a, b) => (a.n > b.n ? a : b));
+        parts.push(`<a href="${issueHref(target.n)}">새 이슈 ${newIssues.length}</a>`);
+        parts.push(`행동 필요 ${actionNeeded}`);
+      }
+      if (boardChanges > 0) parts.push(`<a href="${href('/status/')}">상태판 변경 ${boardChanges}</a>`);
+      if (hits > 0) parts.push(`관심 태그 적중 ${hits}`);
+
+      el.innerHTML = `지난 방문(${fmtDate(baseline)}) 이후: ${parts.join(' · ')}`;
+      el.hidden = false;
+    }
+  }
+</script>

@@ -6,6 +6,7 @@ export const href = (path: string) => base + (path.startsWith('/') ? path : `/${
 
 export type Issue = CollectionEntry<'issues'>;
 export type Item = Issue['data']['items'][number];
+export type Board = CollectionEntry<'boards'>;
 
 /** 섹션 순서와 이름표 — 매거진의 고정 지면 구성 */
 export const SOURCE_META: Record<string, { ko: string; en: string }> = {
@@ -18,6 +19,37 @@ export const SOURCE_META: Record<string, { ko: string; en: string }> = {
   read: { ko: '읽을거리', en: 'Readings' },
 };
 export const SOURCE_ORDER = Object.keys(SOURCE_META);
+
+/** 독자 신호 이름표 — 생략(null)은 맥락(context)으로 센다 */
+export const SIGNAL_META = {
+  action: { ko: '행동 필요' },
+  context: { ko: '맥락' },
+  noise: { ko: '지나가는 소란' },
+} as const;
+
+export const signalCounts = (items: Item[]) => ({
+  action: items.filter((it) => it.signal === 'action').length,
+  context: items.filter((it) => !it.signal).length,
+  noise: items.filter((it) => it.signal === 'noise').length,
+});
+
+/** 상태판 상태 이름표 */
+export const STATUS_META = {
+  changed: { ko: '변경' },
+  watch: { ko: '주시' },
+  stable: { ko: '안정' },
+} as const;
+
+export const sortBoards = (boards: Board[]) =>
+  [...boards].sort((a, b) => a.data.order - b.data.order);
+
+/** 모든 보드의 변경 이력을 최신순 한 줄로 편다 */
+export const flattenChangelog = (boards: Board[]) =>
+  boards
+    .flatMap((b) =>
+      b.data.changelog.map((entry) => ({ board: b.data.title, slug: b.data.slug, ...entry })),
+    )
+    .sort((a, b) => b.date.localeCompare(a.date));
 
 export const fmtDate = (iso: string) => iso.replaceAll('-', '.');
 

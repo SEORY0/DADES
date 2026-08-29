@@ -13,7 +13,8 @@
       "origin": "퀘이사존",
       "tags": ["hardware", "culture"],
       "summary": "GPT-5.6 Sol로 설계했다는 CPU 'Codex-R32'가 가상 샌드박스에서 둠을 실행함. RV32IM을 단순화한 구조로, 물리 칩이 아니라 회로 시뮬레이션 검증이고 속도도 실제 프로세서에 한참 못 미침. 원 출처가 중국 매체 보도의 번역이라 개발자의 1차 게시물은 확인되지 않음.",
-      "note": null
+      "note": null,
+      "signal": "noise"
     },
     {
       "id": "i1-webmcp",
@@ -23,7 +24,8 @@
       "origin": "OpenAI",
       "tags": ["agents", "browser-agents", "mcp"],
       "summary": "OpenAI가 Chrome·Cloudflare·Shopify 등과 여는 10일짜리 WebMCP 해커톤. 웹페이지가 navigator.modelContext API로 에이전트에게 도구를 직접 노출하는 W3C 드래프트 표준을 겨냥함. 상금 3만 5천 달러, 제출 마감은 9월 3일(PT).",
-      "note": "마감이 9월 3일이라 뛰어들 거면 이번 주가 끝이다."
+      "note": "마감이 9월 3일이라 뛰어들 거면 이번 주가 끝이다.",
+      "signal": "action"
     },
     {
       "id": "i1-prompt-guide",

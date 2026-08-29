@@ -1,5 +1,5 @@
 ---
-import { SOURCE_META, clipPayload, fmtDate, issueHref, issueNo, tagHref, type FlatItem } from '../lib/mag';
+import { SIGNAL_META, SOURCE_META, clipPayload, fmtDate, issueHref, issueNo, tagHref, type FlatItem } from '../lib/mag';
 
 interface Props {
   flat: FlatItem;
@@ -16,13 +16,16 @@ const payload = JSON.stringify(clipPayload(flat));
 const Heading = headingLevel;
 ---
 
-<article class="entry" id={item.id}>
+<article class="entry" id={item.id} data-tags={item.tags.join(',')}>
   <div class="entry-top">
     <div class="entry-headline">
       <Heading class="entry-title">
         <a href={item.url} target="_blank" rel="noopener">{item.title}</a>
       </Heading>
       <span class="entry-meta">{source.ko}{item.origin && ` · ${item.origin}`}</span>
+      {item.signal && (
+        <span class={`signal-chip sig-${item.signal}`}>{SIGNAL_META[item.signal].ko}</span>
+      )}
     </div>
     <button
       class="clip-btn"

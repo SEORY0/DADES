@@ -32,10 +32,21 @@ const totals = SOURCE_ORDER.map((key) => ({
     지금까지 {totals.map((t) => `${t.meta.ko} ${t.count}`).join(' · ')} · 태그 {tags.length}
   </p>
 
+  <p class="index-hint">
+    ★로 관심 태그를 등록하면 지면에서 해당 항목이 표시되고, 홈의 방문 요약에 적중 여부가
+    함께 나옵니다. 이 브라우저에만 저장됩니다.
+  </p>
+
   <ul class="index-list">
     {
       tags.map(([tag, count]) => (
-        <li>
+        <li class="index-row">
+          <button
+            class="interest-btn"
+            data-interest-tag={tag}
+            aria-pressed="false"
+            aria-label={`관심 태그로 등록: ${tag}`}
+          >★</button>
           <a class="index-line" href={tagHref(tag)}>
             <span class="index-tag">{tag}</span>
             <span class="leader" />
@@ -46,6 +57,47 @@ const totals = SOURCE_ORDER.map((key) => ({
     }
   </ul>
 </Base>
+
+<script>
+  // 관심 태그 토글 — localStorage에만 저장, 서버 전송 없음
+  const INTEREST_KEY = 'dades:interests:v1';
+
+  function read(): string[] {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(INTEREST_KEY) ?? '[]');
+      if (Array.isArray(parsed)) return parsed.filter((t) => typeof t === 'string');
+    } catch {}
+    return [];
+  }
+
+  function write(tags: string[]) {
+    try {
+      localStorage.setItem(INTEREST_KEY, JSON.stringify(tags));
+    } catch {}
+  }
+
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.interest-btn[data-interest-tag]');
+
+  function sync() {
+    const interests = new Set(read());
+    buttons.forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(interests.has(btn.dataset.interestTag!)));
+    });
+  }
+
+  buttons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const tag = btn.dataset.interestTag!;
+      const interests = new Set(read());
+      interests.has(tag) ? interests.delete(tag) : interests.add(tag);
+      write([...interests]);
+      sync();
+    }),
+  );
+
+  sync();
+  window.addEventListener('pageshow', sync);
+</script>
 
 <script>
   // Pagefind 전문 검색 — 인덱스는 빌드 시 생성되므로(dev에는 없음) 있을 때만 붙인다.

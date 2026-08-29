@@ -3,11 +3,13 @@ import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Entry from '../../components/Entry.astro';
 import {
+  SIGNAL_META,
   SOURCE_META,
   SOURCE_ORDER,
   fmtDate,
   issueHref,
   issueNo,
+  signalCounts,
   sortIssues,
   type Issue,
 } from '../../lib/mag';
@@ -43,6 +45,9 @@ const sections = SOURCE_ORDER.map((key) => ({
 // 섹션 수가 아이템 수의 절반을 넘으면 섹션 없이 수록 순서대로 편성한다.
 const useSections = sections.length <= items.length / 2;
 
+const signals = signalCounts(items);
+const firstAction = items.find((it) => it.signal === 'action');
+
 const flat = (item: (typeof items)[number]) => ({
   item,
   issue: { number, title, date },
@@ -60,6 +65,35 @@ const flat = (item: (typeof items)[number]) => ({
       </div>
       <h1>{title}</h1>
       {intro && <p class="issue-intro">{intro}</p>}
+
+      <div class="signal-row" role="group" aria-label="이번 호 신호">
+        <div class="signal-bar" aria-hidden="true">
+          {signals.action > 0 && <span class="seg-action" style={`flex-grow:${signals.action}`} />}
+          {signals.context > 0 && <span class="seg-context" style={`flex-grow:${signals.context}`} />}
+          {signals.noise > 0 && <span class="seg-noise" style={`flex-grow:${signals.noise}`} />}
+        </div>
+        <p class="signal-legend">
+          {
+            firstAction ? (
+              <a href={`#${firstAction.id}`}>
+                <span class="key key-action" aria-hidden="true" /> {SIGNAL_META.action.ko}{' '}
+                {signals.action}
+              </a>
+            ) : (
+              <span>
+                <span class="key key-action" aria-hidden="true" /> {SIGNAL_META.action.ko} 0
+              </span>
+            )
+          }
+          <span>
+            <span class="key key-context" aria-hidden="true" /> {SIGNAL_META.context.ko}{' '}
+            {signals.context}
+          </span>
+          <span>
+            <span class="key key-noise" aria-hidden="true" /> {SIGNAL_META.noise.ko} {signals.noise}
+          </span>
+        </p>
+      </div>
     </header>
 
     {

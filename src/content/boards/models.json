@@ -1,0 +1,30 @@
+{
+  "slug": "models",
+  "title": "모델",
+  "question": "신모델 소식은 어디까지 챙기면 되나",
+  "updated": "2026-08-30",
+  "order": 2,
+  "rows": [
+    {
+      "id": "release-rule",
+      "area": "신모델 발표 대응",
+      "pick": "이틀 뒤에 본다",
+      "status": "stable",
+      "since": "2026-08-30",
+      "note": "발표 당일의 자체 벤치마크는 건너뛰고, 이틀 뒤에도 남는 독립 검증만 본다. 이 상태판이 안 바뀌었다면 갈아탈 이유도 없는 것.",
+      "url": null
+    },
+    {
+      "id": "closed-size",
+      "area": "비공개 모델 크기 읽기",
+      "pick": "IKP 간접 추정 (Trillion Labs)",
+      "status": "watch",
+      "since": "2026-08-30",
+      "note": "희귀 지식 문제 정답률로 크기를 재는 간접 추정. 1T 초과 구간은 오차가 크다고 스스로 밝힘. 참고용으로만.",
+      "url": "https://blog.trillionlabs.co/posts/estimating-closed-source-llm-parameters/"
+    }
+  ],
+  "changelog": [
+    { "date": "2026-08-30", "text": "상태판 개설. 신모델 발표를 다루는 기본 규칙을 기록함.", "issue": 1 }
+  ]
+}

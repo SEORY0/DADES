@@ -25,6 +25,7 @@ const ogImage = new URL(href('/og.png'), Astro.site);
 
 const nav = [
   { key: 'home', label: '발행 목록', to: href('/') },
+  { key: 'status', label: '상태판', to: href('/status/') },
   { key: 'archive', label: 'Index', to: href('/archive/') },
   { key: 'clippings', label: '스크랩북', to: href('/clippings/'), clipCount: true },
   { key: 'about', label: '소개', to: href('/about/') },
@@ -196,6 +197,37 @@ const nav = [
       window.addEventListener('storage', (e) => {
         if (e.key === CLIP_KEY || e.key === null) syncClipUi();
       });
+
+      // ---------- 방문 기준선 ----------
+      // "지난 방문 이후" 계산의 기준. 세션 안에서는 기준선을 고정해
+      // 페이지를 오가도 홈의 방문 요약이 사라지지 않는다. (홈 스크립트와 같은 멱등 초기화)
+      const SEEN_KEY = 'dades:last-seen';
+      const BASELINE_KEY = 'dades:baseline';
+      try {
+        if (sessionStorage.getItem(BASELINE_KEY) === null) {
+          sessionStorage.setItem(BASELINE_KEY, localStorage.getItem(SEEN_KEY) ?? '');
+        }
+        localStorage.setItem(SEEN_KEY, new Date().toISOString().slice(0, 10));
+      } catch {}
+
+      // ---------- 관심 태그 하이라이트 ----------
+      const INTEREST_KEY = 'dades:interests:v1';
+
+      function readInterests(): string[] {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(INTEREST_KEY) ?? '[]');
+          if (Array.isArray(parsed)) return parsed.filter((t) => typeof t === 'string');
+        } catch {}
+        return [];
+      }
+
+      const interests = new Set(readInterests());
+      if (interests.size > 0) {
+        document.querySelectorAll<HTMLElement>('.entry[data-tags]').forEach((entry) => {
+          const tags = (entry.dataset.tags ?? '').split(',');
+          if (tags.some((t) => interests.has(t))) entry.classList.add('is-interest');
+        });
+      }
 
       document.addEventListener('click', (e) => {
         const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.clip-btn[data-clip-id]');

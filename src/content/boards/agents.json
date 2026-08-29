@@ -1,0 +1,39 @@
+{
+  "slug": "agents",
+  "title": "에이전트",
+  "question": "지금 에이전트 쪽에서 뭘 쓰고, 뭘 지켜보면 되나",
+  "updated": "2026-08-30",
+  "order": 1,
+  "rows": [
+    {
+      "id": "coding",
+      "area": "코딩 에이전트",
+      "pick": "Claude Code",
+      "status": "stable",
+      "since": "2026-08-30",
+      "note": "이 매거진의 편집 루틴(/curate)이 실제로 돌아가는 도구. 대안 비교는 갈아탈 이유가 생겼을 때만 다룬다.",
+      "url": "https://www.claude.com/product/claude-code"
+    },
+    {
+      "id": "web-standard",
+      "area": "웹 에이전트 표준",
+      "pick": "WebMCP (W3C 드래프트)",
+      "status": "watch",
+      "since": "2026-08-30",
+      "note": "페이지가 navigator.modelContext로 에이전트에게 도구를 직접 노출하는 표준. №01의 챌린지 이후 채택이 번지는지 보는 중.",
+      "url": "https://openai.com/ko-KR/webmcp-challenge/"
+    },
+    {
+      "id": "prompt-ref",
+      "area": "프롬프트 참고 자료",
+      "pick": "dair-ai/Prompt-Engineering-Guide",
+      "status": "stable",
+      "since": "2026-08-30",
+      "note": "넓고 무난한 기본 자료집. 마지막 push가 2026년 3월이라 최신 기법은 갱신 시점을 따로 확인할 것.",
+      "url": "https://github.com/dair-ai/Prompt-Engineering-Guide"
+    }
+  ],
+  "changelog": [
+    { "date": "2026-08-30", "text": "상태판 개설. №01 기준 초기 상태를 기록함.", "issue": 1 }
+  ]
+}

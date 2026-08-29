@@ -1,0 +1,101 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { STATUS_META, flattenChangelog, fmtDate, issueHref, issueNo, sortBoards } from '../lib/mag';
+
+const boards = sortBoards(await getCollection('boards'));
+const rows = boards.flatMap((b) => b.data.rows);
+const updated = boards.map((b) => b.data.updated).sort().at(-1) ?? '';
+const count = (s: string) => rows.filter((r) => r.status === s).length;
+const changelog = flattenChangelog(boards);
+
+const stats = [
+  { label: '기준일', value: fmtDate(updated) },
+  { label: '항목', value: String(rows.length) },
+  { label: '안정', value: String(count('stable')) },
+  { label: '주시', value: String(count('watch')) },
+  { label: '최근 변경', value: String(count('changed')) },
+];
+---
+
+<Base
+  title="상태판"
+  description="뉴스가 아니라 현재 상태. 지금 뭘 쓰면 되는지에 대한 에디터의 답과 변경 이력."
+  active="status"
+>
+  <header class="page-head">
+    <h1 class="page-title">상태판</h1>
+    <p class="page-desc">
+      뉴스는 흘러가고, 여기에는 현재 답만 남습니다. 이 판이 바뀌지 않았다면 그 주의 소식은
+      몰라도 됩니다. 변경은 아래 이력에 근거가 실린 호와 함께 기록됩니다.
+    </p>
+  </header>
+
+  <div class="stat-row" role="group" aria-label="상태판 요약">
+    {
+      stats.map((s) => (
+        <div class="stat-cell">
+          <span class="stat-value">{s.value}</span>
+          <span class="stat-label">{s.label}</span>
+        </div>
+      ))
+    }
+  </div>
+
+  {
+    boards.map((board) => (
+      <section class="board" aria-label={board.data.title}>
+        <h2 class="board-title">
+          {board.data.title}
+          <span class="board-question">{board.data.question}</span>
+        </h2>
+        <div class="board-grid" role="table">
+          <div class="board-row board-row-head" role="row">
+            <span role="columnheader">영역</span>
+            <span role="columnheader">현재 답</span>
+            <span role="columnheader">상태</span>
+            <span role="columnheader">기준</span>
+          </div>
+          {board.data.rows.map((row) => (
+            <div class="board-row" role="row" id={`${board.data.slug}-${row.id}`}>
+              <span class="board-area" role="cell">{row.area}</span>
+              <span class="board-pick" role="cell">
+                {row.url ? (
+                  <a href={row.url} target="_blank" rel="noopener">{row.pick}</a>
+                ) : (
+                  <strong>{row.pick}</strong>
+                )}
+                {row.note && <span class="board-note">{row.note}</span>}
+              </span>
+              <span class={`board-status st-${row.status}`} role="cell">
+                <span class="st-dot" aria-hidden="true"></span>
+                {STATUS_META[row.status].ko}
+              </span>
+              <span class="board-since" role="cell">{fmtDate(row.since)}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    ))
+  }
+
+  <section aria-label="변경 이력">
+    <h2 class="board-title delta-title">변경 이력</h2>
+    <ol class="delta-list">
+      {
+        changelog.map((entry) => (
+          <li class="delta-item">
+            <span class="delta-date">{fmtDate(entry.date)}</span>
+            <span class="delta-body">
+              <span class="delta-board">{entry.board}</span>
+              {entry.text}
+              {entry.issue != null && (
+                <a class="delta-ref" href={issueHref(entry.issue)}>{issueNo(entry.issue)}</a>
+              )}
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</Base>

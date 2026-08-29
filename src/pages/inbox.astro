@@ -1,0 +1,184 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="수집함" description="공유받은 링크를 다음 호 후보로 보내는 곳.">
+  <header class="page-head">
+    <h1 class="page-title">수집함</h1>
+    <p class="page-desc">
+      여기서 보낸 링크는 GitHub의 <code>inbox</code> 이슈로 쌓이고, 다음 호를 엮을 때
+      편집 후보가 됩니다.
+    </p>
+  </header>
+
+  <section class="inbox-form" data-inbox-form hidden>
+    <p class="inbox-label" data-inbox-url-label>공유받은 링크</p>
+    <p class="inbox-url"><a data-inbox-url target="_blank" rel="noopener"></a></p>
+    <p class="inbox-nourl" data-inbox-nourl hidden>
+      공유받은 내용에서 링크를 찾지 못했습니다 — 아래 메모만 보냅니다.
+    </p>
+
+    <label class="inbox-label" for="inbox-memo">메모 (선택) — 에디터 노트에 반영됩니다</label>
+    <textarea id="inbox-memo" data-inbox-memo rows="3"></textarea>
+
+    <p class="inbox-actions">
+      <a class="inbox-send" data-inbox-send target="_blank" rel="noopener">GitHub 수집함에 등록 →</a>
+    </p>
+    <p class="inbox-hint">
+      GitHub 이슈 화면이 열리면 <strong>Submit new issue</strong>만 누르면 됩니다. 등록 후 이
+      창은 닫아도 됩니다.
+    </p>
+  </section>
+
+  <section class="prose" data-inbox-guide>
+    <p class="lede">
+      이 페이지는 안드로이드 공유 시트의 수신처입니다. DADES를 앱으로 설치해 두면 어떤
+      앱에서든 공유 버튼으로 링크를 수집함에 던질 수 있습니다.
+    </p>
+
+    <h2>설치 (갤럭시 기준)</h2>
+    <ul>
+      <li>Chrome으로 이 사이트를 엽니다. 삼성 인터넷은 공유 시트 등록이 안 될 수 있습니다.</li>
+      <li>메뉴 <code>⋮</code> → <strong>홈 화면에 추가</strong> → <strong>설치</strong>.</li>
+      <li>이후 아무 앱에서나 공유 → 목록에서 <strong>DADES</strong>를 고르면 됩니다.</li>
+    </ul>
+
+    <h2>보낸 다음</h2>
+    <ul>
+      <li>
+        링크는
+        <a
+          href="https://github.com/seory0/DADES/issues?q=is%3Aissue+label%3Ainbox"
+          target="_blank"
+          rel="noopener">inbox 이슈</a
+        >로 쌓입니다.
+      </li>
+      <li><code>/curate</code>가 다음 호를 엮을 때 <code>inbox.md</code>와 함께 읽고, 지면에 실은 링크의 이슈를 닫습니다.</li>
+    </ul>
+  </section>
+
+  <noscript>
+    <p class="inbox-hint">공유 수신 기능은 JavaScript가 필요합니다.</p>
+  </noscript>
+</Base>
+
+<style>
+  .inbox-form {
+    border: 1px solid var(--rule);
+    padding: 18px 20px 16px;
+    margin-bottom: 28px;
+  }
+
+  .inbox-label {
+    display: block;
+    font-size: var(--fs-small);
+    color: var(--muted);
+    margin: 0 0 4px;
+  }
+
+  .inbox-url {
+    margin: 0 0 16px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    word-break: break-all;
+  }
+
+  .inbox-nourl {
+    margin: 0 0 16px;
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+
+  .inbox-form textarea {
+    width: 100%;
+    font: inherit;
+    line-height: 1.6;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 8px 10px;
+    resize: vertical;
+  }
+
+  .inbox-actions {
+    margin: 14px 0 0;
+  }
+
+  .inbox-send {
+    display: inline-block;
+    border: 1px solid var(--link);
+    border-radius: 2px;
+    padding: 7px 16px;
+    color: var(--link);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .inbox-send:hover {
+    background: var(--wash);
+  }
+
+  .inbox-hint {
+    margin: 10px 0 0;
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+</style>
+
+<script>
+  const qs = new URLSearchParams(location.search);
+  const rawTitle = (qs.get('title') ?? '').trim();
+  const rawText = (qs.get('text') ?? '').trim();
+  const rawUrl = (qs.get('url') ?? '').trim();
+  const hasShare = Boolean(rawTitle || rawText || rawUrl);
+
+  if (hasShare) {
+    const formEl = document.querySelector<HTMLElement>('[data-inbox-form]')!;
+    const guideEl = document.querySelector<HTMLElement>('[data-inbox-guide]')!;
+    const urlLabelEl = document.querySelector<HTMLElement>('[data-inbox-url-label]')!;
+    const urlRowEl = document.querySelector<HTMLElement>('.inbox-url')!;
+    const urlEl = document.querySelector<HTMLAnchorElement>('[data-inbox-url]')!;
+    const nourlEl = document.querySelector<HTMLElement>('[data-inbox-nourl]')!;
+    const memoEl = document.querySelector<HTMLTextAreaElement>('[data-inbox-memo]')!;
+    const sendEl = document.querySelector<HTMLAnchorElement>('[data-inbox-send]')!;
+
+    formEl.hidden = false;
+    guideEl.hidden = true;
+
+    const firstUrl = (s: string) => s.match(/https?:\/\/[^\s"'<>)\]]+/)?.[0] ?? null;
+    // 앱마다 URL이 실리는 자리가 다르다 — url 파라미터, 없으면 text, 그다음 title에서 찾는다
+    const url =
+      (/^https?:\/\//.test(rawUrl) ? rawUrl : null) ?? firstUrl(rawText) ?? firstUrl(rawTitle);
+
+    if (url) {
+      urlEl.textContent = url;
+      urlEl.href = url;
+    } else {
+      urlLabelEl.hidden = true;
+      urlRowEl.hidden = true;
+      nourlEl.hidden = false;
+    }
+
+    // 본문에서 URL을 뺀 나머지를 메모 초안으로 — 공유 제목은 이슈 제목으로 가므로 중복시키지 않는다
+    const leftover = (url ? rawText.split(url).join(' ') : rawText).trim();
+    memoEl.value = leftover === url || leftover === rawTitle ? '' : leftover;
+
+    const issueTitle = () => {
+      const t = rawTitle || memoEl.value.split('\n')[0].trim() || url || '수집함 링크';
+      return t.length > 80 ? `${t.slice(0, 79)}…` : t;
+    };
+
+    function updateSend() {
+      const memo = memoEl.value.trim();
+      const gh = new URL('https://github.com/seory0/DADES/issues/new');
+      gh.searchParams.set('labels', 'inbox');
+      gh.searchParams.set('title', issueTitle());
+      gh.searchParams.set('body', [url, memo].filter(Boolean).join('\n\n'));
+      sendEl.href = gh.toString();
+    }
+
+    memoEl.addEventListener('input', updateSend);
+    updateSend();
+  }
+</script>

@@ -1,0 +1,23 @@
+{
+  "name": "DADES 매거진",
+  "short_name": "DADES",
+  "description": "사람이 고르고 클로드가 엮는 AI 주간지. 공유 시트로 링크를 수집함에 보낼 수 있다.",
+  "lang": "ko",
+  "id": "/DADES/",
+  "start_url": "/DADES/",
+  "scope": "/DADES/",
+  "display": "standalone",
+  "background_color": "#f7f7f2",
+  "theme_color": "#f7f7f2",
+  "icons": [
+    { "src": "/DADES/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/DADES/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/DADES/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/DADES/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "share_target": {
+    "action": "/DADES/inbox/",
+    "method": "GET",
+    "params": { "title": "title", "text": "text", "url": "url" }
+  }
+}

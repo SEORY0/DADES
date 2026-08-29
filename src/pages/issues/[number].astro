@@ -39,37 +39,51 @@ const sections = SOURCE_ORDER.map((key) => ({
   items: items.filter((it) => it.source === key),
 })).filter((s) => s.items.length > 0);
 
+// 단독 섹션 위주의 호는 헤딩이 본문보다 무거워진다 —
+// 섹션 수가 아이템 수의 절반을 넘으면 섹션 없이 수록 순서대로 편성한다.
+const useSections = sections.length <= items.length / 2;
+
 const flat = (item: (typeof items)[number]) => ({
   item,
   issue: { number, title, date },
 });
 ---
 
-<Base title={`Issue ${issueNo(number)} — ${title}`} description={intro} active="home">
-  <header class="issue-head">
-    <div class="issue-kicker">
-      <span class="no">Issue {issueNo(number)}</span>
-      <span>{fmtDate(date)}</span>
-      {period && <span>수집 기간 {period}</span>}
-      <span>아이템 {items.length}</span>
-    </div>
-    <h1>{title}</h1>
-    {intro && <p class="issue-intro">{intro}</p>}
-  </header>
+<Base title={`Issue ${issueNo(number)} — ${title}`} description={intro} active="home" ogType="article">
+  <div data-pagefind-body>
+    <header class="issue-head">
+      <div class="issue-kicker">
+        <span class="no">Issue {issueNo(number)}</span>
+        <span>{fmtDate(date)}</span>
+        {period && <span>수집 기간 {period}</span>}
+        <span>아이템 {items.length}</span>
+      </div>
+      <h1>{title}</h1>
+      {intro && <p class="issue-intro">{intro}</p>}
+    </header>
 
-  {
-    sections.map((section) => (
-      <section aria-label={section.meta.ko}>
-        <h2 class="section-heading">
-          {section.meta.ko}
-          <span class="count">{section.items.length}</span>
-        </h2>
-        {section.items.map((item) => (
-          <Entry flat={flat(item)} />
-        ))}
-      </section>
-    ))
-  }
+    {
+      useSections ? (
+        sections.map((section) => (
+          <section aria-label={section.meta.ko}>
+            <h2 class="section-heading">
+              {section.meta.ko}
+              <span class="count">{section.items.length}</span>
+            </h2>
+            {section.items.map((item) => (
+              <Entry flat={flat(item)} />
+            ))}
+          </section>
+        ))
+      ) : (
+        <section aria-label="이번 호 수록" class="flat-entries">
+          {items.map((item) => (
+            <Entry flat={flat(item)} headingLevel="h2" />
+          ))}
+        </section>
+      )
+    }
+  </div>
 
   <nav class="issue-pager" aria-label="이슈 넘기기">
     <span>

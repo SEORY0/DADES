@@ -26,6 +26,8 @@ const totals = SOURCE_ORDER.map((key) => ({
     </p>
   </header>
 
+  <div class="index-search" data-index-search hidden></div>
+
   <p class="index-totals">
     지금까지 {totals.map((t) => `${t.meta.ko} ${t.count}`).join(' · ')} · 태그 {tags.length}
   </p>
@@ -44,3 +46,43 @@ const totals = SOURCE_ORDER.map((key) => ({
     }
   </ul>
 </Base>
+
+<script>
+  // Pagefind 전문 검색 — 인덱스는 빌드 시 생성되므로(dev에는 없음) 있을 때만 붙인다.
+  import { href } from '../../lib/mag';
+
+  const mount = document.querySelector<HTMLElement>('[data-index-search]')!;
+  const uiCss = href('/pagefind/pagefind-ui.css');
+  const uiJs = href('/pagefind/pagefind-ui.js');
+
+  fetch(uiJs, { method: 'HEAD' })
+    .then((res) => {
+      if (!res.ok) return;
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = uiCss;
+      document.head.append(link);
+
+      const script = document.createElement('script');
+      script.src = uiJs;
+      script.onload = () => {
+        new (window as any).PagefindUI({
+          element: mount,
+          showSubResults: false,
+          showImages: false,
+          translations: {
+            placeholder: '지면 전문 검색',
+            clear_search: '지우기',
+            load_more: '더 보기',
+            zero_results: '“[SEARCH_TERM]” 결과 없음',
+            many_results: '“[SEARCH_TERM]” 결과 [COUNT]건',
+            one_result: '“[SEARCH_TERM]” 결과 1건',
+            searching: '검색 중…',
+          },
+        });
+        mount.hidden = false;
+      };
+      document.head.append(script);
+    })
+    .catch(() => {});
+</script>

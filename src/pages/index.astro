@@ -5,32 +5,59 @@ import Masthead from '../components/Masthead.astro';
 import { fmtDate, issueHref, issueNo, sortIssues } from '../lib/mag';
 
 const issues = sortIssues(await getCollection('issues'));
+const [latest, ...older] = issues;
 ---
 
 <Base title="발행 목록" active="home">
   <Masthead />
-  <table class="issue-table">
-    <thead>
-      <tr>
-        <th scope="col"><span class="sr-only">호수</span></th>
-        <th scope="col">제목</th>
-        <th scope="col" class="col-count">아이템</th>
-        <th scope="col">발행일</th>
-      </tr>
-    </thead>
-    <tbody>
-      {
-        issues.map((issue) => (
-          <tr>
-            <td class="col-no">{issueNo(issue.data.number)}</td>
-            <td>
-              <a href={issueHref(issue.data.number)}>{issue.data.title}</a>
-            </td>
-            <td class="col-count">{issue.data.items.length}</td>
-            <td class="col-date">{fmtDate(issue.data.date)}</td>
-          </tr>
-        ))
-      }
-    </tbody>
-  </table>
+
+  {
+    latest && (
+      <section class="latest" aria-label="이번 호">
+        <p class="latest-kicker">
+          이번 호 · {issueNo(latest.data.number)} · {fmtDate(latest.data.date)} · 아이템{' '}
+          {latest.data.items.length}
+        </p>
+        <h2 class="latest-title">
+          <a href={issueHref(latest.data.number)}>{latest.data.title}</a>
+        </h2>
+        {latest.data.intro && <p class="latest-intro">{latest.data.intro}</p>}
+        <p class="latest-items">{latest.data.items.map((it) => it.title).join('  ·  ')}</p>
+      </section>
+    )
+  }
+
+  {
+    older.length > 0 && (
+      <>
+        <h2 class="past-heading">지난 호</h2>
+        <table class="issue-table">
+          <thead>
+            <tr>
+              <th scope="col">
+                <span class="sr-only">호수</span>
+              </th>
+              <th scope="col">제목</th>
+              <th scope="col" class="col-count">
+                아이템
+              </th>
+              <th scope="col">발행일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {older.map((issue) => (
+              <tr>
+                <td class="col-no">{issueNo(issue.data.number)}</td>
+                <td>
+                  <a href={issueHref(issue.data.number)}>{issue.data.title}</a>
+                </td>
+                <td class="col-count">{issue.data.items.length}</td>
+                <td class="col-date">{fmtDate(issue.data.date)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </>
+    )
+  }
 </Base>

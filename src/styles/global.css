@@ -22,11 +22,13 @@
   --font-mono: ui-monospace, 'SFMono-Regular', consolas, 'Liberation Mono', monospace;
 
   /* 크기는 세 단계로 끝낸다 */
-  --fs-body: 15px;
+  --fs-body: 16px;
   --fs-small: 13px;
   --fs-title: 21px;
 
   --measure: 660px;
+
+  color-scheme: light;
 }
 
 [data-theme='white'] {
@@ -36,6 +38,7 @@
 }
 
 [data-theme='ink'] {
+  color-scheme: dark;
   --paper: #1a1917;
   --ink: #e8e4d9;
   --ink-soft: #c9c4b4;
@@ -349,6 +352,46 @@ button {
   color: var(--ink-soft);
 }
 
+/* ---------- 이번 호 (홈 리드) ---------- */
+.latest {
+  padding: 2px 0 24px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 28px;
+}
+
+.latest-kicker {
+  margin: 0;
+  font-size: var(--fs-small);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.latest-title {
+  font-size: var(--fs-title);
+  margin-top: 4px;
+}
+
+.latest-intro {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+}
+
+.latest-items {
+  margin: 10px 0 0;
+  font-size: var(--fs-small);
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.past-heading {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
 /* ---------- 발행 목록 (홈) ---------- */
 .issue-table {
   width: 100%;
@@ -424,6 +467,10 @@ button {
   font-weight: 400;
   font-size: var(--fs-small);
   color: var(--muted);
+}
+
+.flat-entries .entry:first-child {
+  padding-top: 26px;
 }
 
 .entry {
@@ -651,6 +698,21 @@ a.tag-link:hover {
   font-size: var(--fs-body);
   margin: 0 0 4px;
   color: var(--ink);
+}
+
+/* ---------- 지면 검색 (Index, Pagefind) ---------- */
+.index-search {
+  margin-bottom: 20px;
+  --pagefind-ui-scale: 0.9;
+  --pagefind-ui-primary: var(--link);
+  --pagefind-ui-text: var(--ink);
+  --pagefind-ui-background: var(--paper);
+  --pagefind-ui-border: var(--rule);
+  --pagefind-ui-tag: var(--rule-soft);
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 2px;
+  --pagefind-ui-image-border-radius: 2px;
+  --pagefind-ui-font: var(--font-body);
 }
 
 /* ---------- 산문 ---------- */

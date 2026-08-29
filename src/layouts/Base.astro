@@ -8,13 +8,20 @@ interface Props {
   description?: string;
   /** 헤더에서 현재 위치 표시: home | archive | clippings | about */
   active?: string;
+  /** OG 타입 — 이슈 지면은 article */
+  ogType?: 'website' | 'article';
 }
 
 const {
   title,
   description = '사람이 고르고 클로드가 엮는 AI 주간지, DADES 매거진.',
   active,
+  ogType = 'website',
 } = Astro.props;
+
+// 디렉터리형 URL로 통일 — sitemap 표기와 캐노니컬을 일치시킨다
+const canonical = new URL(Astro.url.pathname.replace(/\/?$/, '/'), Astro.site);
+const ogImage = new URL(href('/og.png'), Astro.site);
 
 const nav = [
   { key: 'home', label: '발행 목록', to: href('/') },
@@ -31,6 +38,26 @@ const nav = [
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} — DADES 매거진</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:site_name" content="DADES 매거진" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="DADES 매거진"
+      href={href('/rss.xml')}
+    />
     <link rel="icon" type="image/svg+xml" href={href('/favicon.svg')} />
     <link rel="manifest" href={href('/manifest.webmanifest')} />
     <link rel="apple-touch-icon" href={href('/icons/apple-touch-icon.png')} />
@@ -47,12 +74,17 @@ const nav = [
     />
     <script is:inline>
       // 테마 초기화 — 첫 페인트 전에 적용해 깜빡임을 막는다.
+      // 저장된 선택이 없으면 시스템 다크모드를 따른다.
       (function () {
         try {
           var t = localStorage.getItem('dades:theme');
-          if (t === 'paper' || t === 'white' || t === 'ink') {
-            document.documentElement.setAttribute('data-theme', t);
+          if (t !== 'paper' && t !== 'white' && t !== 'ink') {
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'ink' : 'paper';
           }
+          document.documentElement.setAttribute('data-theme', t);
+          var bar = { paper: '#f7f7f2', white: '#ffffff', ink: '#1a1917' };
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', bar[t]);
         } catch (e) {}
       })();
     </script>
@@ -87,7 +119,8 @@ const nav = [
       <div class="container">
         <span class="foot-line">
           DADES — Do Agents Dream of Electric Sheep? ·
-          <a href="https://github.com/seory0/DADES" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/seory0/DADES" target="_blank" rel="noopener">GitHub</a> ·
+          <a href={href('/rss.xml')}>RSS</a>
         </span>
         <div class="theme-row" role="group" aria-label="지면 색 고르기">
           <button class="theme-swatch" data-set-theme="paper" aria-pressed="true" aria-label="종이색 테마" title="paper"></button>
@@ -102,8 +135,11 @@ const nav = [
       const THEME_KEY = 'dades:theme';
       const swatches = document.querySelectorAll<HTMLButtonElement>('.theme-swatch');
 
+      const THEME_BAR: Record<string, string> = { paper: '#f7f7f2', white: '#ffffff', ink: '#1a1917' };
+
       function applyTheme(theme: string) {
         document.documentElement.setAttribute('data-theme', theme);
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_BAR[theme]);
         swatches.forEach((b) =>
           b.setAttribute('aria-pressed', String(b.dataset.setTheme === theme)),
         );

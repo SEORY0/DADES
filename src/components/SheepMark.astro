@@ -1,0 +1,33 @@
+---
+// 전기양 글리프 — 양털 구름 + 번개 꼬리. currentColor로 그려져 어디서든 잉크색을 따른다.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 50 34"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden="true"
+>
+  <g stroke="currentColor" stroke-width="2">
+    <circle cx="17" cy="15" r="7" />
+    <circle cx="25" cy="11" r="7" />
+    <circle cx="32" cy="15" r="6.5" />
+    <circle cx="23" cy="18" r="7.5" />
+  </g>
+  <rect x="37" y="10.5" width="9" height="7" rx="3.2" fill="currentColor" />
+  <path d="M39 10.5l-1.6-3M44 10.5l1.6-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  <path d="M19 26v6M29 26v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  <path
+    class="sheep-bolt"
+    d="M10 13l-5.5 3.8 4 1.4-5.5 4.6"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

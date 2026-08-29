@@ -1,0 +1,89 @@
+{
+  "number": 1,
+  "title": "에이전트는 브라우저를 연다",
+  "date": "2026-08-22",
+  "period": "2026.08.16 – 08.22",
+  "intro": "이번 호는 도구 상자를 열었습니다. 터미널에서, 브라우저에서, 이슈 트래커에서 — 에이전트가 사람의 작업 공간으로 걸어 들어오는 장면들을 모았습니다. (데모 큐레이션)",
+  "items": [
+    {
+      "id": "i1-claude-code-repo",
+      "title": "anthropics/claude-code",
+      "url": "https://github.com/anthropics/claude-code",
+      "source": "repo",
+      "origin": "GitHub",
+      "tags": ["claude-code", "coding-agents", "agents"],
+      "summary": "Claude Code의 공개 저장소. 이슈 트래커만 훑어도 사람들이 코딩 에이전트를 어떻게 길들이고 있는지가 보입니다. 훅, 스킬, MCP 연동 같은 확장 지점이 에이전트를 '도구'에서 '동료'로 밀어 올리는 중입니다.",
+      "note": null
+    },
+    {
+      "id": "i1-browser-use",
+      "title": "browser-use/browser-use",
+      "url": "https://github.com/browser-use/browser-use",
+      "source": "repo",
+      "origin": "GitHub",
+      "tags": ["browser-agents", "agents", "open-source"],
+      "summary": "LLM 에이전트에게 브라우저를 쥐여주는 오픈소스 라이브러리. DOM을 읽고 클릭하고 폼을 채웁니다. 웹이 사람만의 인터페이스이던 시대가 끝나가는 풍경을 가장 가까이서 보여주는 프로젝트 중 하나입니다.",
+      "note": "브라우저를 여는 에이전트 — 이번 호 제목이 여기서 나왔습니다."
+    },
+    {
+      "id": "i1-openhands",
+      "title": "OpenHands/OpenHands",
+      "url": "https://github.com/OpenHands/OpenHands",
+      "source": "repo",
+      "origin": "GitHub",
+      "tags": ["coding-agents", "agents", "open-source"],
+      "summary": "오픈소스 코딩 에이전트로 출발해, 이제는 Claude Code·Codex·Gemini 등 ACP 호환 에이전트를 셀프호스팅으로 굴리는 '개발자 컨트롤 센터'를 표방하는 프로젝트. 에이전트 런타임과 오케스트레이션 설계를 공부하기에 좋은 코드베이스입니다.",
+      "note": null
+    },
+    {
+      "id": "i1-vllm",
+      "title": "vllm-project/vllm",
+      "url": "https://github.com/vllm-project/vllm",
+      "source": "repo",
+      "origin": "GitHub",
+      "tags": ["inference", "open-source"],
+      "summary": "고처리량 LLM 서빙 엔진의 사실상 표준. PagedAttention으로 시작해 이제는 오픈 모델을 프로덕션에 올리는 거의 모든 곳에서 만나게 됩니다. 에이전트를 굴리는 비용의 분모를 만드는 프로젝트.",
+      "note": null
+    },
+    {
+      "id": "i1-llamacpp",
+      "title": "ggml-org/llama.cpp",
+      "url": "https://github.com/ggml-org/llama.cpp",
+      "source": "repo",
+      "origin": "GitHub",
+      "tags": ["local-llm", "inference", "open-source"],
+      "summary": "노트북에서, 심지어 휴대폰에서 LLM을 돌리는 C/C++ 추론 엔진. 로컬 LLM 생태계 전체가 이 저장소 위에 서 있다고 해도 과장이 아닙니다. 전기양을 주머니에 넣고 다니는 방법.",
+      "note": null
+    },
+    {
+      "id": "i1-instruction-hierarchy",
+      "title": "The Instruction Hierarchy: Training LLMs to Prioritize Privileged Instructions",
+      "url": "https://arxiv.org/abs/2404.13208",
+      "source": "paper",
+      "origin": "arXiv",
+      "tags": ["prompt-injection", "agent-security", "alignment"],
+      "summary": "시스템 프롬프트, 개발자, 사용자, 도구 출력 — 지시에도 계급이 있어야 한다는 제안. 프롬프트 인젝션 방어를 모델 훈련 단계로 끌어내린 대표적인 연구로, 에이전트 보안 논의에서 반복해서 인용됩니다.",
+      "note": "도구 출력이 '지시'가 되어서는 안 된다는 원칙, 이 매거진의 루틴에도 해당됩니다."
+    },
+    {
+      "id": "i1-owasp-llm",
+      "title": "OWASP Top 10 for LLM Applications",
+      "url": "https://genai.owasp.org/llm-top-10/",
+      "source": "read",
+      "origin": "OWASP GenAI Security Project",
+      "tags": ["agent-security", "prompt-injection"],
+      "summary": "LLM 애플리케이션의 대표 취약점을 정리한 현행 목록. 개정을 거듭해도 1번은 변함없이 프롬프트 인젝션입니다. 에이전트를 만들거나 쓰는 사람이라면 체크리스트로 한 번은 통과해볼 만합니다.",
+      "note": null
+    },
+    {
+      "id": "i1-karpathy",
+      "title": "Andrej Karpathy (@karpathy)",
+      "url": "https://x.com/karpathy",
+      "source": "sns",
+      "origin": "X",
+      "tags": ["culture", "agents"],
+      "summary": "'vibe coding'이라는 말을 만든 사람의 타임라인. 에이전트 시대의 소프트웨어가 어떻게 변하는지에 대한 가장 영향력 있는 논평이 여전히 이 계정에서 나옵니다. SNS 지면의 데모로 프로필을 실어둡니다 — 실제 발행에서는 개별 포스트를 오려옵니다.",
+      "note": null
+    }
+  ]
+}

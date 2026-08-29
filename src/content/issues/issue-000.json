@@ -1,0 +1,59 @@
+{
+  "number": 0,
+  "title": "창간 준비호 — 전기양 사육 안내서",
+  "date": "2026-08-15",
+  "period": "창간 준비",
+  "intro": "매거진의 이름과 도구를 소개하는 준비호입니다. 앞으로 매주, 사람이 고른 링크를 클로드가 한 호의 지면으로 엮습니다. 이 호를 포함한 초기 발행분은 시스템을 보여주기 위한 데모 큐레이션입니다.",
+  "items": [
+    {
+      "id": "i0-pkd",
+      "title": "Do Androids Dream of Electric Sheep? (1968)",
+      "url": "https://en.wikipedia.org/wiki/Do_Androids_Dream_of_Electric_Sheep%3F",
+      "source": "read",
+      "origin": "Wikipedia",
+      "tags": ["culture"],
+      "summary": "필립 K. 딕의 1968년 소설. 진짜와 만들어진 것 사이의 경계를 묻는 이 질문에서 안드로이드를 에이전트로 바꾼 것이 이 매거진의 이름입니다. 에이전트가 무언가를 꿈꾼다면, 그것이 무엇인지 지켜보는 것이 우리의 일입니다.",
+      "note": "창간호의 첫 항목은 이름의 출처여야 한다고 생각했습니다."
+    },
+    {
+      "id": "i0-claude-code",
+      "title": "Claude Code",
+      "url": "https://www.claude.com/product/claude-code",
+      "source": "tool",
+      "origin": "Anthropic",
+      "tags": ["claude-code", "coding-agents", "dev-tools"],
+      "summary": "터미널과 IDE에서 동작하는 Anthropic의 코딩 에이전트. 이 매거진의 편집부이기도 합니다. 수집함에 쌓인 링크를 읽고, 요약하고, 한 호의 지면으로 엮는 루틴이 Claude Code 위에서 돌아갑니다.",
+      "note": "이 잡지의 지면 어딘가에는 언제나 클로드의 손자국이 있습니다."
+    },
+    {
+      "id": "i0-mcp",
+      "title": "Model Context Protocol",
+      "url": "https://modelcontextprotocol.io",
+      "source": "read",
+      "origin": "modelcontextprotocol.io",
+      "tags": ["mcp", "agents", "open-source"],
+      "summary": "AI 모델을 외부 도구·데이터와 연결하는 개방형 프로토콜. 에이전트 생태계의 배선 규격이 되어가고 있습니다. 에이전트가 무엇과 연결되는지가 곧 에이전트가 무엇을 할 수 있는지를 정의합니다.",
+      "note": null
+    },
+    {
+      "id": "i0-lethal-trifecta",
+      "title": "The lethal trifecta for AI agents",
+      "url": "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/",
+      "source": "read",
+      "origin": "Simon Willison",
+      "tags": ["agent-security", "prompt-injection"],
+      "summary": "사적 데이터 접근, 신뢰할 수 없는 콘텐츠 노출, 외부 전송 능력 — 이 셋이 한 에이전트 안에서 만나면 위험해진다는 간명한 프레임. 에이전트 보안 논의의 출발점으로 삼기 좋은 글입니다.",
+      "note": "이 매거진이 agent-security 태그를 계속 따라가게 될 이유."
+    },
+    {
+      "id": "i0-astro",
+      "title": "Astro",
+      "url": "https://astro.build",
+      "source": "tool",
+      "origin": "astro.build",
+      "tags": ["dev-tools", "open-source"],
+      "summary": "콘텐츠 중심 사이트를 위한 정적 사이트 프레임워크. 이 매거진의 지면이 Astro로 조판됩니다. 이슈 하나가 JSON 파일 하나 — 루틴이 파일을 놓고 가면 사이트가 다시 인쇄됩니다.",
+      "note": null
+    }
+  ]
+}

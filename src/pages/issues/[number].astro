@@ -1,0 +1,110 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Entry from '../../components/Entry.astro';
+import {
+  SOURCE_META,
+  SOURCE_ORDER,
+  fmtDate,
+  issueHref,
+  issueNo,
+  sortIssues,
+  type Issue,
+} from '../../lib/mag';
+
+export async function getStaticPaths() {
+  const issues = sortIssues(await getCollection('issues'));
+  return issues.map((issue, i) => ({
+    params: { number: String(issue.data.number) },
+    props: {
+      issue,
+      newer: issues[i - 1] ?? null,
+      older: issues[i + 1] ?? null,
+    },
+  }));
+}
+
+interface Props {
+  issue: Issue;
+  newer: Issue | null;
+  older: Issue | null;
+}
+
+const { issue, newer, older } = Astro.props;
+const { number, title, date, period, intro, items } = issue.data;
+
+const sections = SOURCE_ORDER.map((key) => ({
+  key,
+  meta: SOURCE_META[key],
+  items: items.filter((it) => it.source === key),
+})).filter((s) => s.items.length > 0);
+
+const flat = (item: (typeof items)[number]) => ({
+  item,
+  issue: { number, title, date },
+});
+---
+
+<Base title={`Issue ${issueNo(number)} — ${title}`} description={intro} active="home">
+  <header class="issue-head">
+    <div class="issue-kicker">
+      <span class="no">Issue {issueNo(number)}</span>
+      <span>{fmtDate(date)}</span>
+      {period && <span>수집 기간 {period}</span>}
+      <span>아이템 {items.length}</span>
+    </div>
+    <h1>{title}</h1>
+    {intro && <p class="issue-intro">{intro}</p>}
+  </header>
+
+  {
+    sections.map((section) => (
+      <section aria-label={section.meta.ko}>
+        <h2 class="section-heading">
+          {section.meta.en} · {section.meta.ko}
+          <span class="count">{section.items.length}</span>
+        </h2>
+        {section.items.map((item) => (
+          <Entry flat={flat(item)} />
+        ))}
+      </section>
+    ))
+  }
+
+  <nav class="issue-pager" aria-label="이슈 넘기기">
+    <span>
+      {older && (
+        <a href={issueHref(older.data.number)}>← 지난 호 {issueNo(older.data.number)}</a>
+      )}
+    </span>
+    <span>
+      {newer && (
+        <a href={issueHref(newer.data.number)}>다음 호 {issueNo(newer.data.number)} →</a>
+      )}
+    </span>
+  </nav>
+</Base>
+
+<style>
+  .issue-pager {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 44px;
+    padding-top: 16px;
+    border-top: 3px double var(--rule);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .issue-pager a {
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+
+  .issue-pager a:hover {
+    color: var(--electric);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

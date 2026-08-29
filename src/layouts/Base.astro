@@ -1,0 +1,210 @@
+---
+import '../styles/global.css';
+import { href } from '../lib/mag';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** 사이드바에서 현재 위치 표시: home | archive | clippings | about */
+  active?: string;
+}
+
+const {
+  title,
+  description = '사람이 고르고 클로드가 엮는 AI 주간지, DADES 매거진.',
+  active,
+} = Astro.props;
+
+const nav = [
+  {
+    heading: '지면',
+    links: [
+      { key: 'home', label: '발행 목록', to: href('/') },
+      { key: 'archive', label: 'Index · 색인', to: href('/archive/') },
+    ],
+  },
+  {
+    heading: '스크랩',
+    links: [{ key: 'clippings', label: '내 스크랩북', to: href('/clippings/'), clipCount: true }],
+  },
+  {
+    heading: '매거진',
+    links: [
+      { key: 'about', label: '소개 · 콜로폰', to: href('/about/') },
+      { key: 'github', label: 'GitHub ↗', to: 'https://github.com/seory0/DADES', external: true },
+    ],
+  },
+];
+---
+
+<!doctype html>
+<html lang="ko" data-theme="paper">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} — DADES 매거진</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={href('/favicon.svg')} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      // 테마 초기화 — 첫 페인트 전에 적용해 깜빡임을 막는다.
+      (function () {
+        try {
+          var t = localStorage.getItem('dades:theme');
+          if (t === 'paper' || t === 'white' || t === 'ink') {
+            document.documentElement.setAttribute('data-theme', t);
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <div class="shell">
+      <aside class="sidebar">
+        <a class="side-mark" href={href('/')} aria-label="DADES 매거진 홈으로">
+          <span class="acronym">DAD<em>E</em>S</span>
+          <span class="full">Do Agents Dream<br />of Electric Sheep?</span>
+        </a>
+
+        <nav class="side-nav" aria-label="매거진 내비게이션">
+          {
+            nav.map((group) => (
+              <div class="side-group">
+                <div class="side-heading">{group.heading}</div>
+                <ul>
+                  {group.links.map((link) => (
+                    <li>
+                      <a
+                        href={link.to}
+                        aria-current={active === link.key ? 'page' : undefined}
+                        target={link.external ? '_blank' : undefined}
+                        rel={link.external ? 'noopener' : undefined}
+                      >
+                        {link.label}
+                        {link.clipCount && <span class="side-clip-count" data-clip-count />}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </nav>
+
+        <div class="side-foot">
+          <div class="theme-row" role="group" aria-label="지면 색 고르기">
+            <button class="theme-swatch" data-set-theme="paper" aria-pressed="true" aria-label="종이색 테마" title="paper"></button>
+            <button class="theme-swatch" data-set-theme="white" aria-pressed="false" aria-label="흰색 테마" title="white"></button>
+            <button class="theme-swatch" data-set-theme="ink" aria-pressed="false" aria-label="먹색 테마" title="ink"></button>
+          </div>
+          <p class="side-colophon">
+            매주 전기양 한 마리씩.<br />
+            사람이 고르고,<br />
+            클로드가 엮습니다.
+          </p>
+        </div>
+      </aside>
+
+      <div class="main-col">
+        <main class="page" id="main">
+          <slot />
+        </main>
+        <footer class="site-foot">
+          <span>DADES MAGAZINE — DO AGENTS DREAM OF ELECTRIC SHEEP?</span>
+          <span>이 매거진은 영원히 발행 중이다.</span>
+        </footer>
+      </div>
+    </div>
+
+    <script>
+      // ---------- 테마 스위처 ----------
+      const THEME_KEY = 'dades:theme';
+      const swatches = document.querySelectorAll<HTMLButtonElement>('.theme-swatch');
+
+      function applyTheme(theme: string) {
+        document.documentElement.setAttribute('data-theme', theme);
+        swatches.forEach((b) =>
+          b.setAttribute('aria-pressed', String(b.dataset.setTheme === theme)),
+        );
+        try {
+          localStorage.setItem(THEME_KEY, theme);
+        } catch {}
+      }
+
+      swatches.forEach((b) =>
+        b.addEventListener('click', () => applyTheme(b.dataset.setTheme ?? 'paper')),
+      );
+      // 초기 상태를 버튼에 반영
+      const current = document.documentElement.getAttribute('data-theme') ?? 'paper';
+      swatches.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setTheme === current)));
+
+      // ---------- 클리핑 ----------
+      const CLIP_KEY = 'dades:clips:v1';
+
+      function readClips(): Record<string, any> {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(CLIP_KEY) ?? '{}');
+          // 손상된 저장값(문자열·배열·숫자 등)으로부터 클립 버튼을 보호한다
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+        } catch {}
+        return {};
+      }
+
+      function writeClips(clips: Record<string, any>) {
+        try {
+          localStorage.setItem(CLIP_KEY, JSON.stringify(clips));
+        } catch {}
+        updateClipCount();
+      }
+
+      function updateClipCount() {
+        const n = Object.keys(readClips()).length;
+        document.querySelectorAll<HTMLElement>('[data-clip-count]').forEach((el) => {
+          el.textContent = n > 0 ? `(${n})` : '';
+        });
+      }
+
+      // 클립 버튼·카운트를 저장소와 맞춘다 — 초기 로드, bfcache 복원, 다른 탭 변경 시
+      function syncClipUi() {
+        const clips = readClips();
+        document.querySelectorAll<HTMLButtonElement>('.clip-btn[data-clip-id]').forEach((btn) => {
+          const id = btn.dataset.clipId!;
+          btn.setAttribute('aria-pressed', String(Boolean(clips[id])));
+        });
+        updateClipCount();
+      }
+
+      syncClipUi();
+      window.addEventListener('pageshow', syncClipUi);
+      window.addEventListener('storage', (e) => {
+        if (e.key === CLIP_KEY || e.key === null) syncClipUi();
+      });
+
+      document.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.clip-btn[data-clip-id]');
+        if (!btn) return;
+        const id = btn.dataset.clipId!;
+        const store = readClips();
+        if (store[id]) {
+          delete store[id];
+          btn.setAttribute('aria-pressed', 'false');
+        } else {
+          let payload: any = null;
+          try {
+            payload = JSON.parse(btn.dataset.clipPayload ?? 'null');
+          } catch {}
+          if (!payload) return;
+          store[id] = { ...payload, clippedAt: Date.now() };
+          btn.setAttribute('aria-pressed', 'true');
+        }
+        writeClips(store);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import SheepMark from '../components/SheepMark.astro';
+import { href } from '../lib/mag';
+---
+
+<Base title="404 — 길 잃은 양">
+  <div class="scrap-empty">
+    <SheepMark class="sheep" />
+    <h1>404 — 이 양은 무리에서 벗어났습니다.</h1>
+    <p class="hint">찾으시는 지면이 없거나, 주소가 잘못 오려졌습니다.</p>
+    <p class="hint">
+      <a href={href('/')}>발행 목록으로 →</a> · <a href={href('/archive/')}>색인에서 찾기 →</a>
+    </p>
+  </div>
+</Base>

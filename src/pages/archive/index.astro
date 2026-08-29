@@ -1,0 +1,55 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { SOURCE_META, SOURCE_ORDER, collectTags, flattenItems, tagHref } from '../../lib/mag';
+
+const issues = await getCollection('issues');
+const tags = collectTags(issues);
+const all = flattenItems(issues);
+
+const totals = SOURCE_ORDER.map((key) => ({
+  meta: SOURCE_META[key],
+  count: all.filter(({ item }) => item.source === key).length,
+})).filter((t) => t.count > 0);
+---
+
+<Base
+  title="Index — 주제 색인"
+  description="발행된 모든 큐레이션을 주제 태그로 다시 찾아보는 색인."
+  active="archive"
+>
+  <header class="page-head">
+    <p class="page-kicker">Index</p>
+    <h1 class="page-title">주제 색인</h1>
+    <p class="page-desc">
+      호수(號數)를 따라 쌓인 항목들을 주제로 다시 묶었습니다. 필요할 때 태그로 찾아보세요 —
+      매거진의 뒤쪽 페이지에 붙는 색인처럼.
+    </p>
+  </header>
+
+  <div class="index-totals">
+    <span>지금까지</span>
+    {totals.map((t) => (
+      <span>
+        {t.meta.ko} <b>{t.count}</b>
+      </span>
+    ))}
+    <span>
+      태그 <b>{tags.length}</b>
+    </span>
+  </div>
+
+  <ul class="index-list">
+    {
+      tags.map(([tag, count]) => (
+        <li>
+          <a class="index-line" href={tagHref(tag)}>
+            <span class="index-tag">{tag}</span>
+            <span class="leader" />
+            <span class="count">{count}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

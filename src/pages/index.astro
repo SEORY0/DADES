@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Masthead from '../components/Masthead.astro';
+import { fmtDate, issueHref, issueNo, sortIssues, tagHref } from '../lib/mag';
+
+const issues = sortIssues(await getCollection('issues'));
+---
+
+<Base title="발행 목록" active="home">
+  <Masthead />
+  <ol class="issue-list">
+    {
+      issues.map((issue, i) => {
+        const tags = [...new Set(issue.data.items.flatMap((it) => it.tags))].slice(0, 5);
+        return (
+          <li class="issue-row">
+            <div class="row-meta">
+              <span class="issue-no">Issue {issueNo(issue.data.number)}</span>
+              <span>{fmtDate(issue.data.date)}</span>
+              <span>아이템 {issue.data.items.length}</span>
+              {i === 0 && <span class="latest-flag">최신호</span>}
+            </div>
+            <h2 class="row-title">
+              <a href={issueHref(issue.data.number)}>{issue.data.title}</a>
+            </h2>
+            {issue.data.intro && <p class="row-intro">{issue.data.intro}</p>}
+            {tags.length > 0 && (
+              <div class="row-tags">
+                {tags.map((tag) => (
+                  <a class="tag-chip" href={tagHref(tag)}>{tag}</a>
+                ))}
+              </div>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</Base>

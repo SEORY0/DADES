@@ -1,0 +1,34 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Entry from '../../components/Entry.astro';
+import { collectTags, flattenItems, href, type FlatItem } from '../../lib/mag';
+
+export async function getStaticPaths() {
+  const issues = await getCollection('issues');
+  const all = flattenItems(issues);
+  return collectTags(issues).map(([tag]) => ({
+    params: { tag },
+    props: { matches: all.filter(({ item }) => item.tags.includes(tag)) },
+  }));
+}
+
+interface Props {
+  matches: FlatItem[];
+}
+
+const { matches } = Astro.props;
+const { tag } = Astro.params;
+---
+
+<Base title={`#${tag} — 색인`} active="archive">
+  <header class="page-head">
+    <p class="page-kicker">Index / Tag</p>
+    <h1 class="page-title">#{tag}</h1>
+    <p class="page-desc">
+      이 주제로 실린 항목 {matches.length}건 · <a href={href('/archive/')}>색인으로 돌아가기</a>
+    </p>
+  </header>
+
+  {matches.map((flat) => <Entry flat={flat} showIssueRef headingLevel="h2" />)}
+</Base>

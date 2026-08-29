@@ -1,0 +1,69 @@
+---
+import { SOURCE_META, clipPayload, fmtDate, issueHref, tagHref, type FlatItem } from '../lib/mag';
+
+interface Props {
+  flat: FlatItem;
+  /** Index·태그 페이지에서 어느 호에 실렸는지 표시 */
+  showIssueRef?: boolean;
+  /** 문서 위계에 맞는 제목 레벨 — 이슈 지면(섹션 h2 아래)은 h3, 태그 페이지(h1 아래)는 h2 */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { flat, showIssueRef = false, headingLevel = 'h3' } = Astro.props;
+const { item, issue } = flat;
+const source = SOURCE_META[item.source];
+const payload = JSON.stringify(clipPayload(flat));
+const Heading = headingLevel;
+---
+
+<article class="entry" id={item.id}>
+  <div class="entry-top">
+    <div class="entry-meta">
+      <span class="src">{source.en}</span>
+      {item.origin && <span>{item.origin}</span>}
+      <span>№ {String(issue.number).padStart(2, '0')}</span>
+    </div>
+    <button
+      class="clip-btn"
+      data-clip-id={item.id}
+      data-clip-payload={payload}
+      aria-pressed="false"
+      aria-label={`스크랩북에 클립: ${item.title}`}
+    >
+      <svg class="clip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="6" cy="6" r="3"></circle>
+        <circle cx="6" cy="18" r="3"></circle>
+        <path d="M8.1 8.1 20 20M8.1 15.9 20 4"></path>
+      </svg>
+      <span class="clip-label">클립</span>
+    </button>
+  </div>
+
+  <Heading class="entry-title">
+    <a href={item.url} target="_blank" rel="noopener">{item.title}<span class="ext">↗</span></a>
+  </Heading>
+
+  <p class="entry-summary">{item.summary}</p>
+  {item.note && <p class="entry-note">{item.note}</p>}
+
+  {
+    item.tags.length > 0 && (
+      <div class="entry-tags">
+        {item.tags.map((tag) => (
+          <a class="tag-chip" href={tagHref(tag)}>{tag}</a>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    showIssueRef && (
+      <p class="entry-issue-ref">
+        Issue № {String(issue.number).padStart(2, '0')} · {fmtDate(issue.date)} ·{' '}
+        <a href={`${issueHref(issue.number)}#${item.id}`}
+          >지면에서 보기<span class="sr-only">: {item.title}</span></a
+        >
+      </p>
+    )
+  }
+</article>

@@ -22,7 +22,7 @@
       "source": "tool",
       "origin": "Anthropic",
       "tags": ["claude-code", "coding-agents", "dev-tools"],
-      "summary": "Anthropic의 터미널·IDE 코딩 에이전트. 이 매거진의 편집 루틴이 이 위에서 돌아감. 수집함의 링크를 읽고 요약해 이슈 파일을 만드는 것까지가 루틴의 일.",
+      "summary": "Anthropic의 터미널·IDE 코딩 에이전트. 수집함의 링크를 읽고 요약해 이슈 파일을 만드는 이 매거진의 편집 루틴도 Claude Code로 돌아감.",
       "note": null
     },
     {

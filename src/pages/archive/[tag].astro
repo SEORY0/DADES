@@ -23,7 +23,6 @@ const { tag } = Astro.params;
 
 <Base title={`#${tag} — 색인`} active="archive">
   <header class="page-head">
-    <p class="page-kicker">Index / Tag</p>
     <h1 class="page-title">#{tag}</h1>
     <p class="page-desc">
       이 주제로 실린 항목 {matches.length}건 · <a href={href('/archive/')}>색인으로 돌아가기</a>

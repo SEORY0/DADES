@@ -1,89 +1,59 @@
 {
   "number": 1,
-  "title": "에이전트는 브라우저를 연다",
-  "date": "2026-08-22",
-  "period": "2026.08.16 – 08.22",
-  "intro": "레포 특집. 코딩 에이전트 둘, 추론 엔진 둘, 브라우저 에이전트 하나. 보안 논문 한 편도 같이 실었다. (데모 큐레이션)",
+  "title": "WebMCP 챌린지와 블랙박스 LLM의 크기",
+  "date": "2026-08-30",
+  "period": "2026.08.25 – 08.30",
+  "intro": "창간호. 폰 공유함으로 모인 다섯 건이며, 웹 에이전트 표준 소식과 LLM 크기 추정 글이 중심임.",
   "items": [
     {
-      "id": "i1-claude-code-repo",
-      "title": "anthropics/claude-code",
-      "url": "https://github.com/anthropics/claude-code",
+      "id": "i1-codex-r32",
+      "title": "AI가 설계한 CPU가 둠을 성공적으로 실행",
+      "url": "https://quasarzone.com/bbs/qn_game/views/456663",
+      "source": "news",
+      "origin": "퀘이사존",
+      "tags": ["hardware", "culture"],
+      "summary": "GPT-5.6 Sol로 설계했다는 CPU 'Codex-R32'가 가상 샌드박스에서 둠을 실행함. RV32IM을 단순화한 구조로, 물리 칩이 아니라 회로 시뮬레이션 검증이고 속도도 실제 프로세서에 한참 못 미침. 원 출처가 중국 매체 보도의 번역이라 개발자의 1차 게시물은 확인되지 않음.",
+      "note": null
+    },
+    {
+      "id": "i1-webmcp",
+      "title": "WebMCP Challenge",
+      "url": "https://openai.com/ko-KR/webmcp-challenge/",
+      "source": "release",
+      "origin": "OpenAI",
+      "tags": ["agents", "browser-agents", "mcp"],
+      "summary": "OpenAI가 Chrome·Cloudflare·Shopify 등과 여는 10일짜리 WebMCP 해커톤. 웹페이지가 navigator.modelContext API로 에이전트에게 도구를 직접 노출하는 W3C 드래프트 표준을 겨냥함. 상금 3만 5천 달러, 제출 마감은 9월 3일(PT).",
+      "note": "마감이 9월 3일이라 뛰어들 거면 이번 주가 끝이다."
+    },
+    {
+      "id": "i1-prompt-guide",
+      "title": "dair-ai/Prompt-Engineering-Guide",
+      "url": "https://github.com/dair-ai/Prompt-Engineering-Guide",
       "source": "repo",
       "origin": "GitHub",
-      "tags": ["claude-code", "coding-agents", "agents"],
-      "summary": "Claude Code 공개 저장소. 코드보다 이슈 트래커가 볼거리인데, 훅·스킬·MCP 연동 요청을 보면 사람들이 코딩 에이전트에 실제로 뭘 바라는지 보임.",
+      "tags": ["prompt-engineering", "open-source"],
+      "summary": "dair-ai가 2022년부터 운영한 프롬프트 엔지니어링 자료집. 스타 77.9k, 13개 언어 번역, 웹 버전은 promptingguide.ai. 기법 정리는 zero-shot부터 ReAct까지 넓은데 마지막 push가 2026년 3월이니 최신 기법은 갱신 시점을 확인할 것.",
       "note": null
     },
     {
-      "id": "i1-browser-use",
-      "title": "browser-use/browser-use",
-      "url": "https://github.com/browser-use/browser-use",
-      "source": "repo",
-      "origin": "GitHub",
-      "tags": ["browser-agents", "agents", "open-source"],
-      "summary": "LLM으로 브라우저를 조작하는 파이썬 라이브러리. DOM을 파싱해 클릭 가능한 요소 목록으로 만들어 모델에 넘기는 방식. 데모는 인상적이지만 사이트별 안정성 편차는 감안할 것.",
-      "note": null
-    },
-    {
-      "id": "i1-openhands",
-      "title": "OpenHands/OpenHands",
-      "url": "https://github.com/OpenHands/OpenHands",
-      "source": "repo",
-      "origin": "GitHub",
-      "tags": ["coding-agents", "agents", "open-source"],
-      "summary": "오픈소스 코딩 에이전트로 출발한 프로젝트. 지금은 Claude Code, Codex, Gemini 등 ACP 호환 에이전트를 셀프호스팅으로 돌리는 개발자 컨트롤 센터를 표방함.",
-      "note": null
-    },
-    {
-      "id": "i1-vllm",
-      "title": "vllm-project/vllm",
-      "url": "https://github.com/vllm-project/vllm",
-      "source": "repo",
-      "origin": "GitHub",
-      "tags": ["inference", "open-source"],
-      "summary": "고처리량 LLM 서빙 엔진. KV 캐시를 페이징으로 관리하는 PagedAttention이 핵심. 오픈 모델을 직접 서빙하는 곳 대부분이 이걸로 시작함.",
-      "note": null
-    },
-    {
-      "id": "i1-llamacpp",
-      "title": "ggml-org/llama.cpp",
-      "url": "https://github.com/ggml-org/llama.cpp",
-      "source": "repo",
-      "origin": "GitHub",
-      "tags": ["local-llm", "inference", "open-source"],
-      "summary": "C/C++ LLM 추론 엔진. GGUF 포맷과 양자화 덕에 노트북과 폰에서도 돌아감. Ollama, LM Studio 등 로컬 LLM 도구 대부분이 이걸 백엔드로 씀.",
-      "note": null
-    },
-    {
-      "id": "i1-instruction-hierarchy",
-      "title": "The Instruction Hierarchy: Training LLMs to Prioritize Privileged Instructions",
-      "url": "https://arxiv.org/abs/2404.13208",
-      "source": "paper",
-      "origin": "arXiv",
-      "tags": ["prompt-injection", "agent-security", "alignment"],
-      "summary": "지시에 계급을 두자는 OpenAI의 2024년 4월 논문. 시스템, 개발자, 사용자, 도구 출력 순으로 우선순위를 훈련시켜 인젝션 내성을 높임. 방어를 프롬프트가 아니라 훈련 단계로 내린 대표 연구.",
-      "note": null
-    },
-    {
-      "id": "i1-owasp-llm",
-      "title": "OWASP Top 10 for LLM Applications",
-      "url": "https://genai.owasp.org/llm-top-10/",
-      "source": "read",
-      "origin": "OWASP GenAI Security Project",
-      "tags": ["agent-security", "prompt-injection"],
-      "summary": "LLM 앱 취약점 톱10의 현행판. 개정을 거듭해도 1위는 프롬프트 인젝션. 항목마다 예방책이 붙어 있어 그대로 체크리스트가 됨.",
-      "note": null
-    },
-    {
-      "id": "i1-karpathy",
-      "title": "Andrej Karpathy (@karpathy)",
-      "url": "https://x.com/karpathy",
+      "id": "i1-songhan",
+      "title": "AI 경량화 연구자 Song Han 소개 (@romaan.log)",
+      "url": "https://www.instagram.com/p/DciFoeSkURj/",
       "source": "sns",
-      "origin": "X",
-      "tags": ["culture", "agents"],
-      "summary": "vibe coding이라는 말을 만든 사람의 계정. 에이전트 시대의 소프트웨어에 대한 논평이 계속 나옴.",
-      "note": "SNS 지면 데모라 프로필을 실었다. 실제 발행에서는 개별 포스트를 오려올 것."
+      "origin": "Instagram",
+      "tags": ["efficiency", "culture"],
+      "summary": "MIT 교수이자 NVIDIA에 적을 둔 경량화 연구자 Song Han을 소개하는 포스트. SmoothQuant, StreamingLLM을 간단한 아이디어로 임팩트를 낸 예로 들고, 입문 코스로 유튜브의 MIT 강의를 권함. 함께 팔로우할 연구자로는 Tri Dao를 언급.",
+      "note": null
+    },
+    {
+      "id": "i1-trillion-ikp",
+      "title": "블랙박스 LLM의 크기를 재는 법",
+      "url": "https://blog.trillionlabs.co/posts/estimating-closed-source-llm-parameters/",
+      "source": "read",
+      "origin": "Trillion Labs",
+      "tags": ["evals", "research"],
+      "summary": "파라미터를 밝히지 않는 GPT·Claude의 크기를 추정하는 방법을 정리한 Trillion Labs의 리서치 노트. 추론으로는 못 맞히고 알아야만 맞히는 희귀 사실 문제(IKP)로 지식 저장량을 재는 방식인데, 공개 모델 93개로 보정하니 파라미터 10배당 정답률이 15.9%p 오르는 관계가 나옴(R² 0.910). 이 자로 재면 GPT-5.5 Pro는 약 5.3T, Claude Opus는 약 1.6T. 1T 초과 구간은 비교할 공개 모델이 2개뿐이라 오차가 크다고 스스로 밝힘.",
+      "note": "4월에 머스크가 흘린 숫자와 대체로 맞아떨어진다는 대목이 재미있다."
     }
   ]
 }

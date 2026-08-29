@@ -5,7 +5,7 @@ import { href } from '../lib/mag';
 
 <Base
   title="소개 · 콜로폰"
-  description="DADES 매거진의 이름, 운영 방식, 콜로폰."
+  description="DADES라는 이름의 출처, 만드는 방식, 콜로폰."
   active="about"
 >
   <header class="page-head">
@@ -14,54 +14,35 @@ import { href } from '../lib/mag';
 
   <div class="prose">
     <p class="lede">
-      <em>Do Agents Dream of Electric Sheep?</em> 필립 K. 딕의 오래된 질문에서 안드로이드
-      대신 에이전트를 넣었습니다. 줄여서 <strong>DADES</strong>. 쏟아지는 AI 소식 중에서
-      정말 볼 만한 것만 일주일에 한 번 추려 묶는 작은 주간지입니다.
+      <em>Do Agents Dream of Electric Sheep?</em> 필립 K. 딕의 질문에서 안드로이드
+      자리에 에이전트를 넣고 머리글자만 남겼습니다. 사람이 고르고 클로드가 엮는
+      AI 주간지입니다.
     </p>
 
-    <h2>운영 방식</h2>
     <p>
-      에디터(사람)가 한 주 동안 눈에 밟힌 링크를 수집함(<code>inbox.md</code>)에 던져두면,
-      클로드 루틴이 링크를 읽고 요약해 하나의 호로 편집합니다. 요약과 분류는 클로드가 하지만
-      무엇을 실을지는 언제나 사람이 정합니다.
-    </p>
-    <p>
-      큐레이션은 에디터의 주관적인 기준을 따르고, 요약에는 편견이 들어갈 수 있습니다.
-      판단이 필요하면 원문을 확인하세요. 모든 항목의 제목이 원문 링크입니다.
-    </p>
-
-    <h2>두 개의 축</h2>
-    <ul>
-      <li>
-        <strong>Issue.</strong> 시간의 축. 발행된 순서대로 쌓이는 지면이고, 첫 화면의
-        발행 목록이 이 축을 따릅니다.
-      </li>
-      <li>
-        <strong><a href={href('/archive/')}>Index</a>.</strong> 주제의 축. 같은 항목들을
-        태그로 다시 묶은 색인입니다. 그 글이 몇 호였는지 기억나지 않을 때 여기서 찾으세요.
-      </li>
-    </ul>
-
-    <h2>클리핑</h2>
-    <p>
-      잡지를 읽다 마음에 드는 페이지를 오려 모아두듯, 각 항목의 클립 버튼을 누르면
-      <a href={href('/clippings/')}>내 스크랩북</a>에 모입니다. 스크랩북은 이 브라우저의
-      localStorage에만 저장되고 서버로는 아무것도 보내지 않습니다. 필요하면 Markdown으로
-      복사해 어디로든 가져가세요.
+      한 주 동안 읽다가 남겨둔 링크를 에디터가 수집함(<code>inbox.md</code>)에
+      쌓아두면, 클로드가 읽고 요약해 한 호로 묶습니다. 그러니 여기 실리는 건
+      그 주 AI 소식의 전체가 아니라 한 사람 눈에 걸린 만큼입니다. 요약이 못
+      미더우면 제목을 누르면 됩니다. 전부 원문 링크입니다.
     </p>
 
     <h2>콜로폰</h2>
     <ul>
-      <li>발행 주기: 주간 (에디터의 사정에 따라 격주)</li>
+      <li>발행: 주간. 에디터의 사정에 따라 격주.</li>
+      <li>
+        색인: 실린 항목을 태그로 다시 묶은 <a href={href('/archive/')}>Index</a>.
+        몇 호였는지 기억나지 않을 때.
+      </li>
+      <li>
+        클리핑: 오려둔 항목은 <a href={href('/clippings/')}>내 스크랩북</a>에
+        모입니다. 이 브라우저에만 남고 서버로는 가지 않습니다.
+      </li>
       <li>문체: 요약은 개조식으로, 의견은 에디터 노트에만. 은유는 이 페이지 전용.</li>
       <li>조판: Pretendard. 제호만 Fraunces 이탤릭.</li>
-      <li>제작: Astro 정적 사이트, GitHub Pages에서 발행</li>
-      <li>편집 도구: Claude Code 루틴 (<code>/curate</code>)</li>
+      <li>제작: Astro 정적 사이트, GitHub Pages에서 발행. 편집 루틴은 Claude Code의 <code>/curate</code>.</li>
       <li>소스: <a href="https://github.com/seory0/DADES" target="_blank" rel="noopener">github.com/seory0/DADES</a></li>
     </ul>
-    <p>
-      지금 실려 있는 초기 호들은 시스템을 보여주기 위한 데모 큐레이션입니다. 링크는 모두
-      실재하는 프로젝트와 글을 가리킵니다.
-    </p>
+
+    <p>№00–02는 시스템을 보여주려고 만든 데모 호입니다. 담긴 링크는 모두 실재합니다.</p>
   </div>
 </Base>

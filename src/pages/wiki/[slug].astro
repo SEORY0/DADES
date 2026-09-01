@@ -1,7 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { WIKI_CATEGORY, fmtDate, href, wikiHref, type WikiEntry } from '../../lib/mag';
+import Cited from '../../components/Cited.astro';
+import { WIKI_CATEGORY, fmtDate, href, stripRefs, wikiHref, type WikiEntry } from '../../lib/mag';
 
 export async function getStaticPaths() {
   const entries = await getCollection('wiki');
@@ -24,11 +25,13 @@ const bySlug = new Map(all.map((e) => [e.data.slug, e.data.term]));
 const relatedTerms = related
   .filter((slug) => bySlug.has(slug))
   .map((slug) => ({ slug, term: bySlug.get(slug)! }));
+
+const nSources = sources.length;
 ---
 
 <Base
   title={`${term} — 위키`}
-  description={oneLiner}
+  description={stripRefs(oneLiner)}
   active="wiki"
   ogType="article"
 >
@@ -43,7 +46,7 @@ const relatedTerms = related
         {en && <span class="wiki-title-en">{en}</span>}
       </h1>
       {aliases.length > 0 && <p class="wiki-aliases">별칭·연관 표기: {aliases.join(', ')}</p>}
-      <p class="wiki-lede">{oneLiner}</p>
+      <p class="wiki-lede"><Cited text={oneLiner} sourceCount={nSources} /></p>
     </header>
 
     {
@@ -54,7 +57,7 @@ const relatedTerms = related
             {senses.map((sense) => (
               <li class="sense-item">
                 <span class="sense-context">{sense.context}</span>
-                <p class="sense-def">{sense.definition}</p>
+                <p class="sense-def"><Cited text={sense.definition} sourceCount={nSources} /></p>
               </li>
             ))}
           </ol>
@@ -66,7 +69,7 @@ const relatedTerms = related
       body.length > 0 && (
         <section class="prose wiki-body" aria-label="본문">
           {body.map((para) => (
-            <p>{para}</p>
+            <p><Cited text={para} sourceCount={nSources} /></p>
           ))}
         </section>
       )
@@ -76,8 +79,8 @@ const relatedTerms = related
       <h2 class="board-title">출처</h2>
       <ol class="source-list">
         {
-          sources.map((source) => (
-            <li>
+          sources.map((source, i) => (
+            <li id={`src-${i + 1}`}>
               <a href={source.url} target="_blank" rel="noopener">{source.title}</a>
               {source.publisher && <span class="source-pub"> · {source.publisher}</span>}
             </li>

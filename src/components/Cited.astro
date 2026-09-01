@@ -1,0 +1,40 @@
+---
+/**
+ * 위키 본문 렌더러 — 텍스트 속 [n] 마커를 출처 각주(위첨자 링크)로 바꾼다.
+ * 존재하지 않는 출처 번호를 가리키면 빌드를 실패시킨다.
+ */
+interface Props {
+  text: string;
+  /** 이 항목의 출처 개수 — 각주 번호의 유효 범위 */
+  sourceCount: number;
+}
+
+const { text, sourceCount } = Astro.props;
+
+type Part = { kind: 'text'; value: string } | { kind: 'ref'; n: number };
+
+const parts: Part[] = text
+  .split(/\[(\d+)\]/g)
+  .map((piece, i): Part => (i % 2 === 1 ? { kind: 'ref', n: Number(piece) } : { kind: 'text', value: piece }))
+  .filter((p) => p.kind === 'ref' || p.value !== '');
+
+for (const part of parts) {
+  if (part.kind === 'ref' && (part.n < 1 || part.n > sourceCount)) {
+    throw new Error(
+      `위키 각주 [${part.n}]이 출처 범위(1–${sourceCount})를 벗어남: "${text.slice(0, 60)}…"`,
+    );
+  }
+}
+---
+
+{
+  parts.map((part) =>
+    part.kind === 'ref' ? (
+      <sup class="ref" data-pagefind-ignore>
+        <a href={`#src-${part.n}`} aria-label={`출처 ${part.n}`}>[{part.n}]</a>
+      </sup>
+    ) : (
+      part.value
+    ),
+  )
+}

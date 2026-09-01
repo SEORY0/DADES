@@ -4,7 +4,7 @@
   "en": "Agent",
   "aliases": ["AI 에이전트"],
   "category": "ai",
-  "oneLiner": "언어 모델이 도구를 사용하며 여러 단계를 반복 실행하고, 다음 단계를 스스로 결정하는 시스템이다.",
+  "oneLiner": "언어 모델이 도구를 사용하며 여러 단계를 반복 실행하고, 다음 단계를 스스로 결정하는 시스템이다.[1]",
   "senses": [
     {
       "context": "넓은 용법",
@@ -12,18 +12,28 @@
     },
     {
       "context": "Anthropic의 구분",
-      "definition": "정해진 경로를 코드가 지휘하면 워크플로, 모델이 과정과 도구 사용을 스스로 지휘하면 에이전트. 설계 문서 Building Effective Agents(2024.12)의 구분이며, 이 문서는 필요 이상으로 에이전트를 만들지 말 것을 함께 권고한다."
+      "definition": "정해진 경로를 코드가 지휘하면 워크플로, 모델이 과정과 도구 사용을 스스로 지휘하면 에이전트. 설계 문서 Building Effective Agents(2024.12)의 구분이며, 이 문서는 필요 이상으로 에이전트를 만들지 말 것을 함께 권고한다.[1]"
     }
   ],
   "body": [
-    "어느 뜻으로 쓰든 실행 시스템은 모델 단독이 아니라 모델과 하네스의 결합이다.",
-    "보안 분석에서는 에이전트를 능력의 조합으로 기술한다. 무엇을 읽을 수 있는지, 무엇을 실행할 수 있는지, 어디로 내보낼 수 있는지가 그 목록이며, 이 조합으로 위험을 판단하는 프레임이 치명적 3요소다."
+    "어느 뜻으로 쓰든 실행 시스템은 모델 단독이 아니라 모델과 하네스의 결합이다.[3]",
+    "보안 분석에서는 에이전트를 능력의 조합으로 기술한다. 무엇을 읽을 수 있는지, 무엇을 실행할 수 있는지, 어디로 내보낼 수 있는지가 그 목록이며, 이 조합으로 위험을 판단하는 프레임이 치명적 3요소다.[2]"
   ],
   "sources": [
     {
       "title": "Building Effective Agents",
       "url": "https://www.anthropic.com/engineering/building-effective-agents",
       "publisher": "Anthropic"
+    },
+    {
+      "title": "The lethal trifecta for AI agents",
+      "url": "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/",
+      "publisher": "Simon Willison"
+    },
+    {
+      "title": "What is an AI Agent Harness?",
+      "url": "https://www.databricks.com/blog/ai-harness",
+      "publisher": "Databricks"
     }
   ],
   "related": ["harness", "mcp", "lethal-trifecta", "prompt-injection"],

@@ -17,6 +17,9 @@ export const WIKI_CATEGORY = {
 
 export const wikiHref = (slug: string) => href(`/wiki/${slug}/`);
 
+/** [n] 각주 마커 제거 — 목차·메타 설명 등 각주를 렌더링하지 않는 자리용 */
+export const stripRefs = (text: string) => text.replace(/\[\d+\]/g, '');
+
 export const sortWiki = (entries: WikiEntry[]) =>
   [...entries].sort((a, b) => a.data.term.localeCompare(b.data.term, 'ko'));
 

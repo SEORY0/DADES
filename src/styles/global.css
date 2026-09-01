@@ -1277,3 +1277,23 @@ code {
 .wiki-fineprint a:hover {
   color: var(--link);
 }
+
+/* 위키 인라인 각주 */
+sup.ref {
+  font-size: 11px;
+  line-height: 0;
+}
+
+sup.ref a {
+  text-decoration: none;
+  color: var(--link);
+}
+
+sup.ref a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.source-list li:target {
+  background: var(--wash);
+}

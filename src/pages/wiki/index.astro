@@ -1,0 +1,54 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { WIKI_CATEGORY, fmtDate, sortWiki, wikiHref } from '../../lib/mag';
+
+const entries = sortWiki(await getCollection('wiki'));
+const updated = entries.map((e) => e.data.updated).sort().at(-1) ?? '';
+const sourceCount = entries.reduce((sum, e) => sum + e.data.sources.length, 0);
+
+const groups = (Object.keys(WIKI_CATEGORY) as (keyof typeof WIKI_CATEGORY)[])
+  .map((key) => ({
+    key,
+    meta: WIKI_CATEGORY[key],
+    entries: entries.filter((e) => e.data.category === key),
+  }))
+  .filter((g) => g.entries.length > 0);
+---
+
+<Base
+  title="위키 · 용어집"
+  description="쓰는 곳마다 뜻이 흔들리는 AI·보안 용어를 출처와 함께 규정하는 용어집."
+  active="wiki"
+>
+  <header class="page-head">
+    <h1 class="page-title">위키 · 용어집</h1>
+    <p class="page-desc">
+      하네스, MCP처럼 쓰는 곳마다 뜻이 조금씩 다른 말을 한 뜻으로 규정합니다. 뜻이 갈리면
+      갈래째 싣고, 출처가 확인된 서술만 싣습니다.
+    </p>
+  </header>
+
+  <p class="index-totals">
+    항목 {entries.length} · 출처 {sourceCount} · 기준일 {fmtDate(updated)}
+  </p>
+
+  {
+    groups.map((group) => (
+      <section class="wiki-group" aria-label={group.meta.ko}>
+        <h2 class="board-title">{group.meta.ko}</h2>
+        <ul class="wiki-list">
+          {group.entries.map((entry) => (
+            <li class="wiki-row">
+              <a class="wiki-term" href={wikiHref(entry.data.slug)}>
+                {entry.data.term}
+                {entry.data.en && <span class="wiki-en">{entry.data.en}</span>}
+              </a>
+              <p class="wiki-oneliner">{entry.data.oneLiner}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</Base>

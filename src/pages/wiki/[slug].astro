@@ -1,0 +1,108 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { WIKI_CATEGORY, fmtDate, href, wikiHref, type WikiEntry } from '../../lib/mag';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('wiki');
+  return entries.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry, all: entries },
+  }));
+}
+
+interface Props {
+  entry: WikiEntry;
+  all: WikiEntry[];
+}
+
+const { entry, all } = Astro.props;
+const { term, en, aliases, category, oneLiner, senses, body, sources, related, updated } =
+  entry.data;
+
+const bySlug = new Map(all.map((e) => [e.data.slug, e.data.term]));
+const relatedTerms = related
+  .filter((slug) => bySlug.has(slug))
+  .map((slug) => ({ slug, term: bySlug.get(slug)! }));
+---
+
+<Base
+  title={`${term} — 위키`}
+  description={oneLiner}
+  active="wiki"
+  ogType="article"
+>
+  <div data-pagefind-body>
+    <header class="page-head wiki-head">
+      <p class="latest-kicker">
+        <a href={href('/wiki/')} class="wiki-crumb">위키</a> ·{' '}
+        {WIKI_CATEGORY[category].ko} · 갱신 {fmtDate(updated)}
+      </p>
+      <h1 class="page-title">
+        {term}
+        {en && <span class="wiki-title-en">{en}</span>}
+      </h1>
+      {aliases.length > 0 && <p class="wiki-aliases">별칭·연관 표기: {aliases.join(', ')}</p>}
+      <p class="wiki-lede">{oneLiner}</p>
+    </header>
+
+    {
+      senses.length > 0 && (
+        <section aria-label="뜻 갈래">
+          <h2 class="board-title">뜻 갈래 <span class="board-question">자리마다 다르게 쓰이는 뜻</span></h2>
+          <ol class="sense-list">
+            {senses.map((sense) => (
+              <li class="sense-item">
+                <span class="sense-context">{sense.context}</span>
+                <p class="sense-def">{sense.definition}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    {
+      body.length > 0 && (
+        <section class="prose wiki-body" aria-label="본문">
+          {body.map((para) => (
+            <p>{para}</p>
+          ))}
+        </section>
+      )
+    }
+
+    <section aria-label="출처">
+      <h2 class="board-title">출처</h2>
+      <ol class="source-list">
+        {
+          sources.map((source) => (
+            <li>
+              <a href={source.url} target="_blank" rel="noopener">{source.title}</a>
+              {source.publisher && <span class="source-pub"> · {source.publisher}</span>}
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    {
+      relatedTerms.length > 0 && (
+        <p class="wiki-related">
+          관련 항목:{' '}
+          {relatedTerms.map((r, i) => (
+            <>
+              {i > 0 && ' · '}
+              <a href={wikiHref(r.slug)}>{r.term}</a>
+            </>
+          ))}
+        </p>
+      )
+    }
+  </div>
+
+  <p class="wiki-fineprint">
+    출처가 확인된 서술만 싣습니다. 정정 제안은
+    <a href="https://github.com/seory0/DADES/issues" target="_blank" rel="noopener">GitHub 이슈</a>로.
+  </p>
+</Base>

@@ -1124,3 +1124,156 @@ code {
     border-left: none;
   }
 }
+
+/* ---------- 위키 ---------- */
+.wiki-group {
+  margin-top: 30px;
+}
+
+.wiki-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.wiki-row {
+  padding: 13px 0 12px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.wiki-row:last-child {
+  border-bottom: none;
+}
+
+.wiki-term {
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.wiki-term:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.wiki-en {
+  font-weight: 400;
+  font-size: var(--fs-small);
+  color: var(--muted);
+  margin-left: 8px;
+}
+
+.wiki-oneliner {
+  margin: 3px 0 0;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.wiki-head .latest-kicker a {
+  color: var(--muted);
+}
+
+.wiki-title-en {
+  font-weight: 400;
+  font-size: var(--fs-small);
+  color: var(--muted);
+  margin-left: 10px;
+}
+
+.wiki-aliases {
+  margin: 6px 0 0;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.wiki-lede {
+  margin: 10px 0 0;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.sense-list {
+  list-style: none;
+  counter-reset: sense;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.sense-item {
+  counter-increment: sense;
+  position: relative;
+  padding: 0 0 16px 34px;
+}
+
+.sense-item:last-child {
+  padding-bottom: 4px;
+}
+
+.sense-item::before {
+  content: counter(sense);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sense-context {
+  display: block;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-bottom: 2px;
+}
+
+.sense-def {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.wiki-body {
+  margin-top: 26px;
+}
+
+.source-list {
+  margin: 12px 0 0;
+  padding-left: 1.4em;
+  font-size: var(--fs-small);
+}
+
+.source-list li {
+  margin-bottom: 5px;
+}
+
+.source-pub {
+  color: var(--muted);
+}
+
+.wiki-related {
+  margin: 26px 0 0;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.wiki-fineprint {
+  margin: 34px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.wiki-fineprint a {
+  color: var(--muted);
+}
+
+.wiki-fineprint a:hover {
+  color: var(--link);
+}

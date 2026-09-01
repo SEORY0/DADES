@@ -1,0 +1,23 @@
+{
+  "slug": "lethal-trifecta",
+  "term": "치명적 3요소",
+  "en": "Lethal Trifecta",
+  "aliases": ["리썰 트라이펙타"],
+  "category": "security",
+  "oneLiner": "사적 데이터 접근, 신뢰할 수 없는 콘텐츠, 외부 전송 능력. 셋이 한 에이전트에 모이면 유출 경로가 완성된다.",
+  "senses": [],
+  "body": [
+    "Simon Willison이 2025년 6월 제시한 프레임. 프롬프트 인젝션이 막히지 않는다는 전제 위에서, 개별 기능이 아니라 능력의 조합으로 위험을 판단하자는 것이다. 비밀을 읽을 수 있고, 오염된 텍스트를 읽을 수 있고, 밖으로 보낼 수 있다면, 공격자는 그 셋을 이어 데이터를 빼낸다.",
+    "대응은 셋 중 하나를 빼는 것이다. 민감한 데이터를 안 주거나, 신뢰할 수 없는 입력을 안 읽히거나, 외부 전송을 막거나. 셋을 다 가진 채로 안전하게 만드는 방법은 아직 없다는 것이 이 프레임의 결론이다.",
+    "MCP 서버를 여러 개 설치하는 일상적인 행동만으로도 세 요소가 한 에이전트에 모일 수 있어, 도구 조합을 검토하는 기준으로 널리 인용된다."
+  ],
+  "sources": [
+    {
+      "title": "The lethal trifecta for AI agents",
+      "url": "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/",
+      "publisher": "Simon Willison"
+    }
+  ],
+  "related": ["prompt-injection", "agent", "mcp"],
+  "updated": "2026-09-01"
+}

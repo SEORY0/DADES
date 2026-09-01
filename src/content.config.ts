@@ -81,4 +81,37 @@ const boards = defineCollection({
   }),
 });
 
-export const collections = { issues, boards };
+/** 위키 — 쓰는 곳마다 뜻이 흔들리는 용어를 출처와 함께 규정한다. 출처 없는 서술은 싣지 않는다(min 1). */
+const wiki = defineCollection({
+  loader: glob({ pattern: '*.json', base: './src/content/wiki' }),
+  schema: z.object({
+    slug: z.string().regex(/^[a-z0-9-]+$/),
+    term: z.string(),
+    /** 영문 표기 */
+    en: z.string().nullish(),
+    aliases: z.array(z.string()).default([]),
+    category: z.enum(['ai', 'security']),
+    /** 한 줄 정의 */
+    oneLiner: z.string(),
+    /** 뜻 갈래 — 쓰이는 자리마다 정의가 다를 때만 채운다 */
+    senses: z
+      .array(z.object({ context: z.string(), definition: z.string() }))
+      .default([]),
+    /** 본문 문단들 */
+    body: z.array(z.string()).default([]),
+    sources: z
+      .array(
+        z.object({
+          title: z.string(),
+          url: z.string().url(),
+          publisher: z.string().nullish(),
+        }),
+      )
+      .min(1),
+    /** 관련 항목 slug */
+    related: z.array(z.string()).default([]),
+    updated: dateStr,
+  }),
+});
+
+export const collections = { issues, boards, wiki };

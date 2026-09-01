@@ -7,6 +7,18 @@ export const href = (path: string) => base + (path.startsWith('/') ? path : `/${
 export type Issue = CollectionEntry<'issues'>;
 export type Item = Issue['data']['items'][number];
 export type Board = CollectionEntry<'boards'>;
+export type WikiEntry = CollectionEntry<'wiki'>;
+
+/** 위키 분류 이름표 */
+export const WIKI_CATEGORY = {
+  ai: { ko: 'AI 기본' },
+  security: { ko: 'AI 보안' },
+} as const;
+
+export const wikiHref = (slug: string) => href(`/wiki/${slug}/`);
+
+export const sortWiki = (entries: WikiEntry[]) =>
+  [...entries].sort((a, b) => a.data.term.localeCompare(b.data.term, 'ko'));
 
 /** 섹션 순서와 이름표 — 매거진의 고정 지면 구성 */
 export const SOURCE_META: Record<string, { ko: string; en: string }> = {

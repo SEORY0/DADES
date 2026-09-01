@@ -1,0 +1,28 @@
+{
+  "slug": "context-window",
+  "term": "컨텍스트 윈도",
+  "en": "Context Window",
+  "aliases": ["컨텍스트", "맥락 창"],
+  "category": "ai",
+  "oneLiner": "모델이 한 번에 볼 수 있는 토큰의 최대 길이. 모델의 작업 기억에 해당한다.",
+  "senses": [],
+  "body": [
+    "시스템 프롬프트, 대화 이력, 도구 결과, 붙여넣은 문서가 전부 이 창 안에서 자리를 다툰다. 창을 넘치면 오래된 내용이 잘리거나 요약되고, 모델은 그 사실을 스스로 알지 못한다.",
+    "창이 크다고 다 읽는 것도 아니다. 긴 입력의 중간에 있는 정보를 놓치는 경향은 Lost in the Middle 연구(2023)로 알려졌고, 이후 모델들이 개선되긴 했지만 문서 배치가 성능에 영향을 준다는 사실은 유효하다.",
+    "에이전트가 오래 일할수록 도구 결과가 창을 채우므로, 무엇을 남기고 무엇을 버릴지 정하는 컨텍스트 관리가 하네스의 핵심 업무가 된다."
+  ],
+  "sources": [
+    {
+      "title": "Context windows",
+      "url": "https://docs.claude.com/en/docs/build-with-claude/context-windows",
+      "publisher": "Anthropic"
+    },
+    {
+      "title": "Lost in the Middle: How Language Models Use Long Contexts",
+      "url": "https://arxiv.org/abs/2307.03172",
+      "publisher": "arXiv, TACL"
+    }
+  ],
+  "related": ["token", "harness"],
+  "updated": "2026-09-01"
+}

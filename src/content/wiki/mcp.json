@@ -1,0 +1,39 @@
+{
+  "slug": "mcp",
+  "term": "MCP",
+  "en": "Model Context Protocol",
+  "aliases": ["MCP 서버", "WebMCP"],
+  "category": "ai",
+  "oneLiner": "AI 앱을 외부 시스템에 연결하는 방식을 표준화한 오픈소스 프로토콜. 공식 비유는 \"AI의 USB-C 포트\"다.",
+  "senses": [
+    {
+      "context": "프로토콜",
+      "definition": "Anthropic이 2024년 11월 공개한 표준 그 자체. 공식 정의는 \"AI 애플리케이션을 외부 시스템에 연결하기 위한 오픈소스 표준\"이다. 호스트(AI 앱), 클라이언트, 서버로 역할이 나뉘며 Claude, ChatGPT, VS Code 등 주요 클라이언트가 채택했다."
+    },
+    {
+      "context": "관용 용법 \"MCP 붙였다\"",
+      "definition": "정확히는 MCP 서버(특정 도구·데이터를 노출하는 프로그램)를 설치했다는 뜻. 프로토콜과 서버의 구분이 일상 대화에서 자주 뭉개진다."
+    },
+    {
+      "context": "WebMCP",
+      "definition": "웹페이지가 브라우저 API(navigator.modelContext)로 에이전트에게 도구를 노출하는 별개의 W3C 드래프트 표준. 이름이 비슷해 섞여 쓰이지만 MCP 사양과 같은 것이 아니다."
+    }
+  ],
+  "body": [
+    "보안 관점에서 MCP 서버 설치는 두 가지를 함께 들여오는 일이다. 내 컴퓨터에서 도는 남의 코드, 그리고 모델 컨텍스트에 들어가는 남의 텍스트(도구 설명과 도구 결과). 후자는 간접 프롬프트 인젝션의 통로가 될 수 있으므로, 서버는 코드 의존성을 고르듯 출처를 보고 골라야 한다."
+  ],
+  "sources": [
+    {
+      "title": "What is the Model Context Protocol (MCP)?",
+      "url": "https://modelcontextprotocol.io",
+      "publisher": "modelcontextprotocol.io"
+    },
+    {
+      "title": "WebMCP Challenge",
+      "url": "https://openai.com/ko-KR/webmcp-challenge/",
+      "publisher": "OpenAI"
+    }
+  ],
+  "related": ["agent", "harness", "prompt-injection"],
+  "updated": "2026-09-01"
+}

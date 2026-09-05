@@ -7,13 +7,11 @@
   "start_url": "/DADES/",
   "scope": "/DADES/",
   "display": "standalone",
-  "background_color": "#f7f7f2",
-  "theme_color": "#f7f7f2",
+  "background_color": "#f2f1ec",
+  "theme_color": "#f2f1ec",
   "icons": [
-    { "src": "/DADES/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/DADES/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/DADES/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "/DADES/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "/DADES/brand/dades-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/DADES/brand/dades-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "share_target": {
     "action": "/DADES/inbox/",

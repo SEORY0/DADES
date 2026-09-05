@@ -1,0 +1,158 @@
+{
+  "generatedAt": "2026-09-05T18:44:44.621Z",
+  "source": "https://bookofshapes.com/",
+  "patterns": [
+    {
+      "id": "flow_lines",
+      "file": "dades-flow-lines.svg",
+      "values": [
+        "6",
+        "0.132",
+        "0.028",
+        "4242",
+        "6"
+      ],
+      "color": "#dce4f5",
+      "role": "home hero and editorial field",
+      "url": "https://bookofshapes.com/patterns/flow_lines",
+      "controls": [
+        "6",
+        "0.132",
+        "0.028",
+        "4242",
+        "6"
+      ],
+      "exportEntry": "flow-lines-2026-09-05.svg",
+      "bytes": 125375
+    },
+    {
+      "id": "interference-mesh",
+      "file": "dades-interference-mesh.svg",
+      "values": [
+        "58",
+        "8",
+        "4.5",
+        "18",
+        "90",
+        "58"
+      ],
+      "color": "#b8ccff",
+      "role": "status and about immersive field",
+      "url": "https://bookofshapes.com/patterns/interference-mesh",
+      "controls": [
+        "58",
+        "8",
+        "4.5",
+        "18",
+        "90",
+        "58"
+      ],
+      "exportEntry": "interference-mesh-2026-09-05.svg",
+      "bytes": 556068
+    },
+    {
+      "id": "iso_test_noise_field",
+      "file": "dades-isometric-noise.svg",
+      "values": [
+        "34",
+        "22",
+        "310",
+        "1",
+        "1.486",
+        "34"
+      ],
+      "colors": [
+        "#315de8",
+        "#7594f2",
+        "#dce4f5"
+      ],
+      "role": "hardware and compute stories",
+      "url": "https://bookofshapes.com/patterns/iso_test_noise_field",
+      "controls": [
+        "35",
+        "22",
+        "310",
+        "0",
+        "1.486",
+        "35"
+      ],
+      "exportEntry": "isometric-noise-field-2026-09-05.svg",
+      "bytes": 668440
+    },
+    {
+      "id": "node_garden",
+      "file": "dades-node-garden.svg",
+      "values": [
+        "4",
+        "0.38",
+        "8",
+        "23",
+        "20",
+        "1977",
+        "4"
+      ],
+      "color": "#cad7ff",
+      "role": "MCP and agent-network stories",
+      "url": "https://bookofshapes.com/patterns/node_garden",
+      "controls": [
+        "4",
+        "0.38",
+        "8",
+        "23",
+        "20",
+        "1977",
+        "4"
+      ],
+      "exportEntry": "node-garden-2026-09-05.svg",
+      "bytes": 158440
+    },
+    {
+      "id": "rect_field_void",
+      "file": "dades-rect-void.svg",
+      "values": [
+        "165",
+        "1.8",
+        "721",
+        "165"
+      ],
+      "color": "#d6dded",
+      "role": "black-box and model-scale stories",
+      "url": "https://bookofshapes.com/patterns/rect_field_void",
+      "controls": [
+        "165",
+        "1.8",
+        "721",
+        "165"
+      ],
+      "exportEntry": "rectangle-field-void-2026-09-05.svg",
+      "bytes": 302216
+    },
+    {
+      "id": "spiral_mesh",
+      "file": "dades-spiral-mesh.svg",
+      "values": [
+        "26",
+        "50",
+        "12",
+        "302.5",
+        "0.55",
+        "8",
+        "26"
+      ],
+      "color": "#f1c75b",
+      "role": "editorial and citation stories",
+      "url": "https://bookofshapes.com/patterns/spiral_mesh",
+      "controls": [
+        "26",
+        "50",
+        "12",
+        "302",
+        "0.55",
+        "8",
+        "26"
+      ],
+      "exportEntry": "spiral-mesh-2026-09-05.svg",
+      "bytes": 509630
+    }
+  ]
+}

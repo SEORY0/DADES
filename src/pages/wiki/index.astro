@@ -1,11 +1,19 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import StoryCard from '../../components/StoryCard.astro';
 import { WIKI_CATEGORY, fmtDate, sortWiki, stripRefs, wikiHref } from '../../lib/mag';
+import '../../styles/wiki-articles.css';
 
 const entries = sortWiki(await getCollection('wiki'));
 const updated = entries.map((e) => e.data.updated).sort().at(-1) ?? '';
 const sourceCount = entries.reduce((sum, e) => sum + e.data.sources.length, 0);
+const entryBySlug = new Map(entries.map((entry) => [entry.data.slug, entry]));
+const featured = entryBySlug.get('mcp') ?? entries[0];
+const secondary = ['harness', 'agent']
+  .map((slug) => entryBySlug.get(slug))
+  .filter((entry): entry is (typeof entries)[number] => Boolean(entry))
+  .slice(0, 2);
 
 const groups = (Object.keys(WIKI_CATEGORY) as (keyof typeof WIKI_CATEGORY)[])
   .map((key) => ({
@@ -20,35 +28,63 @@ const groups = (Object.keys(WIKI_CATEGORY) as (keyof typeof WIKI_CATEGORY)[])
   title="위키 · 용어집"
   description="쓰는 곳마다 뜻이 흔들리는 AI·보안 용어를 출처와 함께 규정하는 용어집."
   active="wiki"
+  layout="listing"
 >
-  <header class="page-head">
-    <h1 class="page-title">위키 · 용어집</h1>
-    <p class="page-desc">
-      하네스, MCP처럼 쓰는 곳마다 뜻이 조금씩 다른 말을 한 뜻으로 규정합니다. 뜻이 갈리면
-      갈래째 싣고, 출처가 확인된 서술만 싣습니다.
-    </p>
-  </header>
+  <div class="wiki-articles-index" data-articles-index>
+    <div class="wiki-index-grid">
+      <header class="wiki-index-rail" data-reveal>
+        <div>
+          <h1>위키 · 용어집</h1>
+          <p class="wiki-index-stats">
+            항목 {entries.length} · 출처 {sourceCount} · 기준일 {fmtDate(updated)}
+          </p>
+        </div>
+        <p>
+          하네스, MCP처럼 쓰는 곳마다 뜻이 조금씩 다른 말을 한 뜻으로 규정합니다. 뜻이
+          갈리면 갈래째 싣고, 출처가 확인된 서술만 싣습니다.
+        </p>
+      </header>
 
-  <p class="index-totals">
-    항목 {entries.length} · 출처 {sourceCount} · 기준일 {fmtDate(updated)}
-  </p>
-
-  {
-    groups.map((group) => (
-      <section class="wiki-group" aria-label={group.meta.ko}>
-        <h2 class="board-title">{group.meta.ko}</h2>
-        <ul class="wiki-list">
-          {group.entries.map((entry) => (
-            <li class="wiki-row">
-              <a class="wiki-term" href={wikiHref(entry.data.slug)}>
-                {entry.data.term}
-                {entry.data.en && <span class="wiki-en">{entry.data.en}</span>}
-              </a>
-              <p class="wiki-oneliner">{stripRefs(entry.data.oneLiner)}</p>
-            </li>
+      <section class="wiki-story-stack" aria-label="주요 위키 항목" data-reveal>
+        {featured && <StoryCard entry={featured} image="/patterns/dades-node-garden.svg" featured />}
+        <div class="wiki-secondary-grid">
+          {secondary.map((entry, index) => (
+            <StoryCard
+              entry={entry}
+              image={index === 0 ? '/patterns/dades-isometric-noise.svg' : '/patterns/dades-rect-void.svg'}
+            />
           ))}
-        </ul>
+        </div>
       </section>
-    ))
-  }
+    </div>
+
+    <section class="wiki-complete-list" aria-labelledby="all-wiki-terms" data-reveal>
+      <h2 id="all-wiki-terms">모든 항목</h2>
+      {
+        groups.map((group) => (
+          <section class="wiki-group" aria-label={group.meta.ko}>
+            <h3>{group.meta.ko}</h3>
+            <ul class="wiki-list">
+              {group.entries.map((entry) => (
+                <li class="wiki-row">
+                  <a href={wikiHref(entry.data.slug)}>
+                    <span class="wiki-list-title">
+                      {entry.data.term}
+                      {entry.data.en && <span lang="en">{entry.data.en}</span>}
+                    </span>
+                    <span>
+                      <span class="wiki-list-summary">{stripRefs(entry.data.oneLiner)}</span>
+                      <span class="wiki-list-meta">
+                        {fmtDate(entry.data.updated)} · {entry.data.sources.length} sources
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </section>
+  </div>
 </Base>

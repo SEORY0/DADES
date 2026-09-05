@@ -1,0 +1,55 @@
+---
+interface HeroStat {
+  readonly label: string;
+  readonly value: string;
+}
+
+interface Props {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly description: string;
+  readonly imageSrc: string;
+  readonly imageAlt?: string;
+  readonly stats?: readonly HeroStat[];
+}
+
+const {
+  eyebrow,
+  title,
+  description,
+  imageSrc,
+  imageAlt = '',
+  stats = [],
+  ...attrs
+} = Astro.props;
+---
+
+<section class="immersive-hero" data-immersive-hero {...attrs}>
+  <img
+    class="immersive-hero-media"
+    src={imageSrc}
+    width="1536"
+    height="1024"
+    decoding="async"
+    fetchpriority="high"
+    alt={imageAlt}
+  />
+  <span class="immersive-hero-scrim" aria-hidden="true"></span>
+  <div class="immersive-hero-copy" data-reveal>
+    <p class="immersive-label">{eyebrow}</p>
+    <h1>{title}</h1>
+    <p>{description}</p>
+  </div>
+  {
+    stats.length > 0 && (
+      <dl class="immersive-hero-stats" aria-label="요약 지표" data-reveal>
+        {stats.map((stat) => (
+          <div>
+            <dt>{stat.label}</dt>
+            <dd>{stat.value}</dd>
+          </div>
+        ))}
+      </dl>
+    )
+  }
+</section>

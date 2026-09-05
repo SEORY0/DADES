@@ -1,0 +1,134 @@
+/* Book of Shapes exports replace the former raster illustration layer.
+   Layout, glass, and type stay controlled by the Recent-derived page systems. */
+
+:root {
+  --pattern-field-dark: #07112b;
+  --pattern-field-mid: #102554;
+  --pattern-field-soft: #233f7c;
+  --pattern-line-glow: rgba(126, 157, 255, 0.42);
+  --pattern-gold-glow: rgba(241, 199, 91, 0.2);
+  --pattern-card-bg:
+    radial-gradient(circle at 20% 16%, var(--pattern-field-soft), transparent 42%),
+    radial-gradient(circle at 82% 74%, rgba(49, 93, 232, 0.42), transparent 44%),
+    var(--pattern-field-dark);
+}
+
+.home-hero,
+.immersive-hero,
+.immersive-foundation {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(49, 93, 232, 0.58), transparent 38%),
+    radial-gradient(circle at 84% 76%, var(--pattern-gold-glow), transparent 34%),
+    linear-gradient(145deg, var(--pattern-field-mid), var(--pattern-field-dark) 62%);
+}
+
+.home-hero-media,
+.immersive-hero-media,
+.immersive-foundation img {
+  opacity: 0.88;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 2rem var(--pattern-line-glow));
+}
+
+.home-hero-media {
+  object-position: center 46%;
+}
+
+.home-hero-scrim {
+  background:
+    radial-gradient(circle at 50% 46%, rgba(7, 17, 43, 0.06), rgba(7, 17, 43, 0.28) 70%),
+    linear-gradient(180deg, rgba(7, 17, 43, 0.12), rgba(7, 17, 43, 0.46));
+}
+
+.feature-card > a,
+.story-card-link,
+.archive-feature-card,
+.issue-hero-media,
+.article-hero-figure {
+  background: var(--pattern-card-bg);
+}
+
+.feature-card img,
+.story-card-image,
+.archive-feature-card img,
+.issue-hero-media img,
+.article-hero-figure img {
+  opacity: 0.9;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 1.25rem var(--pattern-line-glow));
+}
+
+.feature-card:nth-child(2) > a,
+.wiki-secondary-grid .story-card:nth-child(2) .story-card-link,
+.archive-feature-card:nth-child(2) {
+  background:
+    radial-gradient(circle at 76% 18%, rgba(241, 199, 91, 0.2), transparent 38%),
+    linear-gradient(150deg, #162b5e, #080f24 70%);
+}
+
+.feature-card:nth-child(3) > a,
+.archive-feature-card:nth-child(3) {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(49, 93, 232, 0.5), transparent 34%),
+    linear-gradient(145deg, #111d3d, #060a16 72%);
+}
+
+.feature-card-scrim,
+.archive-card-scrim,
+.story-card-scrim {
+  background:
+    linear-gradient(180deg, rgba(4, 9, 24, 0.04) 18%, rgba(4, 9, 24, 0.18) 52%, rgba(4, 9, 24, 0.92) 100%);
+}
+
+.issue-hero-media,
+.article-hero-figure {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 22px 56px rgba(0, 0, 0, 0.18);
+}
+
+.immersive-hero-scrim {
+  background:
+    radial-gradient(circle at 50% 44%, rgba(7, 17, 43, 0.06) 0 18%, rgba(4, 10, 24, 0.56) 76%),
+    linear-gradient(180deg, rgba(4, 10, 24, 0.08), rgba(4, 10, 24, 0.48));
+}
+
+@media (max-width: 809.98px) {
+  .home-hero-media,
+  .immersive-hero-media,
+  .immersive-foundation img {
+    opacity: 0.8;
+  }
+
+  .home-hero-media {
+    object-position: 52% center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-media,
+  .immersive-hero-media,
+  .immersive-foundation img,
+  .feature-card img,
+  .story-card-image,
+  .archive-feature-card img,
+  .issue-hero-media img,
+  .article-hero-figure img {
+    filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .home-hero-media,
+  .immersive-hero-media,
+  .immersive-foundation img,
+  .feature-card img,
+  .story-card-image,
+  .archive-feature-card img,
+  .issue-hero-media img,
+  .article-hero-figure img {
+    opacity: 1;
+    mix-blend-mode: normal;
+    filter: none;
+  }
+}

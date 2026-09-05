@@ -1,15 +1,22 @@
 ---
 import '../styles/global.css';
-import SheepMark from '../components/SheepMark.astro';
-import { href } from '../lib/mag';
+import '../styles/recent.css';
+import '../styles/glass-interactions.css';
+import '../styles/pattern-surfaces.css';
+import { getCollection } from 'astro:content';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { href, issueHref, issueNo, sortIssues } from '../lib/mag';
+
+type LayoutMode = 'reading' | 'listing' | 'article' | 'immersive';
 
 interface Props {
-  title: string;
-  description?: string;
-  /** 헤더에서 현재 위치 표시: home | archive | clippings | about */
-  active?: string;
-  /** OG 타입 — 이슈 지면은 article */
-  ogType?: 'website' | 'article';
+  readonly title: string;
+  readonly description?: string;
+  readonly active?: string;
+  readonly ogType?: 'website' | 'article';
+  readonly layout?: LayoutMode;
+  readonly home?: boolean;
 }
 
 const {
@@ -17,19 +24,24 @@ const {
   description = '사람이 고르고 클로드가 엮는 AI 주간지, DADES 매거진.',
   active,
   ogType = 'website',
+  layout = 'reading',
+  home = false,
 } = Astro.props;
 
 // 디렉터리형 URL로 통일 — sitemap 표기와 캐노니컬을 일치시킨다
 const canonical = new URL(Astro.url.pathname.replace(/\/?$/, '/'), Astro.site);
 const ogImage = new URL(href('/og.png'), Astro.site);
 
+const [latestIssue] = sortIssues(await getCollection('issues'));
+const latestIssueTo = latestIssue ? issueHref(latestIssue.data.number) : href('/');
+const latestIssueLabel = latestIssue ? `Latest ${issueNo(latestIssue.data.number)}` : 'Latest issue';
+const pageMode = home ? 'home' : layout;
+const isContained = pageMode === 'reading';
+
 const nav = [
-  { key: 'home', label: '발행 목록', to: href('/') },
-  { key: 'status', label: '상태판', to: href('/status/') },
-  { key: 'wiki', label: '위키', to: href('/wiki/') },
-  { key: 'archive', label: 'Index', to: href('/archive/') },
-  { key: 'clippings', label: '스크랩북', to: href('/clippings/'), clipCount: true },
-  { key: 'about', label: '소개', to: href('/about/') },
+  { key: 'home', label: '발행', to: href('/') }, { key: 'status', label: '상태판', to: href('/status/') },
+  { key: 'wiki', label: '위키', to: href('/wiki/') }, { key: 'archive', label: 'Index', to: href('/archive/') },
+  { key: 'about', label: '소개', to: href('/about/') }, { key: 'clippings', label: '스크랩북', to: href('/clippings/'), clipCount: true },
 ];
 ---
 
@@ -60,10 +72,10 @@ const nav = [
       title="DADES 매거진"
       href={href('/rss.xml')}
     />
-    <link rel="icon" type="image/svg+xml" href={href('/favicon.svg')} />
+    <link rel="icon" type="image/png" href={href('/brand/dades-icon-192.png')} />
     <link rel="manifest" href={href('/manifest.webmanifest')} />
-    <link rel="apple-touch-icon" href={href('/icons/apple-touch-icon.png')} />
-    <meta name="theme-color" content="#f7f7f2" />
+    <link rel="apple-touch-icon" href={href('/brand/dades-apple-touch.png')} />
+    <meta name="theme-color" content="#f2f1ec" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
@@ -72,87 +84,116 @@ const nav = [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@1,9..144,400..700,0..100,0..1&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@1,9..144,400..700,0..100,0..1&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
     />
     <script is:inline>
-      // 테마 초기화 — 첫 페인트 전에 적용해 깜빡임을 막는다.
-      // 저장된 선택이 없으면 시스템 다크모드를 따른다.
-      (function () {
+      (() => {
+        document.documentElement.classList.add('has-reveal-js');
         try {
-          var t = localStorage.getItem('dades:theme');
-          if (t !== 'paper' && t !== 'white' && t !== 'ink') {
-            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'ink' : 'paper';
-          }
+          let t = localStorage.getItem('dades:theme');
+          if (t !== 'paper' && t !== 'white' && t !== 'ink') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'ink' : 'paper';
           document.documentElement.setAttribute('data-theme', t);
-          var bar = { paper: '#f7f7f2', white: '#ffffff', ink: '#1a1917' };
-          var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute('content', bar[t]);
-        } catch (e) {}
+          document.querySelector('meta[name="theme-color"]')?.setAttribute('content', { paper: '#f2f1ec', white: '#ffffff', ink: '#111315' }[t]);
+        } catch {}
       })();
     </script>
   </head>
-  <body>
+  <body class:list={['mode-root', `mode-${pageMode}`, { 'is-home': home }]} data-interaction-root>
     <a class="skip-link" href="#main">본문으로 건너뛰기</a>
 
-    <header class="site-head">
-      <div class="container">
-        <a class="brand" href={href('/')} aria-label="DADES 매거진 홈으로">
-          <SheepMark class="brand-sheep" />
-          <span class="brand-name">DADES</span>
-        </a>
-        <nav class="site-nav" aria-label="매거진 내비게이션">
-          {
-            nav.map((link) => (
-              <a href={link.to} aria-current={active === link.key ? 'page' : undefined}>
-                {link.label}
-                {link.clipCount && <span class="side-clip-count" data-clip-count />}
-              </a>
-            ))
-          }
-        </nav>
-      </div>
-    </header>
+    <SiteHeader
+      active={active}
+      nav={nav}
+      latestIssueTo={latestIssueTo}
+      latestIssueLabel={latestIssueLabel}
+    />
 
-    <main class="page container" id="main">
+    <main class:list={['page', `page-${pageMode}`, { container: isContained, 'page-home': home }]} id="main">
       <slot />
     </main>
 
-    <footer class="site-foot">
-      <div class="container">
-        <span class="foot-line">
-          DADES — Do Agents Dream of Electric Sheep? ·
-          <a href="https://github.com/seory0/DADES" target="_blank" rel="noopener">GitHub</a> ·
-          <a href={href('/rss.xml')}>RSS</a>
-        </span>
-        <div class="theme-row" role="group" aria-label="지면 색 고르기">
-          <button class="theme-swatch" data-set-theme="paper" aria-pressed="true" aria-label="종이색 테마" title="paper"></button>
-          <button class="theme-swatch" data-set-theme="white" aria-pressed="false" aria-label="흰색 테마" title="white"></button>
-          <button class="theme-swatch" data-set-theme="ink" aria-pressed="false" aria-label="먹색 테마" title="ink"></button>
-        </div>
-      </div>
-    </footer>
+    <SiteFooter latestIssueTo={latestIssueTo} latestIssueLabel={latestIssueLabel} />
 
     <script>
+      // ---------- 모바일 내비게이션 ----------
+      type ClipStore = Record<string, Record<string, unknown>>;
+      const interactionRoot = document.querySelector<HTMLElement>('[data-interaction-root]');
+      const menuToggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+      const menuPanel = document.querySelector<HTMLElement>('[data-mobile-menu]');
+      const menuLabel = { open: '메뉴 닫기', closed: '메뉴 열기' };
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      function setMenuOpen(open: boolean) {
+        if (!menuToggle || !menuPanel) return;
+        menuToggle.setAttribute('aria-expanded', String(open));
+        menuToggle.setAttribute('aria-label', open ? menuLabel.open : menuLabel.closed);
+        menuPanel.setAttribute('aria-hidden', String(!open));
+        menuPanel.toggleAttribute('inert', !open);
+        document.body.classList.toggle('menu-open', open);
+        if (open) menuPanel.querySelector<HTMLAnchorElement>('[data-menu-first]')?.focus();
+        else if (document.activeElement && menuPanel.contains(document.activeElement)) menuToggle.focus();
+      }
+
+      menuToggle?.addEventListener('click', () => setMenuOpen(menuToggle.getAttribute('aria-expanded') !== 'true'));
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') setMenuOpen(false);
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!document.body.classList.contains('menu-open')) return;
+        if (event.target instanceof Node && !document.querySelector('.site-head')?.contains(event.target)) {
+          setMenuOpen(false);
+        }
+      });
+
+      window.matchMedia('(min-width: 810px)').addEventListener('change', (event) => {
+        if (event.matches) setMenuOpen(false);
+      });
+
+      const updateScrollState = () => document.body.classList.toggle('is-scrolled', window.scrollY > 8);
+      updateScrollState();
+      window.addEventListener('scroll', updateScrollState, { passive: true });
+
+      interactionRoot?.addEventListener('pointermove', (event) => {
+        interactionRoot.style.setProperty('--pointer-x', `${event.clientX}px`);
+        interactionRoot.style.setProperty('--pointer-y', `${event.clientY}px`);
+      });
+
+      const revealItems = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      if (revealItems.length > 0) {
+        if (reduceMotion.matches || !('IntersectionObserver' in window)) {
+          revealItems.forEach((el) => el.classList.add('is-revealed'));
+        } else {
+          const revealObserver = new IntersectionObserver(
+            (entries, observer) => {
+              entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-revealed');
+                observer.unobserve(entry.target);
+              });
+            },
+            { rootMargin: '0px 0px -12% 0px', threshold: 0.12 },
+          );
+          revealItems.forEach((el) => revealObserver.observe(el));
+        }
+      }
+
       // ---------- 테마 스위처 ----------
       const THEME_KEY = 'dades:theme';
       const swatches = document.querySelectorAll<HTMLButtonElement>('.theme-swatch');
-
-      const THEME_BAR: Record<string, string> = { paper: '#f7f7f2', white: '#ffffff', ink: '#1a1917' };
+      const THEME_BAR: Record<string, string> = { paper: '#f2f1ec', white: '#ffffff', ink: '#111315' };
 
       function applyTheme(theme: string) {
         document.documentElement.setAttribute('data-theme', theme);
         document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_BAR[theme]);
-        swatches.forEach((b) =>
-          b.setAttribute('aria-pressed', String(b.dataset.setTheme === theme)),
-        );
+        swatches.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setTheme === theme)));
         try {
           localStorage.setItem(THEME_KEY, theme);
         } catch {}
       }
 
-      swatches.forEach((b) =>
-        b.addEventListener('click', () => applyTheme(b.dataset.setTheme ?? 'paper')),
-      );
+      swatches.forEach((b) => b.addEventListener('click', () => applyTheme(b.dataset.setTheme ?? 'paper')));
       // 초기 상태를 버튼에 반영
       const current = document.documentElement.getAttribute('data-theme') ?? 'paper';
       swatches.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setTheme === current)));
@@ -160,7 +201,7 @@ const nav = [
       // ---------- 클리핑 ----------
       const CLIP_KEY = 'dades:clips:v1';
 
-      function readClips(): Record<string, any> {
+      function readClips(): ClipStore {
         try {
           const parsed = JSON.parse(localStorage.getItem(CLIP_KEY) ?? '{}');
           // 손상된 저장값(문자열·배열·숫자 등)으로부터 클립 버튼을 보호한다
@@ -169,7 +210,7 @@ const nav = [
         return {};
       }
 
-      function writeClips(clips: Record<string, any>) {
+      function writeClips(clips: ClipStore) {
         try {
           localStorage.setItem(CLIP_KEY, JSON.stringify(clips));
         } catch {}
@@ -178,16 +219,15 @@ const nav = [
 
       function updateClipCount() {
         const n = Object.keys(readClips()).length;
-        document.querySelectorAll<HTMLElement>('[data-clip-count]').forEach((el) => {
-          el.textContent = n > 0 ? `(${n})` : '';
-        });
+        document.querySelectorAll<HTMLElement>('[data-clip-count]').forEach((el) => { el.textContent = n > 0 ? `(${n})` : ''; });
       }
 
       // 클립 버튼·카운트를 저장소와 맞춘다 — 초기 로드, bfcache 복원, 다른 탭 변경 시
       function syncClipUi() {
         const clips = readClips();
         document.querySelectorAll<HTMLButtonElement>('.clip-btn[data-clip-id]').forEach((btn) => {
-          const id = btn.dataset.clipId!;
+          const id = btn.dataset.clipId;
+          if (!id) return;
           btn.setAttribute('aria-pressed', String(Boolean(clips[id])));
         });
         updateClipCount();
@@ -233,15 +273,17 @@ const nav = [
       document.addEventListener('click', (e) => {
         const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.clip-btn[data-clip-id]');
         if (!btn) return;
-        const id = btn.dataset.clipId!;
+        const id = btn.dataset.clipId;
+        if (!id) return;
         const store = readClips();
         if (store[id]) {
           delete store[id];
           btn.setAttribute('aria-pressed', 'false');
         } else {
-          let payload: any = null;
+          let payload: Record<string, unknown> | null = null;
           try {
-            payload = JSON.parse(btn.dataset.clipPayload ?? 'null');
+            const parsed = JSON.parse(btn.dataset.clipPayload ?? 'null');
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) payload = parsed;
           } catch {}
           if (!payload) return;
           store[id] = { ...payload, clippedAt: Date.now() };

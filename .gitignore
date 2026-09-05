@@ -3,3 +3,11 @@ dist/
 .astro/
 npm-debug.log*
 .DS_Store
+
+# Local design/runtime evidence
+.omo/
+artifacts/baseline/
+artifacts/book-of-shapes/*.png
+artifacts/qa/comparisons/
+artifacts/qa/current/
+artifacts/qa/final-captures/

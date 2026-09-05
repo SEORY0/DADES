@@ -1,0 +1,82 @@
+---
+interface PulseIssue {
+  readonly n: number;
+  readonly d: string;
+  readonly action: number;
+  readonly tags: readonly string[];
+}
+
+interface Props {
+  readonly data: {
+    readonly issues: readonly PulseIssue[];
+    readonly boardChanges: readonly string[];
+  };
+}
+
+const { data } = Astro.props;
+---
+
+<p class="pulse" data-pulse hidden></p>
+<script type="application/json" data-pulse-data set:html={JSON.stringify(data)} />
+
+<script>
+  import { fmtDate, href, issueHref } from '../lib/mag';
+
+  interface Pulse {
+    issues: { n: number; d: string; action: number; tags: string[] }[];
+    boardChanges: string[];
+  }
+
+  const el = document.querySelector<HTMLElement>('[data-pulse]')!;
+  const data: Pulse = JSON.parse(
+    document.querySelector('[data-pulse-data]')?.textContent ?? '{"issues":[],"boardChanges":[]}',
+  );
+
+  function readInterests(): Set<string> {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('dades:interests:v1') ?? '[]');
+      if (Array.isArray(parsed)) return new Set(parsed.filter((tag) => typeof tag === 'string'));
+    } catch {}
+    return new Set();
+  }
+
+  let baseline = '';
+  try {
+    const stored = sessionStorage.getItem('dades:baseline');
+    if (stored === null) {
+      baseline = localStorage.getItem('dades:last-seen') ?? '';
+      sessionStorage.setItem('dades:baseline', baseline);
+    } else {
+      baseline = stored;
+    }
+  } catch {}
+
+  if (baseline) {
+    const newIssues = data.issues.filter((issue) => issue.d > baseline);
+    const boardChanges = data.boardChanges.filter((date) => date > baseline).length;
+
+    if (newIssues.length === 0 && boardChanges === 0) {
+      el.textContent = `지난 방문(${fmtDate(baseline)}) 이후 새로 챙길 것 없음`;
+      el.hidden = false;
+    } else {
+      const actionNeeded = newIssues.reduce((sum, issue) => sum + issue.action, 0);
+      const interests = readInterests();
+      const hits = newIssues.reduce(
+        (sum, issue) => sum + (issue.tags.some((tag) => interests.has(tag)) ? 1 : 0),
+        0,
+      );
+      const parts: string[] = [];
+
+      if (newIssues.length > 0) {
+        const target = newIssues.reduce((a, b) => (a.n > b.n ? a : b));
+        parts.push(`<a href="${issueHref(target.n)}">새 이슈 ${newIssues.length}</a>`);
+        parts.push(`행동 필요 ${actionNeeded}`);
+      }
+      if (boardChanges > 0) parts.push(`<a href="${href('/status/')}">상태판 변경 ${boardChanges}</a>`);
+      if (hits > 0) parts.push(`관심 태그 적중 ${hits}`);
+
+      el.innerHTML = `지난 방문(${fmtDate(baseline)}) 이후: ${parts.join(' · ')}`;
+      el.hidden = false;
+    }
+  }
+</script>

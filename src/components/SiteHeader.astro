@@ -1,0 +1,85 @@
+---
+import { href } from '../lib/mag';
+
+interface NavigationItem {
+  readonly key: string;
+  readonly label: string;
+  readonly to: string;
+  readonly clipCount?: boolean;
+}
+
+interface Props {
+  readonly active?: string;
+  readonly nav: readonly NavigationItem[];
+  readonly latestIssueTo: string;
+  readonly latestIssueLabel: string;
+}
+
+const { active, nav, latestIssueTo, latestIssueLabel } = Astro.props;
+---
+
+<header class="site-head">
+  <div class="nav-shell" data-glass-surface>
+    <span class="glass-fill-layer" aria-hidden="true"></span>
+    <span class="glass-highlight-layer" data-glass-highlight aria-hidden="true"></span>
+    <a class="brand" href={href('/')} aria-label="DADES 매거진 홈으로">
+      <img
+        class="brand-mark"
+        src={href('/brand/dades-editorial-logo.webp')}
+        width="1128"
+        height="912"
+        alt=""
+      />
+      <span class="sr-only">DADES</span>
+    </a>
+    <nav class="site-nav" aria-label="매거진 내비게이션">
+      {
+        nav.slice(0, 4).map((link) => (
+          <a class="nav-link" href={link.to} aria-current={active === link.key ? 'page' : undefined}>
+            <span class="nav-hover-pill" aria-hidden="true"></span>
+            <span class="nav-active-pill" aria-hidden="true"></span>
+            <span class="nav-label">{link.label}</span>
+          </a>
+        ))
+      }
+    </nav>
+    <button
+      class="menu-toggle"
+      type="button"
+      data-menu-toggle
+      aria-label="메뉴 열기"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <span class="menu-toggle-line" aria-hidden="true"></span>
+      <span class="menu-toggle-line" aria-hidden="true"></span>
+    </button>
+    <a class="nav-cta" href={latestIssueTo}>
+      <span>{latestIssueLabel}</span><span aria-hidden="true"> →</span>
+    </a>
+  </div>
+
+  <div class="mobile-menu" id="mobile-menu" data-mobile-menu data-glass-surface aria-hidden="true" inert>
+    <span class="glass-fill-layer" aria-hidden="true"></span>
+    <span class="glass-highlight-layer" data-glass-highlight aria-hidden="true"></span>
+    <nav aria-label="모바일 매거진 내비게이션">
+      {
+        nav.map((link, index) => (
+          <a
+            href={link.to}
+            aria-current={active === link.key ? 'page' : undefined}
+            data-menu-first={index === 0 ? '' : undefined}
+          >
+            <span>{link.label}</span>
+            {link.clipCount ? (
+              <span class="mobile-menu-meta" data-clip-count />
+            ) : (
+              <span class="mobile-menu-meta" aria-hidden="true">0{index + 1}</span>
+            )}
+          </a>
+        ))
+      }
+    </nav>
+    <p class="mobile-menu-note">사람이 고르고, 에이전트가 엮는 AI 매거진.</p>
+  </div>
+</header>

@@ -1,25 +1,72 @@
 ---
-import SheepMark from './SheepMark.astro';
+import { href } from '../lib/mag';
+
+interface Props {
+  latestHref: string;
+  issueLabel: string;
+  issueTitle: string;
+}
+
+const { latestHref, issueLabel, issueTitle } = Astro.props;
 ---
 
-<header class="masthead">
-  <SheepMark class="masthead-sheep" />
-  <h1 class="masthead-title">
-    Do Agents Dream of
-    <span class="word-electric"
-      >Electric<svg
-        class="bolt-line"
-        viewBox="0 0 120 10"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-        ><path
-          d="M0 8 L15 2 L30 8 L45 2 L60 8 L75 2 L90 8 L105 2 L120 8"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.5"
-        ></path></svg
-      ></span
-    > Sheep?
-  </h1>
-  <p class="masthead-sub">사람이 고르고 클로드가 엮는 AI 주간지</p>
-</header>
+<section class="home-hero" data-home-hero data-home-scene aria-labelledby="home-hero-title">
+  <img
+    class="home-hero-media"
+    data-hero-parallax
+    src={href('/patterns/dades-flow-lines.svg')}
+    width="1536"
+    height="1024"
+    alt=""
+    loading="eager"
+    decoding="async"
+    fetchpriority="high"
+    aria-hidden="true"
+  />
+  <div class="home-hero-scrim" aria-hidden="true"></div>
+
+  <div class="home-hero-copy">
+    <p class="home-hero-kicker">DADES · INDEPENDENT AI MAGAZINE</p>
+    <h1 id="home-hero-title">
+      <span>사람이 고르고,</span>
+      <span>에이전트가 엮는 지면</span>
+    </h1>
+    <a class="home-hero-link" data-hero-glass href={latestHref}>
+      <span>{issueLabel} 펼치기</span>
+      <span class="home-hero-link-title">{issueTitle}</span>
+    </a>
+  </div>
+
+  <a class="home-scroll-cue" href="#latest" aria-label="이번 호 소개로 이동">
+    <span>Scroll</span>
+    <span aria-hidden="true">↓</span>
+  </a>
+</section>
+
+<script>
+  const hero = document.querySelector<HTMLElement>('[data-home-hero]');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (hero && !reduceMotion.matches) {
+    let frame = 0;
+    hero.addEventListener('pointermove', (event) => {
+      if (event.pointerType !== 'mouse') return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const bounds = hero.getBoundingClientRect();
+        const x = ((event.clientX - bounds.left) / bounds.width - 0.5) * -1;
+        const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * -1;
+        hero.style.setProperty('--hero-shift-x', `${x * 18}px`);
+        hero.style.setProperty('--hero-shift-y', `${y * 12}px`);
+        hero.style.setProperty('--hero-glass-x', `${(1 - x) * 50}%`);
+        hero.style.setProperty('--hero-glass-y', `${(1 - y) * 50}%`);
+      });
+    });
+    hero.addEventListener('pointerleave', () => {
+      hero.style.setProperty('--hero-shift-x', '0px');
+      hero.style.setProperty('--hero-shift-y', '0px');
+      hero.style.setProperty('--hero-glass-x', '50%');
+      hero.style.setProperty('--hero-glass-y', '50%');
+    });
+  }
+</script>

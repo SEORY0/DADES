@@ -2,11 +2,11 @@
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Entry from '../../components/Entry.astro';
+import IssueHero from '../../components/IssueHero.astro';
+import '../../styles/issue-archive.css';
 import {
-  SIGNAL_META,
   SOURCE_META,
   SOURCE_ORDER,
-  fmtDate,
   issueHref,
   issueNo,
   signalCounts,
@@ -54,81 +54,54 @@ const flat = (item: (typeof items)[number]) => ({
 });
 ---
 
-<Base title={`Issue ${issueNo(number)} — ${title}`} description={intro} active="home" ogType="article">
-  <div data-pagefind-body>
-    <header class="issue-head">
-      <div class="issue-kicker">
-        <span class="no">Issue {issueNo(number)}</span>
-        <span>{fmtDate(date)}</span>
-        {period && <span>수집 기간 {period}</span>}
-        <span>아이템 {items.length}</span>
-      </div>
-      <h1>{title}</h1>
-      {intro && <p class="issue-intro">{intro}</p>}
+<Base title={`Issue ${issueNo(number)} — ${title}`} description={intro} active="home" ogType="article" layout="article">
+  <article class="issue-article">
+    <IssueHero
+      number={number}
+      title={title}
+      date={date}
+      period={period}
+      intro={intro}
+      items={items}
+      signals={signals}
+      firstActionId={firstAction?.id}
+    />
 
-      <div class="signal-row" role="group" aria-label="이번 호 신호">
-        <div class="signal-bar" aria-hidden="true">
-          {signals.action > 0 && <span class="seg-action" style={`flex-grow:${signals.action}`} />}
-          {signals.context > 0 && <span class="seg-context" style={`flex-grow:${signals.context}`} />}
-          {signals.noise > 0 && <span class="seg-noise" style={`flex-grow:${signals.noise}`} />}
-        </div>
-        <p class="signal-legend">
-          {
-            firstAction ? (
-              <a href={`#${firstAction.id}`}>
-                <span class="key key-action" aria-hidden="true" /> {SIGNAL_META.action.ko}{' '}
-                {signals.action}
-              </a>
-            ) : (
-              <span>
-                <span class="key key-action" aria-hidden="true" /> {SIGNAL_META.action.ko} 0
-              </span>
-            )
-          }
-          <span>
-            <span class="key key-context" aria-hidden="true" /> {SIGNAL_META.context.ko}{' '}
-            {signals.context}
-          </span>
-          <span>
-            <span class="key key-noise" aria-hidden="true" /> {SIGNAL_META.noise.ko} {signals.noise}
-          </span>
-        </p>
-      </div>
-    </header>
-
-    {
-      useSections ? (
-        sections.map((section) => (
-          <section aria-label={section.meta.ko}>
-            <h2 class="section-heading">
-              {section.meta.ko}
-              <span class="count">{section.items.length}</span>
-            </h2>
-            {section.items.map((item) => (
-              <Entry flat={flat(item)} />
+    <div class="issue-reading" data-pagefind-body>
+      {
+        useSections ? (
+          sections.map((section) => (
+            <section class="issue-section" aria-label={section.meta.ko} data-reveal>
+              <h2 class="section-heading">
+                {section.meta.ko}
+                <span class="count">{section.items.length}</span>
+              </h2>
+              {section.items.map((item) => (
+                <Entry flat={flat(item)} />
+              ))}
+            </section>
+          ))
+        ) : (
+          <section aria-label="이번 호 수록" class="flat-entries issue-section" data-reveal>
+            {items.map((item) => (
+              <Entry flat={flat(item)} headingLevel="h2" />
             ))}
           </section>
-        ))
-      ) : (
-        <section aria-label="이번 호 수록" class="flat-entries">
-          {items.map((item) => (
-            <Entry flat={flat(item)} headingLevel="h2" />
-          ))}
-        </section>
-      )
-    }
-  </div>
+        )
+      }
+    </div>
 
-  <nav class="issue-pager" aria-label="이슈 넘기기">
-    <span>
-      {older && (
-        <a href={issueHref(older.data.number)}>← 지난 호 {issueNo(older.data.number)}</a>
-      )}
-    </span>
-    <span>
-      {newer && (
-        <a href={issueHref(newer.data.number)}>다음 호 {issueNo(newer.data.number)} →</a>
-      )}
-    </span>
-  </nav>
+    <nav class="issue-pager" aria-label="이슈 넘기기" data-reveal>
+      <span>
+        {older && (
+          <a href={issueHref(older.data.number)}>← 지난 호 {issueNo(older.data.number)}</a>
+        )}
+      </span>
+      <span>
+        {newer && (
+          <a href={issueHref(newer.data.number)}>다음 호 {issueNo(newer.data.number)} →</a>
+        )}
+      </span>
+    </nav>
+  </article>
 </Base>

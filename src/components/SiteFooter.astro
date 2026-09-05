@@ -1,0 +1,52 @@
+---
+import { href } from '../lib/mag';
+
+interface Props {
+  readonly latestIssueTo: string;
+  readonly latestIssueLabel: string;
+}
+
+const { latestIssueTo, latestIssueLabel } = Astro.props;
+---
+
+<footer class="site-foot">
+  <div class="foot-cta-wrap">
+    <a class="foot-cta" href={latestIssueTo}>
+      <span class="foot-cta-kicker">THE LATEST ISSUE</span>
+      <span class="foot-cta-title">이번 주의 소란에서<br />읽을 것만 남겼습니다.</span>
+      <span class="foot-cta-action">{latestIssueLabel}<span aria-hidden="true"> →</span></span>
+    </a>
+  </div>
+
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <img
+        src={href('/brand/dades-editorial-logo.webp')}
+        width="1128"
+        height="912"
+        alt="DADES"
+      />
+      <p>Do Agents Dream of Electric Sheep?</p>
+    </div>
+
+    <nav class="foot-links" aria-label="푸터 내비게이션">
+      <a href={href('/about/')}>소개</a>
+      <a href={href('/clippings/')}>스크랩북 <span data-clip-count /></a>
+      <a href={href('/rss.xml')}>RSS</a>
+      <a href="https://github.com/seory0/DADES" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+
+    <div class="foot-meta">
+      <div class="theme-row" role="group" aria-label="지면 색 고르기">
+        <button class="theme-swatch" data-set-theme="paper" aria-pressed="true" aria-label="종이색 테마" title="paper"><span>Paper</span></button>
+        <button class="theme-swatch" data-set-theme="white" aria-pressed="false" aria-label="흰색 테마" title="white"><span>White</span></button>
+        <button class="theme-swatch" data-set-theme="ink" aria-pressed="false" aria-label="먹색 테마" title="ink"><span>Ink</span></button>
+      </div>
+      <p>© {new Date().getFullYear()} DADES. Edited by human, assembled with AI.</p>
+      <p>
+        Patterns generated with <a href="https://bookofshapes.com/" target="_blank" rel="noopener">Book of Shapes</a>
+        by Nikolaj Sokolowski.
+      </p>
+    </div>
+  </div>
+</footer>

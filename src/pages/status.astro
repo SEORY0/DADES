@@ -1,7 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import { STATUS_META, flattenChangelog, fmtDate, issueHref, issueNo, sortBoards } from '../lib/mag';
+import ImmersiveHero from '../components/ImmersiveHero.astro';
+import '../styles/immersive-pages.css';
+import { STATUS_META, flattenChangelog, fmtDate, href, issueHref, issueNo, sortBoards } from '../lib/mag';
 
 const boards = sortBoards(await getCollection('boards'));
 const rows = boards.flatMap((b) => b.data.rows);
@@ -22,56 +24,69 @@ const stats = [
   title="상태판"
   description="뉴스가 아니라 현재 상태. 지금 뭘 쓰면 되는지에 대한 에디터의 답과 변경 이력."
   active="status"
+  layout="immersive"
 >
-  <header class="page-head">
-    <h1 class="page-title">상태판</h1>
-    <p class="page-desc">
-      뉴스는 흘러가고, 여기에는 현재 답만 남습니다. 이 판이 바뀌지 않았다면 그 주의 소식은
-      몰라도 됩니다. 변경은 아래 이력에 근거가 실린 호와 함께 기록됩니다.
-    </p>
-  </header>
+  <ImmersiveHero
+    data-status-scene
+    eyebrow="STATUS BOARD"
+    title="뉴스가 아니라, 지금의 답"
+    description="뉴스는 흘러가고, 여기에는 현재 답만 남습니다. 이 판이 바뀌지 않았다면 그 주의 소식은 몰라도 됩니다. 변경은 아래 이력에 근거가 실린 호와 함께 기록됩니다."
+    imageSrc={href('/patterns/dades-interference-mesh.svg')}
+    stats={stats}
+  />
 
-  <div class="stat-row" role="group" aria-label="상태판 요약">
-    {
-      stats.map((s) => (
-        <div class="stat-cell">
-          <span class="stat-value">{s.value}</span>
-          <span class="stat-label">{s.label}</span>
-        </div>
-      ))
-    }
-  </div>
+  <section class="immersive-foundation status-foundation" data-status-scene aria-labelledby="status-foundation-title">
+    <img
+      src={href('/patterns/dades-flow-lines.svg')}
+      width="1536"
+      height="1024"
+      loading="lazy"
+      decoding="async"
+      alt=""
+      aria-hidden="true"
+    />
+    <span class="immersive-foundation-scrim" aria-hidden="true"></span>
+    <div class="immersive-foundation-copy" data-reveal>
+      <p class="immersive-label">FOUNDATION</p>
+      <h2 id="status-foundation-title">바뀐 것보다, 바꿀 이유를 봅니다.</h2>
+      <p>
+        상태판은 DADES가 실제로 쓰거나 지켜보는 선택지만 남긴 운영 기록입니다.
+        추천은 현재형으로, 변경은 날짜와 이슈 근거가 붙은 이력으로 남깁니다.
+      </p>
+    </div>
+  </section>
 
   {
     boards.map((board) => (
-      <section class="board" aria-label={board.data.title}>
-        <h2 class="board-title">
-          {board.data.title}
-          <span class="board-question">{board.data.question}</span>
-        </h2>
-        <div class="board-grid" role="table">
-          <div class="board-row board-row-head" role="row">
+      <section class="immersive-paper status-board-scene" data-status-scene aria-labelledby={`${board.data.slug}-title`}>
+        <div class="immersive-paper-copy" data-reveal>
+          <p class="immersive-label">BOARD · {fmtDate(board.data.updated)}</p>
+          <h2 id={`${board.data.slug}-title`}>{board.data.title}</h2>
+          <p>{board.data.question}</p>
+        </div>
+        <div class="status-board" role="table" aria-label={board.data.title} data-reveal>
+          <div class="status-row status-row-head" role="row">
             <span role="columnheader">영역</span>
             <span role="columnheader">현재 답</span>
             <span role="columnheader">상태</span>
             <span role="columnheader">기준</span>
           </div>
           {board.data.rows.map((row) => (
-            <div class="board-row" role="row" id={`${board.data.slug}-${row.id}`}>
-              <span class="board-area" role="cell">{row.area}</span>
-              <span class="board-pick" role="cell">
+            <div class:list={['status-row', { 'is-actionable': Boolean(row.url) }]} role="row" id={`${board.data.slug}-${row.id}`}>
+              <span class="status-area" role="cell">{row.area}</span>
+              <span class="status-pick" role="cell">
                 {row.url ? (
                   <a href={row.url} target="_blank" rel="noopener">{row.pick}</a>
                 ) : (
                   <strong>{row.pick}</strong>
                 )}
-                {row.note && <span class="board-note">{row.note}</span>}
+                {row.note && <span class="status-note">{row.note}</span>}
               </span>
-              <span class={`board-status st-${row.status}`} role="cell">
+              <span class={`status-badge st-${row.status}`} role="cell">
                 <span class="st-dot" aria-hidden="true"></span>
                 {STATUS_META[row.status].ko}
               </span>
-              <span class="board-since" role="cell">{fmtDate(row.since)}</span>
+              <span class="status-since" role="cell">{fmtDate(row.since)}</span>
             </div>
           ))}
         </div>
@@ -79,18 +94,22 @@ const stats = [
     ))
   }
 
-  <section aria-label="변경 이력">
-    <h2 class="board-title delta-title">변경 이력</h2>
-    <ol class="delta-list">
+  <section class="immersive-paper status-change-scene" data-status-scene aria-labelledby="status-change-title">
+    <div class="immersive-paper-copy" data-reveal>
+      <p class="immersive-label">CHANGELOG</p>
+      <h2 id="status-change-title">변경 이력</h2>
+      <p>판단이 바뀐 날, 어느 판에서 무엇이 바뀌었는지와 근거가 된 호를 함께 남깁니다.</p>
+    </div>
+    <ol class="status-delta-list" data-reveal>
       {
         changelog.map((entry) => (
-          <li class="delta-item">
-            <span class="delta-date">{fmtDate(entry.date)}</span>
-            <span class="delta-body">
-              <span class="delta-board">{entry.board}</span>
+          <li class="status-delta-item">
+            <time datetime={entry.date}>{fmtDate(entry.date)}</time>
+            <span>
+              <strong>{entry.board}</strong>
               {entry.text}
               {entry.issue != null && (
-                <a class="delta-ref" href={issueHref(entry.issue)}>{issueNo(entry.issue)}</a>
+                <a class="status-delta-ref" href={issueHref(entry.issue)}>{issueNo(entry.issue)}</a>
               )}
             </span>
           </li>

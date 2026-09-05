@@ -1,61 +1,119 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { SOURCE_META, SOURCE_ORDER, collectTags, flattenItems, tagHref } from '../../lib/mag';
+import '../../styles/issue-archive.css';
+import { SOURCE_META, SOURCE_ORDER, collectTags, flattenItems, href, issueHref, issueNo, tagHref } from '../../lib/mag';
 
 const issues = await getCollection('issues');
 const tags = collectTags(issues);
 const all = flattenItems(issues);
 
 const totals = SOURCE_ORDER.map((key) => ({
+  key,
   meta: SOURCE_META[key],
   count: all.filter(({ item }) => item.source === key).length,
 })).filter((t) => t.count > 0);
+
+const archiveMedia = [
+  {
+    src: href('/patterns/dades-node-garden.svg'),
+    alt: '푸른 노드와 연결선이 정원처럼 퍼지는 Book of Shapes ‘Node Garden’ 패턴',
+  },
+  {
+    src: href('/patterns/dades-isometric-noise.svg'),
+    alt: '연한 푸른 등축 격자와 점이 입체적으로 흩어진 Book of Shapes ‘Isometric Noise’ 패턴',
+  },
+  {
+    src: href('/patterns/dades-rect-void.svg'),
+    alt: '사각형 격자가 중앙의 빈 공간을 둘러싼 Book of Shapes ‘Rect Void’ 패턴',
+  },
+];
+
+const featureLinks = totals.slice(0, 3).map((total, index) => {
+  const first = all.find(({ item }) => item.source === total.key)!;
+  return {
+    ...total,
+    flat: first,
+    media: archiveMedia[index],
+  };
+});
 ---
 
 <Base
   title="Index — 주제 색인"
   description="발행된 모든 큐레이션을 주제 태그로 다시 찾아보는 색인."
   active="archive"
+  layout="listing"
 >
-  <header class="page-head">
-    <h1 class="page-title">Index · 주제 색인</h1>
-    <p class="page-desc">
-      발행된 모든 항목을 태그로 다시 묶은 색인입니다. 그 글이 몇 호에 실렸는지 기억나지
-      않을 때 여기서 찾으면 됩니다.
-    </p>
-  </header>
+  <section class="archive-listing-hero" aria-labelledby="archive-title">
+    <div class="archive-listing-copy" data-reveal>
+      <p class="archive-eyebrow">DADES INDEX</p>
+      <h1 id="archive-title">Index · 주제 색인</h1>
+      <p>
+        발행된 모든 항목을 태그로 다시 묶은 색인입니다. 그 글이 몇 호에 실렸는지 기억나지
+        않을 때 여기서 찾으면 됩니다.
+      </p>
+      <p class="index-totals">
+        지금까지 {totals.map((t) => `${t.meta.ko} ${t.count}`).join(' · ')} · 태그 {tags.length}
+      </p>
+    </div>
 
-  <div class="index-search" data-index-search hidden></div>
-
-  <p class="index-totals">
-    지금까지 {totals.map((t) => `${t.meta.ko} ${t.count}`).join(' · ')} · 태그 {tags.length}
-  </p>
-
-  <p class="index-hint">
-    ★로 관심 태그를 등록하면 지면에서 해당 항목이 표시되고, 홈의 방문 요약에 적중 여부가
-    함께 나옵니다. 이 브라우저에만 저장됩니다.
-  </p>
-
-  <ul class="index-list">
-    {
-      tags.map(([tag, count]) => (
-        <li class="index-row">
-          <button
-            class="interest-btn"
-            data-interest-tag={tag}
-            aria-pressed="false"
-            aria-label={`관심 태그로 등록: ${tag}`}
-          >★</button>
-          <a class="index-line" href={tagHref(tag)}>
-            <span class="index-tag">{tag}</span>
-            <span class="leader" />
-            <span class="count">{count}</span>
+    <div class="archive-feature-grid" aria-label="출처별 대표 링크" data-reveal>
+      {
+        featureLinks.map((feature) => (
+          <a class="archive-feature-card" href={`${issueHref(feature.flat.issue.number)}#${feature.flat.item.id}`}>
+            <img
+              src={feature.media.src}
+              width="1536"
+              height="1024"
+              loading="lazy"
+              decoding="async"
+              alt={feature.media.alt}
+            />
+            <span class="archive-card-scrim" aria-hidden="true"></span>
+            <span class="archive-card-copy">
+              <span class="archive-card-meta">
+                {feature.meta.ko} · {feature.count}건 · {issueNo(feature.flat.issue.number)}
+              </span>
+              <span class="archive-card-title">{feature.flat.item.title}</span>
+            </span>
           </a>
-        </li>
-      ))
-    }
-  </ul>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="archive-index-body" aria-labelledby="tag-index-title">
+    <div class="index-search" data-index-search hidden></div>
+
+    <div class="archive-index-head" data-reveal>
+      <h2 id="tag-index-title">전체 태그</h2>
+      <p class="index-hint">
+        ★로 관심 태그를 등록하면 지면에서 해당 항목이 표시되고, 홈의 방문 요약에 적중 여부가
+        함께 나옵니다. 이 브라우저에만 저장됩니다.
+      </p>
+    </div>
+
+    <ul class="index-list" data-reveal>
+      {
+        tags.map(([tag, count]) => (
+          <li class="index-row">
+            <button
+              class="interest-btn"
+              data-interest-tag={tag}
+              aria-pressed="false"
+              aria-label={`관심 태그로 등록: ${tag}`}
+            >★</button>
+            <a class="index-line" href={tagHref(tag)}>
+              <span class="index-tag">{tag}</span>
+              <span class="leader" />
+              <span class="count">{count}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
 </Base>
 
 <script>
@@ -81,13 +139,16 @@ const totals = SOURCE_ORDER.map((key) => ({
   function sync() {
     const interests = new Set(read());
     buttons.forEach((btn) => {
-      btn.setAttribute('aria-pressed', String(interests.has(btn.dataset.interestTag!)));
+      const tag = btn.dataset.interestTag;
+      if (!tag) return;
+      btn.setAttribute('aria-pressed', String(interests.has(tag)));
     });
   }
 
   buttons.forEach((btn) =>
     btn.addEventListener('click', () => {
-      const tag = btn.dataset.interestTag!;
+      const tag = btn.dataset.interestTag;
+      if (!tag) return;
       const interests = new Set(read());
       interests.has(tag) ? interests.delete(tag) : interests.add(tag);
       write([...interests]);
@@ -103,11 +164,20 @@ const totals = SOURCE_ORDER.map((key) => ({
   // Pagefind 전문 검색 — 인덱스는 빌드 시 생성되므로(dev에는 없음) 있을 때만 붙인다.
   import { href } from '../../lib/mag';
 
-  const mount = document.querySelector<HTMLElement>('[data-index-search]')!;
+  interface PagefindOptions {
+    element: HTMLElement;
+    showSubResults: boolean;
+    showImages: boolean;
+    translations: Record<string, string>;
+  }
+
+  type PagefindConstructor = new (options: PagefindOptions) => unknown;
+  const pagefindWindow = window as Window & { PagefindUI?: PagefindConstructor };
+  const mount = document.querySelector<HTMLElement>('[data-index-search]');
   const uiCss = href('/pagefind/pagefind-ui.css');
   const uiJs = href('/pagefind/pagefind-ui.js');
 
-  fetch(uiJs, { method: 'HEAD' })
+  if (mount) fetch(uiJs, { method: 'HEAD' })
     .then((res) => {
       if (!res.ok) return;
       const link = document.createElement('link');
@@ -118,7 +188,9 @@ const totals = SOURCE_ORDER.map((key) => ({
       const script = document.createElement('script');
       script.src = uiJs;
       script.onload = () => {
-        new (window as any).PagefindUI({
+        const PagefindUI = pagefindWindow.PagefindUI;
+        if (!PagefindUI) return;
+        new PagefindUI({
           element: mount,
           showSubResults: false,
           showImages: false,

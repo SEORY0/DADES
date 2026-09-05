@@ -1,0 +1,57 @@
+---
+import Cited from './Cited.astro';
+import type { WikiEntry } from '../lib/mag';
+import { WIKI_CATEGORY, fmtDate, href } from '../lib/mag';
+
+interface Props {
+  readonly entry: WikiEntry;
+}
+
+const { entry } = Astro.props;
+const { category, en, oneLiner, slug, sources, term, updated } = entry.data;
+
+const HERO_MEDIA: Record<string, string> = {
+  agent: '/patterns/dades-rect-void.svg',
+  'context-window': '/patterns/dades-interference-mesh.svg',
+  harness: '/patterns/dades-isometric-noise.svg',
+  'lethal-trifecta': '/patterns/dades-node-garden.svg',
+  mcp: '/patterns/dades-node-garden.svg',
+  'prompt-injection': '/patterns/dades-spiral-mesh.svg',
+  prompt: '/patterns/dades-rect-void.svg',
+  token: '/patterns/dades-spiral-mesh.svg',
+};
+
+const PATTERN_ALT: Record<string, string> = {
+  '/patterns/dades-interference-mesh.svg': '교차하는 푸른 격자선의 Book of Shapes ‘Interference Mesh’ 패턴',
+  '/patterns/dades-isometric-noise.svg': '연한 푸른 등축 격자와 점의 Book of Shapes ‘Isometric Noise’ 패턴',
+  '/patterns/dades-node-garden.svg': '푸른 노드와 연결선의 Book of Shapes ‘Node Garden’ 패턴',
+  '/patterns/dades-rect-void.svg': '중앙의 빈 공간을 둘러싼 사각 격자의 Book of Shapes ‘Rect Void’ 패턴',
+  '/patterns/dades-spiral-mesh.svg': '노란 선이 소용돌이치는 Book of Shapes ‘Spiral Mesh’ 패턴',
+};
+
+const image = HERO_MEDIA[slug] ?? '/patterns/dades-interference-mesh.svg';
+const imageAlt = PATTERN_ALT[image] ?? 'Book of Shapes 기하 패턴';
+const categoryLabel = WIKI_CATEGORY[category].ko;
+---
+
+<header class="article-hero" data-article-hero>
+  <div class="article-hero-copy" data-reveal>
+    <p class="article-hero-kicker">{categoryLabel}</p>
+    {en && <p class="article-hero-deck" lang="en">{en}</p>}
+    <h1>{term}</h1>
+    <p class="article-hero-meta">Updated {fmtDate(updated)} · {sources.length} sources</p>
+    <p class="article-hero-one-liner">
+      <Cited text={oneLiner} sourceCount={sources.length} />
+    </p>
+  </div>
+  <figure class="article-hero-figure" data-reveal>
+    <img
+      src={href(image)}
+      alt={`${term} 항목을 상징하는 ${imageAlt}`}
+      width="1128"
+      height="603"
+      decoding="async"
+      fetchpriority="high"
+    />
+  </figure>
+</header>

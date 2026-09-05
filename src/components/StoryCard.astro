@@ -1,0 +1,48 @@
+---
+import type { WikiEntry } from '../lib/mag';
+import { WIKI_CATEGORY, fmtDate, href, stripRefs, wikiHref } from '../lib/mag';
+
+interface Props {
+  readonly entry: WikiEntry;
+  readonly image: string;
+  readonly featured?: boolean;
+}
+
+const { entry, image, featured = false } = Astro.props;
+const { category, en, oneLiner, slug, sources, term, updated } = entry.data;
+const categoryLabel = WIKI_CATEGORY[category].ko;
+const metadata = `${fmtDate(updated)} · ${sources.length} sources`;
+const patternAlt: Record<string, string> = {
+  '/patterns/dades-flow-lines.svg': '옅은 흐름선의 Book of Shapes ‘Flow Lines’ 패턴',
+  '/patterns/dades-interference-mesh.svg': '교차하는 푸른 격자선의 Book of Shapes ‘Interference Mesh’ 패턴',
+  '/patterns/dades-isometric-noise.svg': '연한 푸른 등축 격자와 점의 Book of Shapes ‘Isometric Noise’ 패턴',
+  '/patterns/dades-node-garden.svg': '푸른 노드와 연결선의 Book of Shapes ‘Node Garden’ 패턴',
+  '/patterns/dades-rect-void.svg': '중앙의 빈 공간을 둘러싼 사각 격자의 Book of Shapes ‘Rect Void’ 패턴',
+  '/patterns/dades-spiral-mesh.svg': '노란 선이 소용돌이치는 Book of Shapes ‘Spiral Mesh’ 패턴',
+};
+const imageAlt = patternAlt[image] ?? 'Book of Shapes 기하 패턴';
+---
+
+<article class:list={['story-card', { 'story-card-featured': featured }]} data-story-card>
+  <a class="story-card-link" href={wikiHref(slug)} aria-label={`${term} 항목 읽기`}>
+    <img
+      class="story-card-image"
+      src={href(image)}
+      alt={`${term} 항목을 상징하는 ${imageAlt}`}
+      width={featured ? '928' : '462'}
+      height={featured ? '680' : '308'}
+      loading={featured ? 'eager' : 'lazy'}
+      decoding="async"
+      fetchpriority={featured ? 'high' : 'auto'}
+    />
+    <span class="story-card-scrim" aria-hidden="true"></span>
+    <span class="story-card-copy">
+      <span class="story-card-meta">{categoryLabel} · {metadata}</span>
+      <span class="story-card-title">
+        {term}
+        {en && <span lang="en">{en}</span>}
+      </span>
+      <span class="story-card-deck">{stripRefs(oneLiner)}</span>
+    </span>
+  </a>
+</article>

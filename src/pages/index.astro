@@ -1,11 +1,15 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import HomePulse from '../components/HomePulse.astro';
 import Masthead from '../components/Masthead.astro';
 import {
   SIGNAL_META,
+  SOURCE_META,
+  SOURCE_ORDER,
   flattenChangelog,
   fmtDate,
+  href,
   issueHref,
   issueNo,
   signalCounts,
@@ -17,6 +21,39 @@ const issues = sortIssues(await getCollection('issues'));
 const boards = sortBoards(await getCollection('boards'));
 const [latest, ...older] = issues;
 const latestSignals = latest ? signalCounts(latest.data.items) : null;
+const latestHref = latest ? issueHref(latest.data.number) : '#latest';
+
+const featureImageById: Record<string, { src: string; alt: string }> = {
+  'i1-codex-r32': {
+    src: href('/patterns/dades-isometric-noise.svg'),
+    alt: '연한 푸른 등축 격자와 점이 입체적으로 흩어진 Book of Shapes ‘Isometric Noise’ 패턴',
+  },
+  'i1-webmcp': {
+    src: href('/patterns/dades-node-garden.svg'),
+    alt: '푸른 노드와 연결선이 정원처럼 퍼지는 Book of Shapes ‘Node Garden’ 패턴',
+  },
+  'i1-trillion-ikp': {
+    src: href('/patterns/dades-rect-void.svg'),
+    alt: '사각형 격자가 중앙의 빈 공간을 둘러싼 Book of Shapes ‘Rect Void’ 패턴',
+  },
+};
+
+const featured = latest
+  ? latest.data.items.flatMap((item) => {
+      const art = featureImageById[item.id];
+      return art ? [{ item, art }] : [];
+    })
+  : [];
+
+const sourceGroups = latest
+  ? SOURCE_ORDER.flatMap((key) => {
+      const items = latest.data.items.filter((item) => item.source === key);
+      const first = items[0];
+      return first
+        ? [{ key, label: SOURCE_META[key].ko, count: items.length, firstId: first.id, firstTitle: first.title }]
+        : [];
+    })
+  : [];
 
 // "지난 방문 이후" 계산용 스냅샷 — 날짜 단위, 정적 페이지에 인라인
 const pulse = {
@@ -30,48 +67,125 @@ const pulse = {
 };
 ---
 
-<Base title="발행 목록" active="home">
-  <Masthead />
+<Base title="발행 목록" active="home" home>
+  {
+    latest && (
+      <Masthead
+        latestHref={latestHref}
+        issueLabel={issueNo(latest.data.number)}
+        issueTitle={latest.data.title}
+      />
+    )
+  }
 
-  <p class="pulse" data-pulse hidden></p>
-  <script type="application/json" data-pulse-data set:html={JSON.stringify(pulse)} />
+  <section class="home-intro" id="latest" data-home-scene aria-labelledby="home-intro-title">
+    <p class="section-overline">INTRODUCTION · AI CURATION</p>
+    <div class="home-intro-grid" data-reveal>
+      <h2 id="home-intro-title">AI는 매일 쏟아지고,<br />우리는 읽을 것만 남깁니다.</h2>
+      <div class="home-intro-copy">
+        <p>
+          DADES는 사람이 고른 링크를 에이전트가 읽고, 요약하고, 다시 한 호의 맥락으로
+          엮는 독립 매거진입니다. 빠른 소식보다 오래 남을 판단을 먼저 둡니다.
+        </p>
+        {
+          latest && (
+            <a class="text-link" href={latestHref}>
+              이번 호 읽기 · {issueNo(latest.data.number)} <span aria-hidden="true">→</span>
+            </a>
+          )
+        }
+      </div>
+    </div>
+
+    <HomePulse data={pulse} />
+  </section>
 
   {
     latest && (
-      <section class="latest" aria-label="이번 호">
-        <p class="latest-kicker">
-          이번 호 · {issueNo(latest.data.number)} · {fmtDate(latest.data.date)} · 아이템{' '}
-          {latest.data.items.length}
-        </p>
-        <h2 class="latest-title">
-          <a href={issueHref(latest.data.number)}>{latest.data.title}</a>
-        </h2>
-        {latest.data.intro && <p class="latest-intro">{latest.data.intro}</p>}
-        {latestSignals && (
-          <p class="signal-legend latest-signals">
-            <span>
-              <span class="key key-action" aria-hidden="true" /> {SIGNAL_META.action.ko}{' '}
-              {latestSignals.action}
-            </span>
-            <span>
-              <span class="key key-context" aria-hidden="true" /> {SIGNAL_META.context.ko}{' '}
-              {latestSignals.context}
-            </span>
-            <span>
-              <span class="key key-noise" aria-hidden="true" /> {SIGNAL_META.noise.ko}{' '}
-              {latestSignals.noise}
-            </span>
+      <section class="home-featured" data-home-scene aria-labelledby="featured-title">
+        <div class="home-section-head">
+          <div>
+            <p class="section-overline">FEATURED STORIES</p>
+            <h2 id="featured-title">이번 호에서 먼저 읽을 것</h2>
+          </div>
+          <a class="text-link" href={latestHref}>전체 지면 보기 <span aria-hidden="true">→</span></a>
+        </div>
+
+        <div class="feature-grid">
+          {featured.map(({ item, art }, index) => (
+            <article class="feature-card" data-reveal style={`--reveal-index:${index}`}>
+              <a href={`${latestHref}#${item.id}`}>
+                <img
+                  src={art.src}
+                  width="1536"
+                  height="1024"
+                  loading="lazy"
+                  decoding="async"
+                  alt={art.alt}
+                />
+                <span class="feature-card-scrim" aria-hidden="true"></span>
+                <span class="feature-card-copy">
+                  <span class="feature-card-meta">
+                    {SOURCE_META[item.source].ko} · {item.origin ?? 'DADES'}
+                  </span>
+                  <span class="feature-card-title">{item.title}</span>
+                </span>
+              </a>
+            </article>
+          ))}
+        </div>
+
+        <div class="latest-brief" data-reveal>
+          <div>
+            <p class="latest-kicker">
+              {issueNo(latest.data.number)} · {fmtDate(latest.data.date)} · 아이템 {latest.data.items.length}
+            </p>
+            <h3><a href={latestHref}>{latest.data.title}</a></h3>
+            {latest.data.intro && <p>{latest.data.intro}</p>}
+          </div>
+          {latestSignals && (
+            <p class="signal-legend latest-signals">
+              <span><span class="key key-action" aria-hidden="true" /> {SIGNAL_META.action.ko} {latestSignals.action}</span>
+              <span><span class="key key-context" aria-hidden="true" /> {SIGNAL_META.context.ko} {latestSignals.context}</span>
+              <span><span class="key key-noise" aria-hidden="true" /> {SIGNAL_META.noise.ko} {latestSignals.noise}</span>
+            </p>
+          )}
+        </div>
+      </section>
+    )
+  }
+  {
+    latest && (
+      <section class="home-topics" data-home-scene aria-labelledby="topics-title">
+        <div class="home-topics-copy" data-reveal>
+          <p class="section-overline">THE EDITORIAL LENSES</p>
+          <h2 id="topics-title">뉴스보다<br />현재의 답에 가까운 분류</h2>
+          <p>
+            릴리스, 연구, 레포, 문화. 출처의 형식보다 독자가 무엇을 해야 하는지에 따라
+            행동·맥락·소란의 신호를 함께 붙입니다.
           </p>
-        )}
-        <p class="latest-items">{latest.data.items.map((it) => it.title).join('  ·  ')}</p>
+        </div>
+
+        <ol class="topic-list">
+          {sourceGroups.map((group, index) => (
+            <li data-reveal style={`--reveal-index:${index}`}>
+              <a href={`${latestHref}#${group.firstId}`}>
+                <span class="topic-index" aria-hidden="true">0{index + 1}</span>
+                <span class="topic-label">{group.label}</span>
+                <span class="topic-title">{group.firstTitle}</span>
+                <span class="topic-count">{String(group.count).padStart(2, '0')}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
       </section>
     )
   }
 
   {
     older.length > 0 && (
-      <>
-        <h2 class="past-heading">지난 호</h2>
+      <section class="home-archive" data-home-scene aria-labelledby="past-heading">
+        <h2 class="past-heading" id="past-heading">지난 호</h2>
         <table class="issue-table">
           <thead>
             <tr>
@@ -98,71 +212,7 @@ const pulse = {
             ))}
           </tbody>
         </table>
-      </>
+      </section>
     )
   }
 </Base>
-
-<script>
-  import { fmtDate, href, issueHref } from '../lib/mag';
-
-  interface Pulse {
-    issues: { n: number; d: string; action: number; tags: string[] }[];
-    boardChanges: string[];
-  }
-
-  const el = document.querySelector<HTMLElement>('[data-pulse]')!;
-  const data: Pulse = JSON.parse(
-    document.querySelector('[data-pulse-data]')?.textContent ?? '{"issues":[],"boardChanges":[]}',
-  );
-
-  function readInterests(): Set<string> {
-    try {
-      const parsed = JSON.parse(localStorage.getItem('dades:interests:v1') ?? '[]');
-      if (Array.isArray(parsed)) return new Set(parsed.filter((t) => typeof t === 'string'));
-    } catch {}
-    return new Set();
-  }
-
-  // 세션 기준선 — Base의 초기화와 같은 멱등 로직이라 실행 순서에 무관하다.
-  // 값이 비어 있으면 첫 방문이라 조용히 넘어간다.
-  let baseline = '';
-  try {
-    const stored = sessionStorage.getItem('dades:baseline');
-    if (stored === null) {
-      baseline = localStorage.getItem('dades:last-seen') ?? '';
-      sessionStorage.setItem('dades:baseline', baseline);
-    } else {
-      baseline = stored;
-    }
-  } catch {}
-
-  if (baseline) {
-    const newIssues = data.issues.filter((i) => i.d > baseline);
-    const boardChanges = data.boardChanges.filter((d) => d > baseline).length;
-
-    if (newIssues.length === 0 && boardChanges === 0) {
-      el.textContent = `지난 방문(${fmtDate(baseline)}) 이후 새로 챙길 것 없음`;
-      el.hidden = false;
-    } else {
-      const actionNeeded = newIssues.reduce((sum, i) => sum + i.action, 0);
-      const interests = readInterests();
-      const hits = newIssues.reduce(
-        (sum, i) => sum + (i.tags.some((t) => interests.has(t)) ? 1 : 0),
-        0,
-      );
-
-      const parts: string[] = [];
-      if (newIssues.length > 0) {
-        const target = newIssues.reduce((a, b) => (a.n > b.n ? a : b));
-        parts.push(`<a href="${issueHref(target.n)}">새 이슈 ${newIssues.length}</a>`);
-        parts.push(`행동 필요 ${actionNeeded}`);
-      }
-      if (boardChanges > 0) parts.push(`<a href="${href('/status/')}">상태판 변경 ${boardChanges}</a>`);
-      if (hits > 0) parts.push(`관심 태그 적중 ${hits}`);
-
-      el.innerHTML = `지난 방문(${fmtDate(baseline)}) 이후: ${parts.join(' · ')}`;
-      el.hidden = false;
-    }
-  }
-</script>

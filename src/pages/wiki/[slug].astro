@@ -1,8 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import ArticleHero from '../../components/ArticleHero.astro';
 import Cited from '../../components/Cited.astro';
-import { WIKI_CATEGORY, fmtDate, href, stripRefs, wikiHref, type WikiEntry } from '../../lib/mag';
+import StoryCard from '../../components/StoryCard.astro';
+import { stripRefs, type WikiEntry } from '../../lib/mag';
+import '../../styles/wiki-articles.css';
 
 export async function getStaticPaths() {
   const entries = await getCollection('wiki');
@@ -18,15 +21,24 @@ interface Props {
 }
 
 const { entry, all } = Astro.props;
-const { term, en, aliases, category, oneLiner, senses, body, sources, related, updated } =
-  entry.data;
+const { term, aliases, oneLiner, senses, body, sources, related } = entry.data;
 
-const bySlug = new Map(all.map((e) => [e.data.slug, e.data.term]));
+const bySlug = new Map(all.map((e) => [e.data.slug, e]));
 const relatedTerms = related
-  .filter((slug) => bySlug.has(slug))
-  .map((slug) => ({ slug, term: bySlug.get(slug)! }));
+  .map((slug) => bySlug.get(slug))
+  .filter((item): item is WikiEntry => Boolean(item));
 
 const nSources = sources.length;
+const relatedImages = [
+  '/patterns/dades-node-garden.svg',
+  '/patterns/dades-isometric-noise.svg',
+  '/patterns/dades-rect-void.svg',
+  '/patterns/dades-spiral-mesh.svg',
+] as const;
+const relatedCards = relatedTerms.map((relatedEntry, index) => ({
+  entry: relatedEntry,
+  image: relatedImages[index % relatedImages.length] ?? relatedImages[0],
+}));
 ---
 
 <Base
@@ -34,25 +46,17 @@ const nSources = sources.length;
   description={stripRefs(oneLiner)}
   active="wiki"
   ogType="article"
+  layout="article"
 >
-  <div data-pagefind-body>
-    <header class="page-head wiki-head">
-      <p class="latest-kicker">
-        <a href={href('/wiki/')} class="wiki-crumb">위키</a> ·{' '}
-        {WIKI_CATEGORY[category].ko} · 갱신 {fmtDate(updated)}
-      </p>
-      <h1 class="page-title">
-        {term}
-        {en && <span class="wiki-title-en">{en}</span>}
-      </h1>
-      {aliases.length > 0 && <p class="wiki-aliases">별칭·연관 표기: {aliases.join(', ')}</p>}
-      <p class="wiki-lede"><Cited text={oneLiner} sourceCount={nSources} /></p>
-    </header>
+  <ArticleHero entry={entry} />
 
+  <article class="wiki-article-shell" data-pagefind-body>
+    <div class="wiki-article-body">
+      {aliases.length > 0 && <p class="wiki-aliases">별칭·연관 표기: {aliases.join(', ')}</p>}
     {
       senses.length > 0 && (
-        <section aria-label="뜻 갈래">
-          <h2 class="board-title">뜻 갈래 <span class="board-question">자리마다 다르게 쓰이는 뜻</span></h2>
+        <section class="wiki-section" aria-label="뜻 갈래" data-reveal>
+          <h2>뜻 갈래</h2>
           <ol class="sense-list">
             {senses.map((sense) => (
               <li class="sense-item">
@@ -67,7 +71,7 @@ const nSources = sources.length;
 
     {
       body.length > 0 && (
-        <section class="prose wiki-body" aria-label="본문">
+        <section class="wiki-section wiki-body" aria-label="본문" data-reveal>
           {body.map((para) => (
             <p><Cited text={para} sourceCount={nSources} /></p>
           ))}
@@ -75,8 +79,8 @@ const nSources = sources.length;
       )
     }
 
-    <section aria-label="출처">
-      <h2 class="board-title">출처</h2>
+    <section class="wiki-section" aria-label="출처" data-reveal>
+      <h2>출처</h2>
       <ol class="source-list">
         {
           sources.map((source, i) => (
@@ -89,23 +93,67 @@ const nSources = sources.length;
       </ol>
     </section>
 
-    {
-      relatedTerms.length > 0 && (
-        <p class="wiki-related">
-          관련 항목:{' '}
-          {relatedTerms.map((r, i) => (
-            <>
-              {i > 0 && ' · '}
-              <a href={wikiHref(r.slug)}>{r.term}</a>
-            </>
-          ))}
-        </p>
-      )
-    }
-  </div>
+      <div class="article-actions" data-reveal>
+        <button class="share-copy" type="button" data-copy-link aria-describedby="copy-status">
+          Share Article
+        </button>
+        <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </article>
 
-  <p class="wiki-fineprint">
-    출처가 확인된 서술만 싣습니다. 정정 제안은
-    <a href="https://github.com/seory0/DADES/issues" target="_blank" rel="noopener">GitHub 이슈</a>로.
-  </p>
+  {
+    relatedCards.length > 0 && (
+      <aside class="more-terms" aria-labelledby="more-terms-title" data-reveal>
+        <h2 id="more-terms-title">More Terms</h2>
+        <div class="more-terms-grid">
+          {relatedCards.map((card) => (
+            <StoryCard entry={card.entry} image={card.image} />
+          ))}
+        </div>
+      </aside>
+    )
+  }
+
+  <script>
+    const copyButton = document.querySelector<HTMLButtonElement>('[data-copy-link]');
+    const copyStatus = document.querySelector<HTMLElement>('#copy-status');
+    const canonicalLink = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    const canonicalUrl = canonicalLink?.href ?? window.location.href;
+
+    async function copyText(text: string): Promise<boolean> {
+      if (navigator.clipboard) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch (error) {
+          if (!(error instanceof Error)) throw error;
+        }
+      }
+
+      const field = document.createElement('textarea');
+      field.value = text;
+      field.setAttribute('readonly', '');
+      field.style.position = 'fixed';
+      field.style.inset = '0 auto auto 0';
+      field.style.opacity = '0';
+      document.body.append(field);
+      field.select();
+      const copied = document.execCommand('copy');
+      field.remove();
+      return copied;
+    }
+
+    copyButton?.addEventListener('click', async () => {
+      const copied = await copyText(canonicalUrl);
+      const label = copied ? 'Copied' : 'Copy failed';
+      copyButton.textContent = label;
+      if (copyStatus) copyStatus.textContent = copied ? '링크를 복사했습니다.' : '브라우저가 복사를 허용하지 않았습니다.';
+
+      window.setTimeout(() => {
+        copyButton.textContent = 'Share Article';
+        if (copyStatus) copyStatus.textContent = '';
+      }, 2400);
+    });
+  </script>
 </Base>

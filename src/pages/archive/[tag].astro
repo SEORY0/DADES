@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Entry from '../../components/Entry.astro';
+import '../../styles/issue-archive.css';
 import { collectTags, flattenItems, href, type FlatItem } from '../../lib/mag';
 
 export async function getStaticPaths() {
@@ -21,13 +22,18 @@ const { matches } = Astro.props;
 const { tag } = Astro.params;
 ---
 
-<Base title={`#${tag} — 색인`} active="archive">
-  <header class="page-head">
-    <h1 class="page-title">#{tag}</h1>
-    <p class="page-desc">
-      이 주제로 실린 항목 {matches.length}건 · <a href={href('/archive/')}>색인으로 돌아가기</a>
-    </p>
-  </header>
+<Base title={`#${tag} — 색인`} active="archive" layout="article">
+  <article class="archive-tag-page">
+    <header class="archive-tag-hero" data-reveal>
+      <p class="archive-eyebrow">DADES INDEX RESULT</p>
+      <h1>#{tag}</h1>
+      <p>
+        이 주제로 실린 항목 {matches.length}건 · <a href={href('/archive/')}>색인으로 돌아가기</a>
+      </p>
+    </header>
 
-  {matches.map((flat) => <Entry flat={flat} showIssueRef headingLevel="h2" />)}
+    <section class="archive-results" aria-label={`#${tag} 수록 항목`} data-reveal>
+      {matches.map((flat) => <Entry flat={flat} showIssueRef headingLevel="h2" />)}
+    </section>
+  </article>
 </Base>

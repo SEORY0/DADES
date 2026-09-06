@@ -7,16 +7,22 @@ interface Props {
   showIssueRef?: boolean;
   /** 문서 위계에 맞는 제목 레벨 — 이슈 지면(섹션 h2 아래)은 h3, 태그 페이지(h1 아래)는 h2 */
   headingLevel?: 'h2' | 'h3';
+  /** 호 지면의 쪽번호. 넣으면 여백에 매달리는 두 자리 숫자가 붙는다 — 양 세기 숫자와 같은 수 */
+  ordinal?: number;
 }
 
-const { flat, showIssueRef = false, headingLevel = 'h3' } = Astro.props;
+const { flat, showIssueRef = false, headingLevel = 'h3', ordinal } = Astro.props;
 const { item, issue } = flat;
 const source = SOURCE_META[item.source];
 const payload = JSON.stringify(clipPayload(flat));
 const Heading = headingLevel;
+// 쪽번호는 눈으로 세는 자리표시라 낭독기에는 읽히지 않는다 — 제목이 먼저다
+const folio = ordinal ? String(ordinal).padStart(2, '0') : null;
 ---
 
 <article class="entry" id={item.id} data-tags={item.tags.join(',')}>
+  {folio && <p class="entry-folio" aria-hidden="true">{folio}</p>}
+
   <div class="entry-top">
     <div class="entry-headline">
       <Heading class="entry-title">

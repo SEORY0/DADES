@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import '../../styles/issue-archive.css';
-import { SOURCE_META, SOURCE_ORDER, collectTags, flattenItems, href, issueHref, issueNo, tagHref } from '../../lib/mag';
+import { SOURCE_META, SOURCE_ORDER, collectTags, flattenItems, tagHref } from '../../lib/mag';
 
 const issues = await getCollection('issues');
 const tags = collectTags(issues);
@@ -13,30 +13,6 @@ const totals = SOURCE_ORDER.map((key) => ({
   meta: SOURCE_META[key],
   count: all.filter(({ item }) => item.source === key).length,
 })).filter((t) => t.count > 0);
-
-const archiveMedia = [
-  {
-    src: href('/patterns/dades-node-garden.svg'),
-    alt: '푸른 노드와 연결선이 정원처럼 퍼지는 Book of Shapes ‘Node Garden’ 패턴',
-  },
-  {
-    src: href('/patterns/dades-isometric-noise.svg'),
-    alt: '연한 푸른 등축 격자와 점이 입체적으로 흩어진 Book of Shapes ‘Isometric Noise’ 패턴',
-  },
-  {
-    src: href('/patterns/dades-rect-void.svg'),
-    alt: '사각형 격자가 중앙의 빈 공간을 둘러싼 Book of Shapes ‘Rect Void’ 패턴',
-  },
-];
-
-const featureLinks = totals.slice(0, 3).map((total, index) => {
-  const first = all.find(({ item }) => item.source === total.key)!;
-  return {
-    ...total,
-    flat: first,
-    media: archiveMedia[index],
-  };
-});
 ---
 
 <Base
@@ -45,48 +21,44 @@ const featureLinks = totals.slice(0, 3).map((total, index) => {
   active="archive"
   layout="listing"
 >
-  <section class="archive-listing-hero" aria-labelledby="archive-title">
-    <div class="archive-listing-copy" data-reveal>
-      <p class="archive-eyebrow">DADES INDEX</p>
-      <h1 id="archive-title">Index · 주제 색인</h1>
-      <p>
+  <section class="index-head" aria-labelledby="archive-title">
+    <div class="index-headline">
+      <p class="ia-kicker">DADES INDEX</p>
+      <h1 id="archive-title">주제 색인</h1>
+      <p class="index-lede">
         발행된 모든 항목을 태그로 다시 묶은 색인입니다. 그 글이 몇 호에 실렸는지 기억나지
         않을 때 여기서 찾으면 됩니다.
       </p>
-      <p class="index-totals">
-        지금까지 {totals.map((t) => `${t.meta.ko} ${t.count}`).join(' · ')} · 태그 {tags.length}
+    </div>
+
+    <div class="index-find">
+      <div class="index-search" data-index-search hidden></div>
+      <p class="index-search-fallback">
+        전문 검색은 빌드된 지면에서만 켜집니다. 지금은 아래 태그 색인으로 찾아 주세요.
       </p>
     </div>
 
-    <div class="archive-feature-grid" aria-label="출처별 대표 링크" data-reveal>
-      {
-        featureLinks.map((feature) => (
-          <a class="archive-feature-card" href={`${issueHref(feature.flat.issue.number)}#${feature.flat.item.id}`}>
-            <img
-              src={feature.media.src}
-              width="1536"
-              height="1024"
-              loading="lazy"
-              decoding="async"
-              alt={feature.media.alt}
-            />
-            <span class="archive-card-scrim" aria-hidden="true"></span>
-            <span class="archive-card-copy">
-              <span class="archive-card-meta">
-                {feature.meta.ko} · {feature.count}건 · {issueNo(feature.flat.issue.number)}
-              </span>
-              <span class="archive-card-title">{feature.flat.item.title}</span>
-            </span>
-          </a>
-        ))
-      }
+    <div class="index-stats">
+      <dl aria-label="색인 총계">
+        <div><dt>항목</dt><dd>{all.length}</dd></div>
+        <div><dt>태그</dt><dd>{tags.length}</dd></div>
+        <div><dt>발행 호</dt><dd>{issues.length}</dd></div>
+      </dl>
+      <dl aria-label="출처별 항목 수">
+        {
+          totals.map((total) => (
+            <div>
+              <dt>{total.meta.ko}</dt>
+              <dd>{total.count}</dd>
+            </div>
+          ))
+        }
+      </dl>
     </div>
   </section>
 
-  <section class="archive-index-body" aria-labelledby="tag-index-title">
-    <div class="index-search" data-index-search hidden></div>
-
-    <div class="archive-index-head" data-reveal>
+  <section class="index-tags" aria-labelledby="tag-index-title">
+    <div class="index-tags-head">
       <h2 id="tag-index-title">전체 태그</h2>
       <p class="index-hint">
         ★로 관심 태그를 등록하면 지면에서 해당 항목이 표시되고, 홈의 방문 요약에 적중 여부가
@@ -94,7 +66,7 @@ const featureLinks = totals.slice(0, 3).map((total, index) => {
       </p>
     </div>
 
-    <ul class="index-list" data-reveal>
+    <ul class="index-list">
       {
         tags.map(([tag, count]) => (
           <li class="index-row">
@@ -176,6 +148,20 @@ const featureLinks = totals.slice(0, 3).map((total, index) => {
   const mount = document.querySelector<HTMLElement>('[data-index-search]');
   const uiCss = href('/pagefind/pagefind-ui.css');
   const uiJs = href('/pagefind/pagefind-ui.js');
+  // 검색칸 이름표 — 자리글과 같은 문구를 쓴다
+  const SEARCH_LABEL = '지면 전문 검색';
+
+  /** Pagefind가 심는 입력칸은 title=과 자리글뿐이라 낭독기에 이름이 없다.
+   *  마크업이 Pagefind 쪽 것이라 붙은 뒤에 같은 문구를 aria-label로 달아 준다.
+   *  속성 변화는 지켜보지 않으므로 되돌이는 생기지 않는다. */
+  function labelSearchInput(root: HTMLElement) {
+    const tag = () => {
+      const input = root.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
+      if (input) input.setAttribute('aria-label', SEARCH_LABEL);
+    };
+    tag();
+    new MutationObserver(tag).observe(root, { childList: true, subtree: true });
+  }
 
   if (mount) fetch(uiJs, { method: 'HEAD' })
     .then((res) => {
@@ -195,7 +181,7 @@ const featureLinks = totals.slice(0, 3).map((total, index) => {
           showSubResults: false,
           showImages: false,
           translations: {
-            placeholder: '지면 전문 검색',
+            placeholder: SEARCH_LABEL,
             clear_search: '지우기',
             load_more: '더 보기',
             zero_results: '“[SEARCH_TERM]” 결과 없음',
@@ -204,6 +190,7 @@ const featureLinks = totals.slice(0, 3).map((total, index) => {
             searching: '검색 중…',
           },
         });
+        labelSearchInput(mount);
         mount.hidden = false;
       };
       document.head.append(script);

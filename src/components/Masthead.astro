@@ -1,72 +1,119 @@
 ---
 import { href } from '../lib/mag';
 
-interface Props {
-  latestHref: string;
-  issueLabel: string;
-  issueTitle: string;
+interface IssueFront {
+  readonly href: string;
+  readonly label: string;
+  readonly title: string;
+  readonly date: string;
+  readonly period: string;
+  readonly intro: string;
+  readonly itemCount: number;
+  readonly coverImage: string;
+  readonly coverAlt: string;
+  readonly signals: {
+    readonly action: number;
+    readonly context: number;
+    readonly noise: number;
+  };
 }
 
-const { latestHref, issueLabel, issueTitle } = Astro.props;
+interface Props {
+  readonly issue: IssueFront;
+}
+
+const { issue } = Astro.props;
 ---
 
-<section class="home-hero" data-home-hero data-home-scene aria-labelledby="home-hero-title">
-  <img
-    class="home-hero-media"
-    data-hero-parallax
-    src={href('/patterns/dades-flow-lines.svg')}
-    width="1536"
-    height="1024"
-    alt=""
-    loading="eager"
-    decoding="async"
-    fetchpriority="high"
-    aria-hidden="true"
-  />
-  <div class="home-hero-scrim" aria-hidden="true"></div>
+{/*
+  발행 머리 — 제호와 이번 호를 한 켜에서 끝낸다.
+  제호는 Fraunces 활자 대신 로고 마크 한 장이고, 이 지면에서 그림은 표지 하나뿐이다.
+  호 제목도 읽기 버튼도 여기 오른쪽 브리프에 한 번만 나온다.
+*/}
+<section class="magazine-front" aria-labelledby="publication-name" data-magazine-nameplate>
+  <p class="front-eyebrow">
+    <span>DO AGENTS DREAM OF ELECTRIC SHEEP?</span>
+    <span>INDEPENDENT AI MAGAZINE · SEOUL</span>
+  </p>
 
-  <div class="home-hero-copy">
-    <p class="home-hero-kicker">DADES · INDEPENDENT AI MAGAZINE</p>
-    <h1 id="home-hero-title">
-      <span>사람이 고르고,</span>
-      <span>에이전트가 엮는 지면</span>
+  <div class="front-lockup">
+    <h1 class="front-mark" id="publication-name">
+      <picture>
+        <source srcset={href('/brand/dades-editorial-logo.webp')} type="image/webp" />
+        <img
+          src={href('/brand/dades-editorial-logo.png')}
+          width="1128"
+          height="912"
+          alt="DADES"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
     </h1>
-    <a class="home-hero-link" data-hero-glass href={latestHref}>
-      <span>{issueLabel} 펼치기</span>
-      <span class="home-hero-link-title">{issueTitle}</span>
-    </a>
+
+    <p class="front-standfirst">
+      사람이 고른 링크를 에이전트가 읽고, 요약하고, 한 호의 맥락으로 다시 엮는 독립 매거진입니다.
+      빠른 소식보다 오래 남을 판단을 먼저 둡니다.
+    </p>
+
+    <div class="front-folio">
+      <dl class="front-folio-list">
+        <div>
+          <dt>ISSUE</dt>
+          <dd>{issue.label}</dd>
+        </div>
+        <div>
+          <dt>발행일</dt>
+          <dd>{issue.date}</dd>
+        </div>
+        <div>
+          <dt>ITEMS</dt>
+          <dd>{String(issue.itemCount).padStart(2, '0')}</dd>
+        </div>
+      </dl>
+      <a class="front-jump" href="#contents">목차로 이동 <span aria-hidden="true">↓</span></a>
+    </div>
+
+    <slot />
   </div>
 
-  <a class="home-scroll-cue" href="#latest" aria-label="이번 호 소개로 이동">
-    <span>Scroll</span>
-    <span aria-hidden="true">↓</span>
-  </a>
+  <div class="current-cover" data-current-cover>
+    <a
+      class="current-cover-art"
+      href={issue.href}
+      aria-label={`${issue.label} ${issue.title} 전체 읽기`}
+    >
+      <img
+        src={issue.coverImage}
+        width="1536"
+        height="1024"
+        alt={issue.coverAlt}
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
+      />
+    </a>
+
+    <div class="current-cover-brief">
+      <p class="front-label">THE CURRENT ISSUE · {issue.label}</p>
+      <h2>{issue.title}</h2>
+      <p class="current-cover-intro">{issue.intro}</p>
+      <dl class="current-cover-facts">
+        <div>
+          <dt>수집 기간</dt>
+          <dd>{issue.period}</dd>
+        </div>
+        <div>
+          <dt>신호</dt>
+          <dd>
+            행동 {issue.signals.action} · 맥락 {issue.signals.context} · 소란 {issue.signals.noise}
+          </dd>
+        </div>
+      </dl>
+      <a class="editorial-action" href={issue.href}>
+        전체 지면 읽기
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
 </section>
-
-<script>
-  const hero = document.querySelector<HTMLElement>('[data-home-hero]');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  if (hero && !reduceMotion.matches) {
-    let frame = 0;
-    hero.addEventListener('pointermove', (event) => {
-      if (event.pointerType !== 'mouse') return;
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const bounds = hero.getBoundingClientRect();
-        const x = ((event.clientX - bounds.left) / bounds.width - 0.5) * -1;
-        const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * -1;
-        hero.style.setProperty('--hero-shift-x', `${x * 18}px`);
-        hero.style.setProperty('--hero-shift-y', `${y * 12}px`);
-        hero.style.setProperty('--hero-glass-x', `${(1 - x) * 50}%`);
-        hero.style.setProperty('--hero-glass-y', `${(1 - y) * 50}%`);
-      });
-    });
-    hero.addEventListener('pointerleave', () => {
-      hero.style.setProperty('--hero-shift-x', '0px');
-      hero.style.setProperty('--hero-shift-y', '0px');
-      hero.style.setProperty('--hero-glass-x', '50%');
-      hero.style.setProperty('--hero-glass-y', '50%');
-    });
-  }
-</script>

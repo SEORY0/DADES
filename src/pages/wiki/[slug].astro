@@ -1,10 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import ArticleHero from '../../components/ArticleHero.astro';
 import Cited from '../../components/Cited.astro';
-import StoryCard from '../../components/StoryCard.astro';
-import { stripRefs, type WikiEntry } from '../../lib/mag';
+import ReadingSheep from '../../components/ReadingSheep.astro';
+import { WIKI_CATEGORY, fmtDate, href, stripRefs, wikiHref, type WikiEntry } from '../../lib/mag';
 import '../../styles/wiki-articles.css';
 
 export async function getStaticPaths() {
@@ -21,7 +20,7 @@ interface Props {
 }
 
 const { entry, all } = Astro.props;
-const { term, aliases, oneLiner, senses, body, sources, related } = entry.data;
+const { term, en, aliases, category, oneLiner, senses, body, sources, related, updated } = entry.data;
 
 const bySlug = new Map(all.map((e) => [e.data.slug, e]));
 const relatedTerms = related
@@ -29,16 +28,23 @@ const relatedTerms = related
   .filter((item): item is WikiEntry => Boolean(item));
 
 const nSources = sources.length;
-const relatedImages = [
-  '/patterns/dades-node-garden.svg',
-  '/patterns/dades-isometric-noise.svg',
-  '/patterns/dades-rect-void.svg',
-  '/patterns/dades-spiral-mesh.svg',
-] as const;
-const relatedCards = relatedTerms.map((relatedEntry, index) => ({
-  entry: relatedEntry,
-  image: relatedImages[index % relatedImages.length] ?? relatedImages[0],
-}));
+const indexHref = href('/wiki/');
+const pad2 = (n: number) => String(n).padStart(2, '0');
+
+/** 출처 한 줄 — 발행처와 도메인. 발행처가 없거나 도메인을 이미 품고 있으면 한 번만 싣는다. */
+const sourceRows = sources.map((source) => {
+  const host = new URL(source.url).hostname.replace(/^www\./, '');
+  const publisher = source.publisher?.trim();
+  const origin = !publisher
+    ? host
+    : publisher.toLowerCase().includes(host.toLowerCase())
+      ? publisher
+      : `${publisher} · ${host}`;
+  return { ...source, origin };
+});
+
+// 양 세기 — 한 줄 정의 + 뜻 갈래 + 본문 문단 + 출처가 읽기 단위다.
+const readUnits = 1 + senses.length + body.length + 1;
 ---
 
 <Base
@@ -48,20 +54,48 @@ const relatedCards = relatedTerms.map((relatedEntry, index) => ({
   ogType="article"
   layout="article"
 >
-  <ArticleHero entry={entry} />
+  <article class="wiki-entry" data-pagefind-body>
+    <header class="wiki-entry-head" data-article-hero data-reveal>
+      <p class="wiki-crumb"><a href={indexHref}>← 위키</a></p>
+      <p class="wiki-kicker">{WIKI_CATEGORY[category].ko}</p>
+      <h1>
+        {term}
+        {en && <span lang="en">{en}</span>}
+      </h1>
+      <p class="wiki-lede" data-read-unit>
+        <Cited text={oneLiner} sourceCount={nSources} />
+      </p>
+      <dl class="wiki-entry-meta">
+        <div>
+          <dt class="wiki-meta-key">기준일</dt>
+          <dd class="wiki-meta-value">{fmtDate(updated)}</dd>
+        </div>
+        <div>
+          <dt class="wiki-meta-key">출처</dt>
+          <dd class="wiki-meta-value">{pad2(nSources)}</dd>
+        </div>
+        {
+          aliases.length > 0 && (
+            <div>
+              <dt class="wiki-meta-key">별칭</dt>
+              <dd class="wiki-meta-value">{aliases.join(', ')}</dd>
+            </div>
+          )
+        }
+      </dl>
+    </header>
 
-  <article class="wiki-article-shell" data-pagefind-body>
-    <div class="wiki-article-body">
-      {aliases.length > 0 && <p class="wiki-aliases">별칭·연관 표기: {aliases.join(', ')}</p>}
     {
       senses.length > 0 && (
-        <section class="wiki-section" aria-label="뜻 갈래" data-reveal>
-          <h2>뜻 갈래</h2>
-          <ol class="sense-list">
+        <section class="wiki-section" aria-labelledby="senses-title" data-reveal>
+          <h2 id="senses-title">뜻 갈래</h2>
+          <ol class="wiki-senses">
             {senses.map((sense) => (
-              <li class="sense-item">
+              <li class="sense-item" data-read-unit>
                 <span class="sense-context">{sense.context}</span>
-                <p class="sense-def"><Cited text={sense.definition} sourceCount={nSources} /></p>
+                <p class="sense-def">
+                  <Cited text={sense.definition} sourceCount={nSources} />
+                </p>
               </li>
             ))}
           </ol>
@@ -71,55 +105,69 @@ const relatedCards = relatedTerms.map((relatedEntry, index) => ({
 
     {
       body.length > 0 && (
-        <section class="wiki-section wiki-body" aria-label="본문" data-reveal>
-          {body.map((para) => (
-            <p><Cited text={para} sourceCount={nSources} /></p>
-          ))}
+        <section class="wiki-section" aria-labelledby="body-title" data-reveal>
+          <h2 id="body-title">본문</h2>
+          <div class="wiki-body">
+            {body.map((para) => (
+              <p data-read-unit>
+                <Cited text={para} sourceCount={nSources} />
+              </p>
+            ))}
+          </div>
         </section>
       )
     }
 
-    <section class="wiki-section" aria-label="출처" data-reveal>
-      <h2>출처</h2>
-      <ol class="source-list">
+    <section class="wiki-section wiki-sources" aria-labelledby="sources-title" data-read-unit data-reveal>
+      <h2 id="sources-title">
+        출처<span class="wiki-section-count">{pad2(nSources)}</span>
+      </h2>
+      <ol>
         {
-          sources.map((source, i) => (
+          sourceRows.map((source, i) => (
             <li id={`src-${i + 1}`}>
-              <a href={source.url} target="_blank" rel="noopener">{source.title}</a>
-              {source.publisher && <span class="source-pub"> · {source.publisher}</span>}
+              <a href={source.url} target="_blank" rel="noopener">
+                {source.title}
+              </a>
+              <span class="wiki-source-origin">{source.origin}</span>
             </li>
           ))
         }
       </ol>
     </section>
 
-      <div class="article-actions" data-reveal>
+    <footer class="wiki-entry-foot" data-reveal>
+      {
+        relatedTerms.length > 0 && (
+          <p class="wiki-related-line">
+            <span class="wiki-related-label">관련 항목</span>
+            {relatedTerms.map((item, index) => (
+              <>
+                {index > 0 && <span aria-hidden="true"> · </span>}
+                <a href={wikiHref(item.data.slug)}>{item.data.term}</a>
+              </>
+            ))}
+          </p>
+        )
+      }
+      <div class="wiki-entry-actions">
         <button class="share-copy" type="button" data-copy-link aria-describedby="copy-status">
-          Share Article
+          링크 복사
         </button>
+        <a class="wiki-entry-all" href={indexHref}>위키 전체 보기 →</a>
         <p class="copy-status" id="copy-status" role="status" aria-live="polite"></p>
       </div>
-    </div>
-  </article>
+    </footer>
 
-  {
-    relatedCards.length > 0 && (
-      <aside class="more-terms" aria-labelledby="more-terms-title" data-reveal>
-        <h2 id="more-terms-title">More Terms</h2>
-        <div class="more-terms-grid">
-          {relatedCards.map((card) => (
-            <StoryCard entry={card.entry} image={card.image} />
-          ))}
-        </div>
-      </aside>
-    )
-  }
+    <ReadingSheep total={readUnits} label="항목 읽기" />
+  </article>
 
   <script>
     const copyButton = document.querySelector<HTMLButtonElement>('[data-copy-link]');
     const copyStatus = document.querySelector<HTMLElement>('#copy-status');
     const canonicalLink = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     const canonicalUrl = canonicalLink?.href ?? window.location.href;
+    const IDLE_LABEL = '링크 복사';
 
     async function copyText(text: string): Promise<boolean> {
       if (navigator.clipboard) {
@@ -146,12 +194,11 @@ const relatedCards = relatedTerms.map((relatedEntry, index) => ({
 
     copyButton?.addEventListener('click', async () => {
       const copied = await copyText(canonicalUrl);
-      const label = copied ? 'Copied' : 'Copy failed';
-      copyButton.textContent = label;
+      copyButton.textContent = copied ? '복사함' : '복사 실패';
       if (copyStatus) copyStatus.textContent = copied ? '링크를 복사했습니다.' : '브라우저가 복사를 허용하지 않았습니다.';
 
       window.setTimeout(() => {
-        copyButton.textContent = 'Share Article';
+        copyButton.textContent = IDLE_LABEL;
         if (copyStatus) copyStatus.textContent = '';
       }, 2400);
     });

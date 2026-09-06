@@ -9,18 +9,22 @@ async function readPage(pathname) {
   return response.text();
 }
 
-test('homepage exposes the new editorial hero and mobile navigation while preserving the latest issue', async () => {
+test('homepage exposes an issue-led magazine front with every current story', async () => {
   // Given: the production-like static preview is serving the DADES homepage.
   const html = await readPage('/DADES/');
 
-  // When: a reader opens the redesigned landing page.
-  const hasEditorialHero = html.includes('data-home-hero');
+  // When: a reader opens the redesigned magazine front.
+  const storyCount = (html.match(/data-issue-story=/g) ?? []).length;
   const hasMobileMenu = html.includes('data-menu-toggle');
 
-  // Then: the new hero and keyboard-addressable mobile menu exist, and Issue 1 remains reachable.
-  assert.equal(hasEditorialHero, true);
+  // Then: the publication, current cover, all five stories, and keyboard-addressable navigation exist.
+  assert.match(html, /data-magazine-nameplate/);
+  assert.match(html, /data-current-cover/);
+  assert.equal(storyCount, 5);
   assert.equal(hasMobileMenu, true);
   assert.match(html, /href="\/DADES\/issues\/1\/"/);
+  assert.match(html, /class="issue-story-deck"/);
+  // 구조만 보면 빈 껍데기도 통과한다 — 표지 기사 제목이 실제로 실렸는지 함께 본다.
   assert.match(html, /WebMCP 챌린지와 블랙박스 LLM의 크기/);
 });
 
@@ -55,18 +59,24 @@ test('installable app metadata publishes the redesigned DADES icon family', asyn
   );
 });
 
-test('shared navigation exposes layered glass and interaction hooks', async () => {
+test('shared navigation keeps the Recent capsule lockup and interaction hooks', async () => {
   // Given: every route is wrapped by the same magazine chrome.
   const html = await readPage('/DADES/');
 
   // When: the browser hydrates hover, scroll, and menu state.
-  // Then: the shell exposes real DOM layers rather than a flattened visual treatment.
-  assert.match(html, /data-glass-surface/);
-  assert.match(html, /data-glass-highlight/);
+  // Then: both capsules are still glass surfaces driven by the pointer root.
+  // The capsule paints its own fill (Recent's measured recipe), so there is no
+  // separate highlight span to assert — the lockup and the dock are the contract.
+  assert.equal((html.match(/data-glass-surface/g) ?? []).length, 2);
   assert.match(html, /data-interaction-root/);
+  assert.match(html, /data-menu-toggle/);
+
+  // And: the brand is the sheep glyph + wordmark lockup, not a raster logo.
+  assert.match(html, /class="brand-glyph"/);
+  assert.match(html, /class="brand-word"[^>]*>DADES</);
 });
 
-test('status and wiki routes use the Recent-inspired immersive and article patterns', async () => {
+test('status keeps the immersive scene system while the wiki index stays a searchable finding aid', async () => {
   // Given: the main non-home editorial routes are served by the production build.
   const [status, wiki, article] = await Promise.all([
     readPage('/DADES/status/'),
@@ -75,11 +85,40 @@ test('status and wiki routes use the Recent-inspired immersive and article patte
   ]);
 
   // When: the route templates render their specialized layouts.
-  // Then: status follows the About scene system, while wiki follows Articles and article-detail.
+  const rowCount = (wiki.match(/data-wiki-row data-category=/g) ?? []).length;
+  const searchKeyCount = (wiki.match(/data-terms="/g) ?? []).length;
+  const groupKeys = [...wiki.matchAll(/data-wiki-group="([^"]+)"/g)].map((match) => match[1]);
+  const scopeKeys = [...wiki.matchAll(/data-wiki-scope="([^"]+)"/g)].map((match) => match[1]);
+  const groupCounts = [...wiki.matchAll(/<span data-group-count>(\d+)<\/span>/g)].map((match) =>
+    Number(match[1]),
+  );
+  const statedTotal = Number(wiki.match(/class="wiki-stats">\s*항목 (\d+)/)?.[1]);
+
+  // Then: status still follows the About scene system.
   assert.match(status, /data-immersive-hero/);
   assert.match(status, /data-status-scene/);
+
+  // 그리고 위키 첫 지면은 이야기 카드 더미가 아니라 찾아보기 지면이다 —
+  // 검색창·갈래 거르개·갈래별 묶음이 있고, 모든 행이 거르개가 훑을 검색 키를 갖는다.
+  // 머리글에 적힌 항목 수와 갈래별 개수의 합이 실제 행 수와 어긋나면 색인이 거짓말을 한다.
+  // 훅 이름만 보면 아래 인라인 스크립트의 선택자에도 걸리므로, 지면에 실제로 놓인
+  // 요소를 집어서 본다.
   assert.match(wiki, /data-articles-index/);
-  assert.ok((wiki.match(/data-story-card/g) ?? []).length >= 3);
+  assert.match(wiki, /<form[^>]*data-wiki-filter/);
+  assert.match(wiki, /<input[^>]*data-wiki-query/);
+  assert.match(wiki, /<p[^>]*data-wiki-empty/);
+  assert.ok(rowCount >= 6, `expected the full glossary to be listed, saw ${rowCount} row(s)`);
+  assert.equal(searchKeyCount, rowCount);
+  assert.ok(groupKeys.length >= 2, `expected grouped terms, saw ${groupKeys.length} group(s)`);
+  assert.deepEqual(scopeKeys, ['all', ...groupKeys]);
+  assert.equal(groupCounts.length, groupKeys.length);
+  assert.equal(
+    groupCounts.reduce((sum, count) => sum + count, 0),
+    rowCount,
+  );
+  assert.equal(statedTotal, rowCount);
+
+  // 그리고 낱개 용어 지면은 기사 상세 패턴을 그대로 쓴다.
   assert.match(article, /data-article-hero/);
   assert.match(article, /data-copy-link/);
 });
@@ -103,9 +142,9 @@ test('all editorial art is served from customized Book of Shapes SVG exports', a
   const oldRaster = await fetch(`${origin}/DADES/media/dades-hero.webp`);
 
   // Then: every customized export is a real SVG, the old raster route is gone,
-  // and the homepage points at the new pattern system.
+  // and the current-issue cover points at the local pattern system.
   assert.equal(home.includes('/DADES/media/'), false);
-  assert.match(home, /\/DADES\/patterns\/dades-flow-lines\.svg/);
+  assert.match(home, /\/DADES\/patterns\/dades-node-garden\.svg/);
   assert.equal(oldRaster.status, 404);
   for (const response of responses) {
     assert.equal(response.status, 200);

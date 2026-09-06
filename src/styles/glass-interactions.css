@@ -360,6 +360,17 @@
   }
 }
 
+/* 인쇄 — 등장 효과는 IntersectionObserver가 .is-revealed를 달아 줘야 풀린다.
+   인쇄에는 뷰포트도 스크롤도 없어서 관찰자가 끝내 돌지 않고, 화면 밖에 있던
+   블록이 opacity:0 그대로 찍힌다. 홈에서는 이번 호 목차(ol.issue-story-list)가
+   통째로 사라졌다. 인쇄에서는 등장 효과를 끄고 전부 보이게 둔다. */
+@media print {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 @media (forced-colors: active) {
   .nav-hover-pill,
   .nav-active-pill {

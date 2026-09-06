@@ -157,8 +157,13 @@ foundation scene.
 
 ### Color rules
 
-- Cobalt signals DADES actions and editorial selection. It is not an ambient
-  purple AI gradient.
+- Cobalt is the only action ink **on the page**. It signals DADES actions and
+  editorial selection, and it is not an ambient purple AI gradient.
+- The chrome is a deliberate exception to that rule. The persistent navigation
+  capsule is Recent's measured furniture rather than DADES page surface, so its
+  CTA is acid green while every link inside the article is cobalt. The split is
+  chrome vs. page, not one system leaking into another: acid appears exactly
+  once per page and always as the nav CTA. Anything inside `<main>` uses cobalt.
 - The source acid green has exactly two homes: the issue/archive dark-field link
   language, and the global navigation CTA. The CTA carries Recent's measured
   "Button - Green" recipe — `--accent-acid` fill with a near-black `--chrome-ink`

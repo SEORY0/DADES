@@ -16,10 +16,12 @@
   --wash: rgba(6, 69, 173, 0.06);
   --selection: rgba(6, 69, 173, 0.15);
 
+  /* 조판은 Pretendard 한 벌 — 제호도 라벨도 코드도 같은 얼굴을 쓴다.
+     예전 이름은 다른 지면이 참조하므로 남기되 전부 같은 스택을 가리킨다. */
   --font-body: 'Pretendard Variable', pretendard, -apple-system, BlinkMacSystemFont,
     'Apple SD Gothic Neo', 'Segoe UI', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-  --font-brand: 'Fraunces', georgia, 'Times New Roman', serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', consolas, 'Liberation Mono', monospace;
+  --font-brand: var(--font-body);
+  --font-mono: var(--font-body);
 
   /* 크기는 세 단계로 끝낸다 */
   --fs-body: 16px;
@@ -178,25 +180,6 @@ button {
   margin-right: auto;
 }
 
-.brand .brand-sheep {
-  width: 26px;
-  height: auto;
-  transform: translateY(2px);
-}
-
-.brand .brand-sheep .sheep-bolt {
-  stroke: var(--link);
-}
-
-.brand .brand-name {
-  font-family: var(--font-brand);
-  font-style: italic;
-  font-weight: 600;
-  font-variation-settings: 'SOFT' 40, 'WONK' 1;
-  font-size: 20px;
-  letter-spacing: 0.01em;
-}
-
 .site-nav {
   display: flex;
   flex-wrap: wrap;
@@ -231,33 +214,6 @@ button {
   min-height: 60vh;
 }
 
-.site-foot {
-  border-top: 1px solid var(--rule);
-}
-
-.site-foot .container {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px 18px;
-  padding-top: 16px;
-  padding-bottom: 22px;
-  font-size: var(--fs-small);
-  color: var(--muted);
-}
-
-.site-foot .foot-line {
-  margin-right: auto;
-}
-
-.site-foot a {
-  color: var(--muted);
-}
-
-.site-foot a:hover {
-  color: var(--link);
-}
-
 /* 테마 스위처 */
 .theme-row {
   display: flex;
@@ -286,56 +242,6 @@ button {
   border-radius: 50%;
 }
 
-/* ---------- 마스트헤드 (홈 제호) ---------- */
-.masthead {
-  text-align: center;
-  padding: 10px 0 26px;
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: 26px;
-}
-
-.masthead-sheep {
-  width: 46px;
-  height: auto;
-  color: var(--ink);
-  margin-bottom: 6px;
-}
-
-.masthead-sheep .sheep-bolt {
-  stroke: var(--link);
-}
-
-.masthead-title {
-  font-family: var(--font-brand);
-  font-style: italic;
-  font-weight: 620;
-  font-variation-settings: 'SOFT' 40, 'WONK' 1;
-  font-size: 28px;
-  line-height: 1.3;
-  letter-spacing: 0.005em;
-}
-
-.masthead-title .word-electric {
-  position: relative;
-  white-space: nowrap;
-}
-
-.masthead-title .word-electric .bolt-line {
-  position: absolute;
-  left: 0;
-  bottom: -0.14em;
-  height: 0.16em;
-  width: 100%;
-  color: var(--link);
-}
-
-.masthead-sub {
-  margin: 8px 0 0;
-  font-size: var(--fs-small);
-  font-style: normal;
-  color: var(--muted);
-}
-
 /* ---------- 페이지 머리글 ---------- */
 .page-head {
   padding-bottom: 14px;
@@ -350,46 +256,6 @@ button {
 .page-desc {
   margin: 8px 0 0;
   color: var(--ink-soft);
-}
-
-/* ---------- 이번 호 (홈 리드) ---------- */
-.latest {
-  padding: 2px 0 24px;
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: 28px;
-}
-
-.latest-kicker {
-  margin: 0;
-  font-size: var(--fs-small);
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.latest-title {
-  font-size: var(--fs-title);
-  margin-top: 4px;
-}
-
-.latest-intro {
-  margin: 8px 0 0;
-  color: var(--ink-soft);
-}
-
-.latest-items {
-  margin: 10px 0 0;
-  font-size: var(--fs-small);
-  color: var(--muted);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.past-heading {
-  font-size: var(--fs-body);
-  font-weight: 700;
-  margin: 0 0 4px;
 }
 
 /* ---------- 발행 목록 (홈) ---------- */
@@ -703,16 +569,16 @@ a.tag-link:hover {
 /* ---------- 지면 검색 (Index, Pagefind) ---------- */
 .index-search {
   margin-bottom: 20px;
-  --pagefind-ui-scale: 0.9;
-  --pagefind-ui-primary: var(--link);
-  --pagefind-ui-text: var(--ink);
-  --pagefind-ui-background: var(--paper);
-  --pagefind-ui-border: var(--rule);
-  --pagefind-ui-tag: var(--rule-soft);
+  --pagefind-ui-scale: 1;
+  --pagefind-ui-primary: var(--accent-primary);
+  --pagefind-ui-text: var(--text-primary);
+  --pagefind-ui-background: var(--surface-canvas);
+  --pagefind-ui-border: var(--rule-default);
+  --pagefind-ui-tag: var(--surface-soft);
   --pagefind-ui-border-width: 1px;
-  --pagefind-ui-border-radius: 2px;
-  --pagefind-ui-image-border-radius: 2px;
-  --pagefind-ui-font: var(--font-body);
+  --pagefind-ui-border-radius: var(--radius-control);
+  --pagefind-ui-image-border-radius: var(--radius-control);
+  --pagefind-ui-font: var(--font-primary);
 }
 
 /* ---------- 산문 ---------- */
@@ -748,10 +614,6 @@ code {
   .page {
     padding-top: 26px;
     padding-bottom: 56px;
-  }
-
-  .masthead-title {
-    font-size: 22px;
   }
 
   .index-list {
@@ -871,186 +733,12 @@ code {
   color: var(--muted);
 }
 
+/* 12px 라벨이라 코발트 원색(#315de8)을 물빛(#dfe7ff)에 얹으면 4.41:1로 AA에 못 미친다.
+   행동 잉크는 여전히 코발트 계열이되, 물빛 위에서만 한 칸 어두운 --accent-on-wash를 쓴다. */
 .sig-action {
-  color: var(--link);
-  border-color: var(--link);
+  color: var(--accent-on-wash);
+  border-color: var(--accent-on-wash);
   background: var(--wash);
-}
-
-/* ---------- 상태판 ---------- */
-.stat-row {
-  display: flex;
-  flex-wrap: wrap;
-  border: 1px solid var(--rule);
-  margin-bottom: 32px;
-}
-
-.stat-cell {
-  flex: 1 1 auto;
-  min-width: 86px;
-  padding: 11px 16px 9px;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.stat-cell + .stat-cell {
-  border-left: 1px solid var(--rule-soft);
-}
-
-.stat-value {
-  font-size: var(--fs-title);
-  font-weight: 700;
-  line-height: 1.25;
-  font-variant-numeric: tabular-nums;
-}
-
-.stat-label {
-  font-size: var(--fs-small);
-  color: var(--muted);
-}
-
-.board {
-  margin-top: 34px;
-}
-
-.board-title {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  flex-wrap: wrap;
-  font-size: var(--fs-body);
-  font-weight: 700;
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 6px;
-}
-
-.board-question {
-  font-weight: 400;
-  font-size: var(--fs-small);
-  color: var(--muted);
-}
-
-.board-row {
-  display: grid;
-  grid-template-columns: 118px 1fr 76px 82px;
-  gap: 0 14px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--rule-soft);
-  align-items: baseline;
-}
-
-.board-row-head {
-  padding: 7px 0;
-  font-size: var(--fs-small);
-  color: var(--muted);
-}
-
-.board-area {
-  font-size: var(--fs-small);
-  font-weight: 700;
-  color: var(--ink-soft);
-}
-
-.board-pick strong {
-  font-weight: 700;
-}
-
-.board-note {
-  display: block;
-  font-size: var(--fs-small);
-  color: var(--muted);
-  margin-top: 3px;
-}
-
-.board-status {
-  font-size: var(--fs-small);
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.st-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 5px;
-  box-sizing: border-box;
-}
-
-.st-stable .st-dot {
-  background: var(--muted);
-}
-
-.st-changed {
-  color: var(--link);
-}
-
-.st-changed .st-dot {
-  background: var(--link);
-}
-
-.st-watch .st-dot {
-  border: 1.5px solid var(--muted);
-}
-
-.board-since {
-  font-size: var(--fs-small);
-  color: var(--muted);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-.delta-title {
-  margin-top: 42px;
-}
-
-.delta-list {
-  list-style: none;
-  margin: 16px 0 0;
-  padding: 0;
-}
-
-.delta-item {
-  position: relative;
-  margin-left: 4px;
-  padding: 0 0 16px 20px;
-  border-left: 1px solid var(--rule);
-  font-size: var(--fs-small);
-}
-
-.delta-item:last-child {
-  border-left-color: transparent;
-  padding-bottom: 0;
-}
-
-.delta-item::before {
-  content: '';
-  position: absolute;
-  left: -4.5px;
-  top: 5px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--paper);
-  border: 1.5px solid var(--muted);
-  box-sizing: border-box;
-}
-
-.delta-date {
-  display: block;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-  margin-bottom: 2px;
-}
-
-.delta-board {
-  font-weight: 700;
-  margin-right: 6px;
-}
-
-.delta-ref {
-  margin-left: 6px;
 }
 
 /* ---------- 관심 태그 ---------- */
@@ -1093,207 +781,3 @@ code {
   margin-left: -16px;
 }
 
-@media (max-width: 560px) {
-  .board-row {
-    grid-template-columns: 1fr auto;
-    gap: 2px 14px;
-  }
-
-  .board-row-head {
-    display: none;
-  }
-
-  .board-area,
-  .board-pick {
-    grid-column: 1 / -1;
-  }
-
-  .board-status {
-    grid-column: 1;
-  }
-
-  .board-since {
-    grid-column: 2;
-  }
-
-  .stat-cell {
-    min-width: 33%;
-  }
-
-  .stat-cell:nth-child(4) {
-    border-left: none;
-  }
-}
-
-/* ---------- 위키 ---------- */
-.wiki-group {
-  margin-top: 30px;
-}
-
-.wiki-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.wiki-row {
-  padding: 13px 0 12px;
-  border-bottom: 1px solid var(--rule-soft);
-}
-
-.wiki-row:last-child {
-  border-bottom: none;
-}
-
-.wiki-term {
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.wiki-term:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.wiki-en {
-  font-weight: 400;
-  font-size: var(--fs-small);
-  color: var(--muted);
-  margin-left: 8px;
-}
-
-.wiki-oneliner {
-  margin: 3px 0 0;
-  font-size: var(--fs-small);
-  color: var(--muted);
-}
-
-.wiki-head .latest-kicker a {
-  color: var(--muted);
-}
-
-.wiki-title-en {
-  font-weight: 400;
-  font-size: var(--fs-small);
-  color: var(--muted);
-  margin-left: 10px;
-}
-
-.wiki-aliases {
-  margin: 6px 0 0;
-  font-size: var(--fs-small);
-  color: var(--muted);
-}
-
-.wiki-lede {
-  margin: 10px 0 0;
-  color: var(--ink);
-  font-weight: 500;
-}
-
-.sense-list {
-  list-style: none;
-  counter-reset: sense;
-  margin: 14px 0 0;
-  padding: 0;
-}
-
-.sense-item {
-  counter-increment: sense;
-  position: relative;
-  padding: 0 0 16px 34px;
-}
-
-.sense-item:last-child {
-  padding-bottom: 4px;
-}
-
-.sense-item::before {
-  content: counter(sense);
-  position: absolute;
-  left: 0;
-  top: 1px;
-  width: 22px;
-  height: 22px;
-  border: 1px solid var(--rule);
-  border-radius: 50%;
-  font-size: var(--fs-small);
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sense-context {
-  display: block;
-  font-size: var(--fs-small);
-  font-weight: 700;
-  color: var(--ink-soft);
-  margin-bottom: 2px;
-}
-
-.sense-def {
-  margin: 0;
-  color: var(--ink-soft);
-}
-
-.wiki-body {
-  margin-top: 26px;
-}
-
-.source-list {
-  margin: 12px 0 0;
-  padding-left: 1.4em;
-  font-size: var(--fs-small);
-}
-
-.source-list li {
-  margin-bottom: 5px;
-}
-
-.source-pub {
-  color: var(--muted);
-}
-
-.wiki-related {
-  margin: 26px 0 0;
-  font-size: var(--fs-small);
-  color: var(--muted);
-}
-
-.wiki-fineprint {
-  margin: 34px 0 0;
-  padding-top: 12px;
-  border-top: 1px solid var(--rule);
-  font-size: var(--fs-small);
-  color: var(--muted);
-}
-
-.wiki-fineprint a {
-  color: var(--muted);
-}
-
-.wiki-fineprint a:hover {
-  color: var(--link);
-}
-
-/* 위키 인라인 각주 */
-sup.ref {
-  font-size: 11px;
-  line-height: 0;
-}
-
-sup.ref a {
-  text-decoration: none;
-  color: var(--link);
-}
-
-sup.ref a:hover {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.source-list li:target {
-  background: var(--wash);
-}

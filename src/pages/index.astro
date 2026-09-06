@@ -3,10 +3,10 @@ import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import HomePulse from '../components/HomePulse.astro';
 import Masthead from '../components/Masthead.astro';
+import '../styles/home-editorial.css';
 import {
   SIGNAL_META,
   SOURCE_META,
-  SOURCE_ORDER,
   flattenChangelog,
   fmtDate,
   href,
@@ -23,37 +23,40 @@ const [latest, ...older] = issues;
 const latestSignals = latest ? signalCounts(latest.data.items) : null;
 const latestHref = latest ? issueHref(latest.data.number) : '#latest';
 
-const featureImageById: Record<string, { src: string; alt: string }> = {
-  'i1-codex-r32': {
-    src: href('/patterns/dades-isometric-noise.svg'),
-    alt: '연한 푸른 등축 격자와 점이 입체적으로 흩어진 Book of Shapes ‘Isometric Noise’ 패턴',
-  },
-  'i1-webmcp': {
-    src: href('/patterns/dades-node-garden.svg'),
-    alt: '푸른 노드와 연결선이 정원처럼 퍼지는 Book of Shapes ‘Node Garden’ 패턴',
-  },
-  'i1-trillion-ikp': {
-    src: href('/patterns/dades-rect-void.svg'),
-    alt: '사각형 격자가 중앙의 빈 공간을 둘러싼 Book of Shapes ‘Rect Void’ 패턴',
-  },
+// 이 지면에서 그림은 표지 한 장뿐이다. 기사마다 붙던 패턴 섬네일은 걷어냈다.
+// 표지 도형은 표지 기사(에이전트·MCP)를 따라 Node Garden으로 둔다.
+const issueCoverArt = {
+  src: href('/patterns/dades-node-garden.svg'),
+  alt: '푸른 노드와 연결선이 정원처럼 퍼지는 Book of Shapes ‘Node Garden’ 패턴',
 };
 
-const featured = latest
-  ? latest.data.items.flatMap((item) => {
-      const art = featureImageById[item.id];
-      return art ? [{ item, art }] : [];
-    })
-  : [];
+const coverStory = latest?.data.items.find((item) => item.signal === 'action') ?? latest?.data.items[0];
+const orderedItems = latest && coverStory
+  ? [coverStory, ...latest.data.items.filter((item) => item.id !== coverStory.id)]
+  : latest?.data.items ?? [];
+const stories = orderedItems;
+const issueFront = latest && coverStory && latestSignals
+  ? {
+      href: latestHref,
+      label: issueNo(latest.data.number),
+      title: latest.data.title,
+      date: fmtDate(latest.data.date),
+      period: latest.data.period,
+      intro: latest.data.intro ?? '',
+      itemCount: latest.data.items.length,
+      coverImage: issueCoverArt.src,
+      coverAlt: issueCoverArt.alt,
+      signals: latestSignals,
+    }
+  : null;
 
-const sourceGroups = latest
-  ? SOURCE_ORDER.flatMap((key) => {
-      const items = latest.data.items.filter((item) => item.source === key);
-      const first = items[0];
-      return first
-        ? [{ key, label: SOURCE_META[key].ko, count: items.length, firstId: first.id, firstTitle: first.title }]
-        : [];
-    })
-  : [];
+// 상시 지면 — 이야기 제목을 다시 늘어놓지 않고, 지면이 하는 일만 한 줄로 적는다.
+const routes = [
+  { to: href('/status/'), label: '상태판', gloss: '지금 뭘 쓰면 되는지와 무엇이 바뀌었는지' },
+  { to: href('/wiki/'), label: '위키', gloss: '용어 하나를 빠르게 찾고 출처까지 확인' },
+  { to: href('/archive/'), label: 'Index', gloss: '태그로 지난 항목을 되짚기' },
+  { to: href('/clippings/'), label: '스크랩북', gloss: '이 브라우저에 담아둔 항목 모음' },
+];
 
 // "지난 방문 이후" 계산용 스냅샷 — 날짜 단위, 정적 페이지에 인라인
 const pulse = {
@@ -67,114 +70,57 @@ const pulse = {
 };
 ---
 
-<Base title="발행 목록" active="home" home>
+<Base
+  title="최신호와 목차"
+  description="사람이 고르고, 에이전트가 읽고 엮는 독립 AI 매거진. 최신호의 모든 이야기를 한눈에 훑어보세요."
+  active="home"
+  home
+>
   {
-    latest && (
-      <Masthead
-        latestHref={latestHref}
-        issueLabel={issueNo(latest.data.number)}
-        issueTitle={latest.data.title}
-      />
+    issueFront && (
+      <Masthead issue={issueFront}>
+        <HomePulse data={pulse} />
+      </Masthead>
     )
   }
 
-  <section class="home-intro" id="latest" data-home-scene aria-labelledby="home-intro-title">
-    <p class="section-overline">INTRODUCTION · AI CURATION</p>
-    <div class="home-intro-grid" data-reveal>
-      <h2 id="home-intro-title">AI는 매일 쏟아지고,<br />우리는 읽을 것만 남깁니다.</h2>
-      <div class="home-intro-copy">
-        <p>
-          DADES는 사람이 고른 링크를 에이전트가 읽고, 요약하고, 다시 한 호의 맥락으로
-          엮는 독립 매거진입니다. 빠른 소식보다 오래 남을 판단을 먼저 둡니다.
-        </p>
-        {
-          latest && (
-            <a class="text-link" href={latestHref}>
-              이번 호 읽기 · {issueNo(latest.data.number)} <span aria-hidden="true">→</span>
-            </a>
-          )
-        }
-      </div>
-    </div>
-
-    <HomePulse data={pulse} />
-  </section>
-
   {
     latest && (
-      <section class="home-featured" data-home-scene aria-labelledby="featured-title">
-        <div class="home-section-head">
-          <div>
-            <p class="section-overline">FEATURED STORIES</p>
-            <h2 id="featured-title">이번 호에서 먼저 읽을 것</h2>
+      <section class="issue-contents" id="contents" aria-labelledby="contents-title">
+        <header class="front-section-head" data-reveal>
+          <div class="front-section-heading">
+            <p class="front-label">CONTENTS · {issueNo(latest.data.number)}</p>
+            <h2 id="contents-title">이번 호의 모든 이야기</h2>
           </div>
-          <a class="text-link" href={latestHref}>전체 지면 보기 <span aria-hidden="true">→</span></a>
-        </div>
-
-        <div class="feature-grid">
-          {featured.map(({ item, art }, index) => (
-            <article class="feature-card" data-reveal style={`--reveal-index:${index}`}>
-              <a href={`${latestHref}#${item.id}`}>
-                <img
-                  src={art.src}
-                  width="1536"
-                  height="1024"
-                  loading="lazy"
-                  decoding="async"
-                  alt={art.alt}
-                />
-                <span class="feature-card-scrim" aria-hidden="true"></span>
-                <span class="feature-card-copy">
-                  <span class="feature-card-meta">
-                    {SOURCE_META[item.source].ko} · {item.origin ?? 'DADES'}
-                  </span>
-                  <span class="feature-card-title">{item.title}</span>
-                </span>
-              </a>
-            </article>
-          ))}
-        </div>
-
-        <div class="latest-brief" data-reveal>
-          <div>
-            <p class="latest-kicker">
-              {issueNo(latest.data.number)} · {fmtDate(latest.data.date)} · 아이템 {latest.data.items.length}
-            </p>
-            <h3><a href={latestHref}>{latest.data.title}</a></h3>
-            {latest.data.intro && <p>{latest.data.intro}</p>}
-          </div>
-          {latestSignals && (
-            <p class="signal-legend latest-signals">
-              <span><span class="key key-action" aria-hidden="true" /> {SIGNAL_META.action.ko} {latestSignals.action}</span>
-              <span><span class="key key-context" aria-hidden="true" /> {SIGNAL_META.context.ko} {latestSignals.context}</span>
-              <span><span class="key key-noise" aria-hidden="true" /> {SIGNAL_META.noise.ko} {latestSignals.noise}</span>
-            </p>
-          )}
-        </div>
-      </section>
-    )
-  }
-  {
-    latest && (
-      <section class="home-topics" data-home-scene aria-labelledby="topics-title">
-        <div class="home-topics-copy" data-reveal>
-          <p class="section-overline">THE EDITORIAL LENSES</p>
-          <h2 id="topics-title">뉴스보다<br />현재의 답에 가까운 분류</h2>
-          <p>
-            릴리스, 연구, 레포, 문화. 출처의 형식보다 독자가 무엇을 해야 하는지에 따라
-            행동·맥락·소란의 신호를 함께 붙입니다.
+          <p class="front-section-note">
+            다섯 건 전부입니다. 지금 손이 가야 하는 것부터 위에 두었습니다.
           </p>
-        </div>
+        </header>
 
-        <ol class="topic-list">
-          {sourceGroups.map((group, index) => (
-            <li data-reveal style={`--reveal-index:${index}`}>
-              <a href={`${latestHref}#${group.firstId}`}>
-                <span class="topic-index" aria-hidden="true">0{index + 1}</span>
-                <span class="topic-label">{group.label}</span>
-                <span class="topic-title">{group.firstTitle}</span>
-                <span class="topic-count">{String(group.count).padStart(2, '0')}</span>
-              </a>
+        {/*
+          앞 지면은 차례가 아니라 차림표다. 여기서 매기는 번호와 /issues/1/ 의 번호가
+          어긋나는 일을 없애려고, 왼쪽 홈통은 번호 대신 부문 이름(릴리스·뉴스·레포)이 맡는다.
+          순서는 그대로 '행동 필요'가 먼저다 — 그 이유는 위 안내문에 적어 두었다.
+        */}
+        <ol class="issue-story-list" data-reveal>
+          {stories.map((item, index) => (
+            <li
+              class:list={['issue-story', { 'issue-story-lead': index === 0 }]}
+              data-issue-story={item.id}
+            >
+              <p class="issue-story-meta">
+                <span class="issue-story-source">{SOURCE_META[item.source].ko}</span>
+                <span class="issue-story-origin">{item.origin ?? 'DADES'}</span>
+              </p>
+              <div class="issue-story-body">
+                <h3><a href={`${latestHref}#${item.id}`}>{item.title}</a></h3>
+                <p class="issue-story-deck">{item.summary}</p>
+              </div>
+              <span
+                class:list={['issue-story-signal', { 'is-action': item.signal === 'action' }]}
+              >
+                {SIGNAL_META[item.signal ?? 'context'].ko}
+              </span>
             </li>
           ))}
         </ol>
@@ -182,37 +128,64 @@ const pulse = {
     )
   }
 
-  {
-    older.length > 0 && (
-      <section class="home-archive" data-home-scene aria-labelledby="past-heading">
-        <h2 class="past-heading" id="past-heading">지난 호</h2>
-        <table class="issue-table">
-          <thead>
-            <tr>
-              <th scope="col">
-                <span class="sr-only">호수</span>
-              </th>
-              <th scope="col">제목</th>
-              <th scope="col" class="col-count">
-                아이템
-              </th>
-              <th scope="col">발행일</th>
-            </tr>
-          </thead>
-          <tbody>
-            {older.map((issue) => (
+  <section class="front-ways" aria-labelledby="ways-title">
+    <header class="front-section-head" data-reveal>
+      <div class="front-section-heading">
+        <p class="front-label">ELSEWHERE</p>
+        <h2 id="ways-title">다른 지면으로</h2>
+      </div>
+      <p class="front-section-note">
+        {older.length > 0
+          ? '늘 열려 있는 네 지면이 먼저고, 지난 호는 그 아래에 모아 두었습니다.'
+          : '창간호가 아직 최신호입니다. 지난 호가 쌓이기 전까지는 늘 열려 있는 네 지면으로 이어가세요.'}
+      </p>
+    </header>
+
+    {/*
+      상시 지면 넷이 한 줄을 다 쓰고, 지난 호는 쌓였을 때만 그 아래에 붙는다.
+      한 줄짜리 문장이 반 폭을 비워 두던 자리는 위 안내문이 대신 받는다.
+      두 켜 모두 이름표 밑 실선과 줄 사이 실선이라는 같은 장치를 쓴다.
+    */}
+    <div class="front-ways-grid">
+      <nav class="front-routes" aria-label="상시 지면">
+        <p class="front-label">상시 지면</p>
+        <ol>
+          {routes.map((route) => (
+            <li>
+              <a href={route.to}>
+                <span class="front-route-label">{route.label}</span>
+                <span class="front-route-gloss">{route.gloss}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      {older.length > 0 && (
+        <div class="front-backissues">
+          <p class="front-label">지난 호</p>
+          <table class="issue-table">
+            <thead>
               <tr>
-                <td class="col-no">{issueNo(issue.data.number)}</td>
-                <td>
-                  <a href={issueHref(issue.data.number)}>{issue.data.title}</a>
-                </td>
-                <td class="col-count">{issue.data.items.length}</td>
-                <td class="col-date">{fmtDate(issue.data.date)}</td>
+                <th scope="col"><span class="sr-only">호수</span></th>
+                <th scope="col">제목</th>
+                <th scope="col" class="col-count">아이템</th>
+                <th scope="col">발행일</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-    )
-  }
+            </thead>
+            <tbody>
+              {older.map((issue) => (
+                <tr>
+                  <td class="col-no">{issueNo(issue.data.number)}</td>
+                  <td><a href={issueHref(issue.data.number)}>{issue.data.title}</a></td>
+                  <td class="col-count">{issue.data.items.length}</td>
+                  <td class="col-date">{fmtDate(issue.data.date)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  </section>
 </Base>

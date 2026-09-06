@@ -1,12 +1,11 @@
 ---
-import {
-  SIGNAL_META,
-  fmtDate,
-  href,
-  issueNo,
-  type Item,
-} from '../lib/mag';
+import { SIGNAL_META, fmtDate, issueNo, type Item } from '../lib/mag';
 
+/**
+ * 호 머리 — 무슨 호인지, 언제 모았는지, 몇 건인지, 무엇이 행동을 요구하는지.
+ * 읽기 시작하기 전에 필요한 것만 한 덩어리로 짧게 둔다. 어두운 벌판도,
+ * 첫 문장까지 1,200px을 미루던 패턴 그림도 없다.
+ */
 interface Props {
   number: number;
   title: string;
@@ -23,70 +22,58 @@ interface Props {
 }
 
 const { number, title, date, period, intro, items, signals, firstActionId } = Astro.props;
-
-const storyArt: Record<string, { src: string; alt: string }> = {
-  'i1-codex-r32': {
-    src: href('/patterns/dades-isometric-noise.svg'),
-    alt: '연한 푸른 등축 격자와 점이 입체적으로 흩어진 Book of Shapes ‘Isometric Noise’ 패턴',
-  },
-  'i1-webmcp': {
-    src: href('/patterns/dades-node-garden.svg'),
-    alt: '푸른 노드와 연결선이 정원처럼 퍼지는 Book of Shapes ‘Node Garden’ 패턴',
-  },
-  'i1-trillion-ikp': {
-    src: href('/patterns/dades-rect-void.svg'),
-    alt: '사각형 격자가 중앙의 빈 공간을 둘러싼 Book of Shapes ‘Rect Void’ 패턴',
-  },
-};
-
-const leadArt = items.map((item) => storyArt[item.id]).find(Boolean) ?? {
-  src: href('/patterns/dades-flow-lines.svg'),
-  alt: '옅은 흐름선이 물결처럼 이어지는 Book of Shapes ‘Flow Lines’ 패턴',
-};
 ---
 
-<header class="issue-hero" data-reveal>
-  <div class="issue-hero-copy">
-    <p class="issue-hero-eyebrow">DADES WEEKLY ISSUE</p>
-    <h1>{title}</h1>
-    <p class="issue-hero-date">
-      <span>Issue {issueNo(number)}</span>
-      <span>{fmtDate(date)}</span>
-      {period && <span>수집 기간 {period}</span>}
-      <span>아이템 {items.length}</span>
-    </p>
-    {intro && <p class="issue-hero-intro">{intro}</p>}
-    <div class="signal-row issue-hero-signals" role="group" aria-label="이번 호 신호">
-      <div class="signal-bar" aria-hidden="true">
-        {signals.action > 0 && <span class="seg-action" style={`flex-grow:${signals.action}`} />}
-        {signals.context > 0 && <span class="seg-context" style={`flex-grow:${signals.context}`} />}
-        {signals.noise > 0 && <span class="seg-noise" style={`flex-grow:${signals.noise}`} />}
-      </div>
-      <p class="signal-legend">
-        {
-          firstActionId ? (
-            <a href={`#${firstActionId}`}>
-              <span class="key key-action" aria-hidden="true" /> {SIGNAL_META.action.ko}{' '}
-              {signals.action}
-            </a>
-          ) : (
-            <span>
-              <span class="key key-action" aria-hidden="true" /> {SIGNAL_META.action.ko} 0
-            </span>
-          )
-        }
-        <span>
-          <span class="key key-context" aria-hidden="true" /> {SIGNAL_META.context.ko}{' '}
-          {signals.context}
-        </span>
-        <span>
-          <span class="key key-noise" aria-hidden="true" /> {SIGNAL_META.noise.ko} {signals.noise}
-        </span>
-      </p>
-    </div>
-  </div>
+<header class="issue-head">
+  <p class="ia-kicker">DADES WEEKLY · ISSUE {issueNo(number)}</p>
+  <h1 class="issue-title">{title}</h1>
+  {intro && <p class="issue-deck">{intro}</p>}
 
-  <figure class="issue-hero-media" data-reveal>
-    <img src={leadArt.src} width="1536" height="1024" decoding="async" fetchpriority="high" alt={leadArt.alt} />
-  </figure>
+  <dl class="issue-facts" aria-label="이번 호 정보">
+    <div>
+      <dt>발행</dt>
+      <dd>{fmtDate(date)}</dd>
+    </div>
+    {
+      period && (
+        <div>
+          <dt>수집 기간</dt>
+          <dd>{period}</dd>
+        </div>
+      )
+    }
+    <div>
+      <dt>항목</dt>
+      <dd>{items.length}건</dd>
+    </div>
+  </dl>
+
+  <div class="signal-row issue-head-signals" role="group" aria-label="이번 호 신호">
+    <div class="signal-bar" aria-hidden="true">
+      {signals.action > 0 && <span class="seg-action" style={`flex-grow:${signals.action}`} />}
+      {signals.context > 0 && <span class="seg-context" style={`flex-grow:${signals.context}`} />}
+      {signals.noise > 0 && <span class="seg-noise" style={`flex-grow:${signals.noise}`} />}
+    </div>
+    <p class="signal-legend">
+      {
+        firstActionId ? (
+          <a href={`#${firstActionId}`}>
+            <span class="key key-action" aria-hidden="true" /> {SIGNAL_META.action.ko}{' '}
+            {signals.action}
+          </a>
+        ) : (
+          <span>
+            <span class="key key-action" aria-hidden="true" /> {SIGNAL_META.action.ko} 0
+          </span>
+        )
+      }
+      <span>
+        <span class="key key-context" aria-hidden="true" /> {SIGNAL_META.context.ko}{' '}
+        {signals.context}
+      </span>
+      <span>
+        <span class="key key-noise" aria-hidden="true" /> {SIGNAL_META.noise.ko} {signals.noise}
+      </span>
+    </p>
+  </div>
 </header>

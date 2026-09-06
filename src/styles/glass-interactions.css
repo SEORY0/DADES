@@ -3,7 +3,6 @@
   --chrome-w: 663.42px;
   --chrome-r: 30px;
   --chrome-fill-live: rgba(212, 215, 222, 0.7);
-  --chrome-highlight: rgba(255, 255, 255, 0.7);
   --chrome-hover: rgb(120, 124, 128);
   --chrome-active: rgba(255, 255, 255, 0.73);
   --chrome-mobile-h: 42.3px;
@@ -14,11 +13,6 @@
   --chrome-fast: 160ms;
   --chrome-state: 260ms;
   --chrome-ease: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.mode-root {
-  --pointer-x: 50vw;
-  --pointer-y: 30px;
 }
 
 .site-head {
@@ -33,50 +27,6 @@
 
 .nav-shell {
   position: relative;
-  width: min(var(--chrome-w), calc(100% - 40px));
-  min-height: var(--chrome-h);
-  padding: 4px;
-  border: 0;
-  border-radius: var(--chrome-r);
-  background: transparent;
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.72),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.34),
-    0 16px 40px rgba(17, 20, 29, 0.12);
-  backdrop-filter: blur(var(--chrome-blur)) saturate(122%);
-  -webkit-backdrop-filter: blur(var(--chrome-blur)) saturate(122%);
-  transition:
-    box-shadow var(--chrome-state) var(--chrome-ease),
-    transform var(--chrome-state) var(--chrome-ease);
-}
-
-.is-scrolled .nav-shell {
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.76),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.3),
-    0 20px 48px rgba(17, 20, 29, 0.16);
-}
-
-.glass-fill-layer,
-.glass-highlight-layer {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.glass-fill-layer {
-  z-index: -2;
-  background: var(--chrome-fill-live);
-}
-
-.glass-highlight-layer {
-  z-index: -1;
-  background:
-    radial-gradient(circle at var(--pointer-x) var(--pointer-y), rgba(255, 255, 255, 0.58), transparent 130px),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.5), transparent 48%);
-  opacity: 0.72;
-  mix-blend-mode: screen;
 }
 
 .brand,
@@ -85,18 +35,11 @@
 .menu-toggle {
   position: relative;
   z-index: 1;
-  height: 38px;
-  min-height: 38px;
   transition:
     color var(--chrome-fast) var(--chrome-ease),
     background-color var(--chrome-fast) var(--chrome-ease),
     box-shadow var(--chrome-fast) var(--chrome-ease),
     transform var(--chrome-fast) var(--chrome-ease);
-}
-
-.brand {
-  width: 74px;
-  height: 38px;
 }
 
 .site-nav a {
@@ -112,16 +55,20 @@
 .nav-hover-pill,
 .nav-active-pill {
   position: absolute;
-  inset: 3px;
-  border-radius: var(--radius-pill);
+  border-radius: 100px;
   pointer-events: none;
   transition: opacity var(--chrome-fast) var(--chrome-ease);
 }
 
 .nav-hover-pill {
+  inset: 0;
   background: var(--chrome-hover);
   filter: blur(18px);
   opacity: 0;
+}
+
+.nav-active-pill {
+  inset: 3px;
 }
 
 .nav-active-pill {
@@ -148,19 +95,6 @@
 
 .site-nav a[aria-current='page'] .nav-active-pill {
   opacity: 0.6;
-}
-
-.nav-cta {
-  gap: 2px;
-  background: var(--accent-primary);
-}
-
-.nav-cta:hover,
-.nav-cta:focus-visible {
-  color: var(--electric-highlight);
-  background: #121416;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--electric-highlight) 72%, transparent);
-  transform: translateY(-1px);
 }
 
 .brand:active,
@@ -218,12 +152,14 @@
   width: min(calc(100% - (2 * var(--space-10))), var(--frame-max));
 }
 
+/* 등장 효과 — 짧은 페이드 하나면 충분하다. 예전의 18px 이동은
+   섹션 단위 끊김을 키우기만 해서 5px로 줄였다. */
 .has-reveal-js [data-reveal] {
   opacity: 0;
-  transform: translateY(18px);
+  transform: translateY(5px);
   transition:
-    opacity var(--chrome-state) var(--chrome-ease),
-    transform var(--chrome-state) var(--chrome-ease);
+    opacity 220ms var(--chrome-ease),
+    transform 220ms var(--chrome-ease);
 }
 
 .has-reveal-js [data-reveal].is-revealed {
@@ -236,77 +172,91 @@
     inset: auto 0 calc(30px + env(safe-area-inset-bottom));
   }
 
+  /* The dock and the menu are one capsule on Recent: the same glass grows
+     from 42.3px to the open height while the dock row stays its bottom row.
+     The shell therefore carries no fill of its own on mobile — the panel
+     behind it is the glass in both states. */
   .nav-shell {
     z-index: 2;
     width: min(calc(100% - 40px), var(--chrome-mobile-w));
     min-height: var(--chrome-mobile-h);
+    padding: 5px;
+    justify-content: space-between;
+    gap: 8px;
     border-radius: var(--chrome-mobile-r);
     background: transparent;
-  }
-
-  .nav-shell .glass-fill-layer,
-  .mobile-menu .glass-fill-layer {
-    background: var(--chrome-mobile-fill);
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .brand,
   .nav-cta,
   .menu-toggle {
-    height: 34.3px;
-    min-height: 34.3px;
-  }
-
-  .brand {
-    width: 66px;
-  }
-
-  .brand-mark {
-    height: 1.82rem;
+    height: 32.3px;
+    min-height: 32.3px;
   }
 
   .menu-toggle {
+    width: 26px;
+    min-width: 26px;
+    height: 26px;
+    min-height: 26px;
     display: inline-grid;
     place-items: center;
+    color: var(--chrome-ink);
+  }
+
+  .menu-toggle-line {
+    width: 19px;
+    height: 2.5px;
+    border-radius: 1px;
+  }
+
+  .menu-toggle-line:first-child {
+    transform: translateY(-5px);
+  }
+
+  .menu-toggle-line:last-child {
+    transform: translateY(5px);
   }
 
   .nav-cta {
     max-width: 12.5rem;
-    padding-inline: var(--space-3);
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
+  /* Measured open capsule: fill rgba(217,217,217,.7), blur 9, radius 25->19,
+     no shadows. 13px top inset (5+8), 19px left link inset (4+15), 4px right,
+     55.3px bottom (16 gap + 32.3 dock row + 7). Six 50px rows + 75px meta. */
   .mobile-menu {
     z-index: 1;
     position: fixed;
     inset: auto 50% calc(30px + env(safe-area-inset-bottom));
     width: min(calc(100% - 40px), var(--chrome-mobile-w));
-    height: 343.3px;
+    height: var(--chrome-mobile-h);
     max-height: calc(100svh - 60px - env(safe-area-inset-bottom));
-    padding: 12px 12px calc(var(--chrome-mobile-h) + 12px);
+    padding: 0 4px 0 19px;
     display: grid;
     align-content: end;
     border: 0;
     border-radius: var(--chrome-mobile-r);
-    background: transparent;
-    box-shadow:
-      inset 0 1px 1px rgba(255, 255, 255, 0.66),
-      0 18px 48px rgba(17, 20, 29, 0.16);
-    backdrop-filter: blur(var(--chrome-blur)) saturate(122%);
-    -webkit-backdrop-filter: blur(var(--chrome-blur)) saturate(122%);
-    opacity: 0;
+    background: var(--chrome-mobile-fill);
+    backdrop-filter: blur(var(--chrome-blur));
+    -webkit-backdrop-filter: blur(var(--chrome-blur));
+    overflow: hidden;
     pointer-events: none;
-    transform: translate(-50%, 18px) scaleY(0.82);
-    transform-origin: bottom center;
+    transform: translateX(-50%);
     transition:
-      opacity var(--chrome-state) var(--chrome-ease),
-      transform var(--chrome-state) var(--chrome-ease);
+      height var(--chrome-state) var(--chrome-ease),
+      border-radius var(--chrome-state) var(--chrome-ease);
   }
 
   .menu-open .mobile-menu {
-    opacity: 1;
+    height: 443.3px;
+    border-radius: 19px;
     pointer-events: auto;
-    transform: translate(-50%, 0) scaleY(1);
   }
 
   .mobile-menu nav {
@@ -315,8 +265,19 @@
   }
 
   .mobile-menu nav a {
-    min-height: 40px;
-    border-bottom-color: rgba(120, 124, 128, 0.18);
+    height: 50px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    border: 0;
+    font-size: 40px;
+    font-weight: 460;
+    line-height: 44px;
+    letter-spacing: -0.9px;
+    color: var(--chrome-ink);
+    text-decoration: none;
     opacity: 0;
     transform: translateY(10px);
     transition:
@@ -330,8 +291,10 @@
   .mobile-menu nav a:nth-child(4) { transition-delay: 84ms; }
   .mobile-menu nav a:nth-child(5) { transition-delay: 112ms; }
   .mobile-menu nav a:nth-child(6) { transition-delay: 140ms; }
+  .mobile-menu .mobile-menu-socials { transition-delay: 168ms; }
 
-  .menu-open .mobile-menu nav a {
+  .menu-open .mobile-menu nav a,
+  .menu-open .mobile-menu .mobile-menu-socials {
     opacity: 1;
     transform: translateY(0);
   }
@@ -339,23 +302,57 @@
   .mobile-menu nav a:hover,
   .mobile-menu nav a:focus-visible,
   .mobile-menu nav a[aria-current='page'] {
-    color: var(--accent-strong);
-    background: rgba(255, 255, 255, 0.34);
+    color: var(--chrome-ink-strong);
+    background: transparent;
   }
 
-  .mobile-menu-note {
-    margin: 8px var(--space-4) 0;
-    opacity: 0.72;
+  .mobile-menu-meta {
+    align-self: center;
+  }
+
+  .mobile-menu-socials {
+    margin-bottom: 55.3px;
+    padding: 25px 0 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity var(--chrome-state) var(--chrome-ease),
+      transform var(--chrome-state) var(--chrome-ease);
+  }
+
+  .mobile-menu-socials a {
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-utility);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 14.4px;
+    letter-spacing: 2.4px;
+    text-transform: uppercase;
+    color: var(--chrome-ink);
+    text-decoration: none;
+  }
+
+  .mobile-menu-socials a:hover,
+  .mobile-menu-socials a:focus-visible {
+    color: var(--chrome-ink-strong);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .nav-shell,
-  .mobile-menu,
   .mobile-menu nav a,
+  .mobile-menu-socials,
   [data-reveal] {
     transition-duration: 0.01ms !important;
     transform: none !important;
+  }
+
+  .mobile-menu {
+    transition-duration: 0.01ms !important;
   }
 
   [data-reveal] {
@@ -364,8 +361,6 @@
 }
 
 @media (forced-colors: active) {
-  .glass-fill-layer,
-  .glass-highlight-layer,
   .nav-hover-pill,
   .nav-active-pill {
     display: none;
@@ -384,4 +379,42 @@
     color: ButtonText;
     background: ButtonFace;
   }
+}
+
+/* 먹색 지면 — Recent의 캡슐은 밝은 판을 전제로 계측된 값이다. 형태·치수·배치는
+   그대로 두고 채움과 잉크만 뒤집어 어두운 지면에서도 라벨이 읽히게 한다.
+   CTA의 산성 연두와 그 위의 near-black은 브랜드 상수라 세 테마에서 고정한다. */
+@media (min-width: 810px) {
+  /* 모바일에서는 셸이 투명하고 뒤의 메뉴 캡슐이 유리를 맡으므로 데스크톱에만 준다. */
+  [data-theme='ink'] .nav-shell {
+    background: rgba(46, 51, 58, 0.72);
+  }
+}
+
+[data-theme='ink'] .brand,
+[data-theme='ink'] .site-nav a,
+[data-theme='ink'] .menu-toggle,
+[data-theme='ink'] .mobile-menu nav a,
+[data-theme='ink'] .mobile-menu-socials a {
+  color: var(--text-primary);
+}
+
+[data-theme='ink'] .site-nav a:hover,
+[data-theme='ink'] .site-nav a:focus-visible,
+[data-theme='ink'] .site-nav a[aria-current='page'],
+[data-theme='ink'] .mobile-menu nav a:hover,
+[data-theme='ink'] .mobile-menu nav a:focus-visible,
+[data-theme='ink'] .mobile-menu nav a[aria-current='page'],
+[data-theme='ink'] .mobile-menu-socials a:hover,
+[data-theme='ink'] .mobile-menu-socials a:focus-visible {
+  color: #ffffff;
+}
+
+[data-theme='ink'] .site-nav a[aria-current='page'] {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.14);
+}
+
+[data-theme='ink'] .mobile-menu {
+  background: rgba(46, 51, 58, 0.8);
 }

@@ -1,23 +1,18 @@
+/* DADES — 찾는 지면(Index · 주제)과 읽는 지면(호).
+   색인은 "태그로 항목을 찾는 도구"고, 호 지면은 "읽는 자리"다.
+   그래서 이 세 지면에는 전면 장면도, 어두운 벌판도, Book of Shapes도 없다.
+   위계는 Pretendard 한 벌 안에서 굵기·크기·자간·대소문자·색으로만 세운다. */
+
 :root {
-  --ia-dark: #191919;
-  --ia-dark-ink: #0c0c0c;
-  --ia-dark-text: #dde0e5;
-  --ia-dark-muted: #a5abb0;
-  --ia-light: #fbfaf6;
-  --ia-light-soft: #f2f1ec;
-  --ia-blue: #227aff;
-  --ia-blue-deep: #315de8;
-  --ia-green: #bef263;
-  --ia-rule-dark: rgba(221, 224, 229, 0.18);
-  --ia-rule-light: rgba(17, 19, 21, 0.14);
-  --ia-scrim: linear-gradient(180deg, rgba(12, 12, 12, 0) 24%, rgba(12, 12, 12, 0.82) 100%);
-  --ia-frame: min(calc(100% - (2 * var(--space-10))), var(--frame-max));
-  --ia-reading: min(calc(100% - (2 * var(--space-5))), 48rem);
-  --ia-wide-reading: min(calc(100% - (2 * var(--space-10))), 70.5rem);
-  --ia-card-radius: 0.625rem;
-  --ia-hero-radius: 1.25rem;
+  /* 읽는 폭 — 호 지면과 주제 결과가 같은 왼쪽 모서리를 공유한다 */
+  --ia-read: min(calc(100% - (2 * var(--space-5))), 48rem);
+  /* 찾는 폭 — 색인은 한 줄에 태그가 여러 개 서야 해서 조금 넓다 */
+  --ia-index: min(calc(100% - (2 * var(--space-10))), 60rem);
 }
 
+/* ------------------------------------------------------------
+   지면 골격 — 글라스 셸의 기본 폭 규칙을 이 세 지면에서만 걷어낸다
+   ------------------------------------------------------------ */
 .page.page-article,
 .page.page-listing {
   width: 100%;
@@ -26,177 +21,463 @@
 }
 
 .page.page-article > .issue-article,
-.page.page-article > .archive-tag-page,
-.page.page-listing > .archive-listing-hero,
-.page.page-listing > .archive-index-body {
+.page.page-article > .archive-tag-page {
   width: 100%;
   max-width: none;
   margin-inline: 0;
 }
 
+.page.page-listing > .index-head,
+.page.page-listing > .index-tags {
+  width: var(--ia-index);
+  max-width: none;
+  margin-inline: auto;
+}
+
 .issue-article,
 .archive-tag-page,
-.archive-listing-hero {
+.index-head,
+.index-tags {
+  color: var(--text-primary);
+  background: var(--surface-canvas);
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
 
-.issue-article,
-.archive-tag-page {
-  background: var(--ia-light);
-}
-
-.issue-hero,
-.archive-tag-hero {
-  color: var(--ia-dark-text);
-  background:
-    radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--accent-primary) 24%, transparent), transparent 34%),
-    var(--ia-dark);
-}
-
-.issue-hero {
-  min-height: 67.5rem;
-  padding: 8.75rem 0 0;
+/* ============================================================
+   INDEX §1 — 색인 머리 + 검색
+   무슨 지면인지 한 줄로 밝히고, 가장 쓸모 있는 도구(전문 검색)를
+   제목과 같은 시각 기준선에 올린다.
+   ============================================================ */
+/* 아래 규칙선은 .index-stats가 쥔다 — 총계 띠 하나가 위아래 두 선을 다 갖고 있어야
+   위 24px / 아래 24px로 눈금이 맞는다. 머리에 padding-bottom을 남기면 아래만 49px로
+   부풀어 띠가 바닥으로 가라앉는다. */
+.index-head {
+  padding-block: 7.5rem 0;
   display: grid;
-  justify-items: center;
-  align-content: start;
-  text-align: center;
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 26rem);
+  gap: var(--space-8) var(--space-16);
+  align-items: end;
 }
 
-.issue-hero-copy {
-  width: var(--ia-wide-reading);
-  display: grid;
-  justify-items: center;
+.index-headline {
+  min-width: 0;
 }
 
-.issue-hero-eyebrow,
-.archive-eyebrow,
-.archive-card-meta {
-  margin: 0;
-  font-family: var(--font-utility);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-variant-numeric: tabular-nums;
-}
-
-.issue-hero-eyebrow,
-.archive-eyebrow {
-  color: var(--ia-dark-muted);
-}
-
-.issue-hero h1 {
-  max-width: 19ch;
-  margin: 2.25rem 0 0;
-  font-size: 3.125rem;
-  font-weight: 520;
-  line-height: 1.1;
-  letter-spacing: 0;
+.index-headline h1 {
+  margin: var(--space-3) 0 0;
+  font-size: clamp(1.625rem, 2.8vw, 2.125rem);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.025em;
   text-wrap: balance;
 }
 
-.issue-hero-date {
-  margin: 2rem 0 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-2) var(--space-5);
-  color: color-mix(in srgb, var(--ia-dark-text) 82%, transparent);
-}
-
-.issue-hero-intro {
-  max-width: 44rem;
-  margin: 1.5rem 0 0;
-  font-size: var(--type-body-lg);
-  line-height: 1.55;
-  color: color-mix(in srgb, var(--ia-dark-text) 76%, transparent);
+.index-lede {
+  max-width: 38ch;
+  margin: var(--space-4) 0 0;
+  font-size: 1rem;
+  font-weight: 420;
+  line-height: 1.7;
+  color: var(--text-secondary);
   text-wrap: pretty;
 }
 
-.issue-hero-signals {
-  width: min(100%, 42rem);
-  margin-top: 2rem;
+.index-find {
+  min-width: 0;
 }
 
-.issue-hero-signals .signal-legend,
-.issue-hero-signals .signal-legend a {
-  justify-content: center;
-  color: color-mix(in srgb, var(--ia-dark-text) 76%, transparent);
+.index-find .index-search[hidden] {
+  display: none;
 }
 
-.issue-hero-signals .signal-legend a:hover {
-  color: var(--ia-green);
+/* 검색 UI가 붙으면(빌드된 지면) 대체 안내는 물러난다 */
+.index-search:not([hidden]) + .index-search-fallback {
+  display: none;
 }
 
-.issue-hero-media {
-  width: min(calc(100% - (2 * 9.75rem)), 70.5rem);
-  margin: 5rem 0 0;
-  aspect-ratio: 1128 / 603;
-  overflow: hidden;
-  border-radius: var(--ia-hero-radius) var(--ia-hero-radius) 0 0;
-  background: var(--surface-soft);
-}
-
-.issue-hero-media img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  filter: saturate(108%) contrast(104%);
-}
-
-.issue-reading,
-.archive-results,
-.archive-index-body {
-  color: var(--text-primary);
-  background: var(--ia-light);
-}
-
-.issue-reading {
-  padding: 5rem 0 6rem;
-}
-
-.issue-section,
-.archive-results {
-  width: var(--ia-reading);
-  margin-inline: auto;
-}
-
-.issue-section + .issue-section {
-  margin-top: 4rem;
-}
-
-.issue-section .section-heading {
-  margin: 0 0 1.5rem;
-  padding-bottom: 1rem;
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: var(--space-4);
-  border-bottom: 1px solid var(--ia-rule-light);
-  font-size: 1.35rem;
-  line-height: 1.2;
-}
-
-.issue-section .section-heading .count {
-  font-family: var(--font-utility);
-  font-size: var(--type-label);
+.index-search-fallback {
+  margin: 0;
+  font-size: var(--type-small);
+  font-weight: 400;
+  line-height: 1.6;
   color: var(--text-secondary);
 }
 
+/* 두 선 사이에 놓이는 띠라 위아래가 다 같아야 한다 — 여백은 위 24px / 아래 24px,
+   선은 위아래 모두 본선(--rule-default)이다. 위만 옅은 선을 쓰면 띠가 옅은 선으로
+   열리고 짙은 선으로 닫혀 액자가 한쪽으로 기운다. */
+.index-stats {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-3);
+  padding-block: var(--space-6);
+  border-top: 1px solid var(--rule-default);
+  border-bottom: 1px solid var(--rule-default);
+  font-variant-numeric: tabular-nums;
+}
+
+.index-stats dl {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+}
+
+.index-stats dl > div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+/* 한글 이름표라 대문자화 없이 굵기·자간·색으로만 낮춘다 */
+.index-stats dt {
+  font-size: var(--type-label);
+  font-weight: 560;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+.index-stats dd {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   INDEX §2 — 전체 태그
+   알파벳 순 전체 색인. 한 태그에 한 줄, ★ 토글과 건수는 그대로.
+   이 지면의 본론이다.
+   ============================================================ */
+.index-tags {
+  padding-block: var(--space-12) var(--space-24);
+}
+
+.index-tags-head {
+  margin-bottom: var(--space-6);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-8);
+}
+
+.index-tags-head h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.index-tags-head .index-hint {
+  max-width: 42ch;
+  margin: 0;
+  font-size: var(--type-small);
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: right;
+  color: var(--text-secondary);
+}
+
+/* 전역 columns 다단을 걷어내고 격자로 바꾼다 —
+   행 우선이라 알파벳 순 = DOM 순 = 탭 순이 그대로 맞는다 */
+.index-tags .index-list {
+  columns: initial;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  column-gap: var(--space-10);
+  border-top: 1px solid var(--rule-default);
+}
+
+.index-tags .index-row {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 3rem;
+  padding: 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+/* ★는 이 지면에 하나뿐인 상태 조작기다. 눈금 회색(--rule)으로 찍으면 종이 위에서
+   1.47:1이라 얼룩으로만 보여 관심 태그 기능 전체가 제 집에서 안 보인다.
+   꺼진 별은 본문 보조색으로 내려 읽히게 하고, 켜진 별만 코발트로 넘긴다 —
+   이 지면에서만 코발트가 동작 잉크 겸 상태 잉크로 쓰인다.
+   과녁은 다른 곳과 같은 44×44. */
+.index-tags .interest-btn {
+  width: 2.75rem;
+  min-width: 0;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  display: inline-grid;
+  place-items: center;
+  place-self: center;
+  color: var(--text-secondary);
+  background: none;
+  border-color: transparent;
+}
+
+/* 켜진 별에 연한 칠을 깔면 코발트가 4.41:1로 떨어진다 —
+   칠은 걷고 테두리와 잉크만으로 켜짐을 알린다. */
+.index-tags .interest-btn[aria-pressed='true'] {
+  color: var(--accent-primary);
+  background: none;
+  border-color: var(--accent-primary);
+}
+
+.index-tags .interest-btn:hover {
+  color: var(--accent-strong);
+  background: none;
+}
+
+.index-tags .interest-btn[aria-pressed='true']:hover {
+  border-color: var(--accent-strong);
+}
+
+.index-tags .index-line {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  align-content: center;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: 2.75rem;
+}
+
+.index-tags .index-line .index-tag {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+.index-tags .index-line .leader {
+  min-width: 1.25rem;
+  border-bottom: 1px dotted var(--rule-default);
+  transform: translateY(-0.25rem);
+}
+
+.index-tags .index-line .count {
+  font-size: var(--type-label);
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   TAG §1 — 결과 머리
+   어느 태그인지, 몇 건인지, 전체 색인으로 어떻게 돌아가는지.
+   아래 결과 목록과 같은 폭이라 왼쪽 모서리가 하나로 이어진다.
+   ============================================================ */
+.tag-head {
+  width: var(--ia-read);
+  margin-inline: auto;
+  padding-block: 7.5rem var(--space-8);
+  border-bottom: 1px solid var(--rule-default);
+}
+
+.tag-head h1 {
+  margin: var(--space-3) 0 0;
+  font-size: clamp(1.625rem, 2.8vw, 2.125rem);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.tag-head-meta {
+  margin: var(--space-4) 0 0;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.tag-head-meta b {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ia-backlink {
+  min-height: 2.75rem;
+  margin-top: var(--space-1);
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--type-small);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--accent-primary);
+  text-decoration: none;
+}
+
+.ia-backlink:hover {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ============================================================
+   TAG §2 — 수록 항목
+   호 지면과 완전히 같은 항목 문법. 어느 호였는지만 덧붙는다.
+   ============================================================ */
+.archive-results {
+  width: var(--ia-read);
+  margin-inline: auto;
+  padding-block: 0 var(--space-24);
+}
+
+/* ============================================================
+   ISSUE §1 — 호 머리
+   무슨 호인지, 언제 모았는지, 몇 건인지, 무엇이 행동을 요구하는지.
+   한 덩어리로 짧게. 어두운 벌판도 패턴 그림도 없다.
+   ============================================================ */
+.issue-article .issue-head {
+  width: var(--ia-read);
+  margin: 0 auto;
+  padding: 7.5rem 0 var(--space-8);
+  border-bottom: 1px solid var(--rule-default);
+  background: var(--surface-canvas);
+  text-align: left;
+}
+
+.issue-head .issue-title {
+  margin: var(--space-3) 0 0;
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.issue-head .issue-deck {
+  max-width: 40ch;
+  margin: var(--space-5) 0 0;
+  font-size: 1.1875rem;
+  font-weight: 430;
+  line-height: 1.65;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.issue-facts {
+  margin: var(--space-6) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  font-variant-numeric: tabular-nums;
+}
+
+.issue-facts > div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.issue-facts dt {
+  font-size: var(--type-label);
+  font-weight: 560;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+.issue-facts dd {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.issue-head-signals {
+  width: 100%;
+  margin-top: var(--space-6);
+}
+
+.issue-head-signals .signal-bar {
+  height: 0.25rem;
+  gap: 2px;
+  margin-bottom: var(--space-2);
+}
+
+.issue-head-signals .signal-legend,
+.issue-head-signals .signal-legend a {
+  justify-content: flex-start;
+  font-size: var(--type-label);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.issue-head-signals .signal-legend a {
+  color: var(--accent-primary);
+}
+
+.issue-head-signals .signal-legend a:hover {
+  color: var(--accent-strong);
+}
+
+/* ============================================================
+   ISSUE §2 — 수록
+   한 단, 한 폭, 항목 사이는 헤어라인 하나. 항목마다 클립 버튼과
+   양 세기 숫자와 짝이 맞는 쪽번호가 붙는다.
+   ============================================================ */
+.issue-reading {
+  width: var(--ia-read);
+  margin-inline: auto;
+  padding-block: 0 var(--space-16);
+}
+
+.issue-reading .section-heading {
+  margin: 0 0 var(--space-4);
+  padding-bottom: var(--space-3);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--rule-default);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.issue-reading .section-heading .count {
+  font-size: var(--type-label);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.issue-section + .issue-section {
+  margin-top: var(--space-16);
+}
+
+/* ---------- 항목 — 두 지면이 공유하는 단 하나의 문법 ---------- */
 .issue-reading .entry,
 .archive-results .entry {
-  margin-top: 0;
-  padding: 1.5rem 0;
+  position: relative;
+  margin: 0;
+  padding: var(--space-8) 0;
+  border: 0;
+  border-top: 1px solid var(--rule-soft);
   border-radius: 0;
-  border-top: 1px solid var(--ia-rule-light);
   background: transparent;
+  scroll-margin-top: var(--space-8);
 }
 
 .issue-reading .entry:first-of-type,
 .archive-results .entry:first-of-type {
+  padding-top: var(--space-10);
   border-top: 0;
 }
 
@@ -205,47 +486,202 @@
   margin-top: 0;
 }
 
-.issue-reading .entry-title,
-.archive-results .entry-title {
-  font-size: 1.6rem;
-  line-height: 1.28;
-  letter-spacing: 0;
+/* 관심 태그 표시는 그대로 살린다 — localStorage가 붙이는 클래스 */
+.issue-reading .entry.is-interest,
+.archive-results .entry.is-interest {
+  margin-left: calc(-1 * var(--space-4));
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--accent-primary);
 }
 
+.issue-reading .entry-top,
+.archive-results .entry-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.issue-reading .entry-headline,
+.archive-results .entry-headline {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+}
+
+.issue-reading .entry-title,
+.archive-results .entry-title {
+  flex: 1 1 100%;
+  display: block;
+  margin: 0;
+  font-size: clamp(1.25rem, 1.9vw, 1.5rem);
+  font-weight: 600;
+  line-height: 1.34;
+  letter-spacing: -0.02em;
+  text-wrap: pretty;
+}
+
+.issue-reading .entry-title a,
+.archive-results .entry-title a {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.issue-reading .entry-title a:hover,
+.archive-results .entry-title a:hover {
+  color: var(--accent-strong);
+}
+
+/* ---------- 발밑 네 등급 ----------
+   12px 한 칸에 다섯 역할(출처·신호·태그·쪽번호·클립)이 몰려 있었다. 이들을 가르던
+   것은 굵기 60단차와 자간 0.24px뿐이었는데, 12px에서는 둘 다 눈에 잡히지 않아
+   전부 한 덩어리 회색 결로 읽혔다. 한 벌 조판의 대표적인 실패 방식이다.
+   크기를 더 벌릴 자리는 없고 한글이라 대소문자도 못 쓴다. 그래서 12px에서 실제로
+   읽히는 지렛대만 쓴다 — 칠·테두리, 잉크, 그리고 굵기 150단차.
+
+     A 평문   출처·쪽번호·수록 호. 장식 없는 회색. 12px/500.
+     B 이름표 신호 칩. 각진 테두리 상자 + 650. 칠은 「행동 필요」만 두른다.
+     C 알약   태그 링크. 칠 알약 + 본문 잉크 — 누를 수 있다는 뜻.
+     D 동작   클립 버튼. 테두리 알약 + 44px 과녁. 이미 갈라져 있어 손대지 않는다.
+
+   자간은 네 등급 모두 0.02em으로 맞춘다. 자간이 가짜 구분자 노릇을 못 하게 하려는
+   것이고, 구분은 칠·잉크·굵기가 전부 진다. */
+
+/* A — 출처. 이 지면에서 장식이 하나도 없는 유일한 회색이다. */
+.issue-reading .entry-meta,
+.archive-results .entry-meta {
+  display: inline-block;
+  margin: 0;
+  font-size: var(--type-label);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: normal;
+  color: var(--text-secondary);
+}
+
+/* B — 신호 이름표. 각진 테두리 상자에 420 → 650. 굵기를 230단차로 벌려야 12px에서
+   「이건 이름표다」가 읽히고, 각진 모서리가 알약(C·D)과 갈린다.
+   잉크와 칠은 여기서 손대지 않는다 — 물빛 위에 앉는 잉크는 테마마다
+   --accent-on-wash 하나가 쥐고 있다(global.css의 .sig-action). 이 지면이 따로
+   박아 두던 #2a51cc는 종이·흰 지면에서 토큰과 값이 완전히 같아 하는 일이 없었고,
+   먹지에서만 코발트 원색으로 되돌리며 6.37:1짜리 토큰을 4.89:1로 되레 낮췄다.
+   겹쳐 쓰던 두 규칙을 걷고 토큰 하나가 세 테마를 다 맡게 둔다. */
+.issue-reading .entry-headline .signal-chip,
+.archive-results .entry-headline .signal-chip {
+  margin-left: 0;
+  padding: 0.0625rem 0.375rem 0.125rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.issue-reading .entry-top .clip-btn,
+.archive-results .entry-top .clip-btn {
+  flex: none;
+  margin-top: 0.125rem;
+}
+
+/* 48rem 단 자체가 읽기 폭이라 별도 max-width를 두지 않는다 */
 .issue-reading .entry-summary,
 .archive-results .entry-summary {
-  max-width: 41rem;
-  font-family: var(--font-editorial);
-  font-size: 1.5rem;
-  line-height: 1.42;
+  max-width: none;
+  margin: var(--space-4) 0 0;
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.75;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
+  text-wrap: pretty;
 }
 
 .issue-reading .entry-note,
 .archive-results .entry-note {
-  max-width: 41rem;
+  max-width: none;
+  margin: var(--space-4) 0 0;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--electric-highlight);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: 0;
   color: var(--text-secondary);
 }
 
+/* 「노트 · 」는 이름표지 문장의 첫머리가 아니다. 노트 본문과 값이 완전히 같아
+   한 문장처럼 읽히던 것을 잉크와 굵기로만 떼어 놓는다 — 15px이라 이 정도면 읽힌다. */
+.issue-reading .entry-note::before,
+.archive-results .entry-note::before {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* A — 태그 줄과 수록 호 줄의 바탕. 회색 평문 그대로다. */
+.issue-reading .entry-tags,
+.archive-results .entry-tags,
+.issue-reading .entry-issue-ref,
+.archive-results .entry-issue-ref {
+  margin: var(--space-3) 0 0;
+  font-size: var(--type-label);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+/* C — 태그 알약. 칠은 이미 있었는데 잉크가 평문과 같은 회색이라 「누를 수 있음」이
+   보이지 않았다. 항목 발치에서 유일한 이동 수단이니 본문 잉크로 올린다. */
+.issue-reading .entry-tags .tag-link,
+.archive-results .entry-tags .tag-link {
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+/* 칠 위에서는 코발트 원색이 4.30:1로 AA에 못 미친다 — 짙은 쪽으로 넘긴다 */
+.issue-reading .entry-tags .tag-link:hover,
+.archive-results .entry-tags .tag-link:hover {
+  color: var(--accent-strong);
+}
+
+.archive-results .entry-issue-ref {
+  font-variant-numeric: tabular-nums;
+}
+
 .issue-reading .clip-btn,
-.archive-results .clip-btn,
-.archive-index-body .interest-btn {
+.archive-results .clip-btn {
   min-width: 2.75rem;
   min-height: 2.75rem;
 }
 
-.issue-pager {
-  width: var(--ia-wide-reading);
+/* A — 쪽번호. 호 지면에서만 붙고 양 세기 숫자와 같은 수를 가리킨다.
+   출처와 같은 등급이라 값도 같게 둔다 — 한쪽은 「01」, 한쪽은 「뉴스 · 퀘이사존」이라
+   같은 값으로 찍어도 헷갈릴 일이 없고, 1200px 위에서는 아예 단 바깥에 매달린다. */
+.entry-folio {
+  margin: 0 0 var(--space-2);
+  display: block;
+  font-size: var(--type-label);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 이슈 넘기기 — 섹션이 아니라 지면 부속 ---------- */
+.issue-article .issue-pager {
+  width: var(--ia-read);
   margin: 0 auto;
-  padding: 2rem 0 5rem;
+  padding: var(--space-8) 0 var(--space-24);
   display: flex;
   justify-content: space-between;
   gap: var(--space-5);
-  border-top: 1px solid var(--ia-rule-light);
-  background: var(--ia-light);
+  border-top: 1px solid var(--rule-default);
+  background: var(--surface-canvas);
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
-.issue-pager a {
+.issue-article .issue-pager a {
   min-height: 2.75rem;
   display: inline-flex;
   align-items: center;
@@ -253,458 +689,168 @@
   text-decoration: none;
 }
 
-.archive-listing-hero {
-  min-height: 50rem;
-  padding: 7.5rem var(--space-10) 4rem;
-  display: grid;
-  grid-template-columns: minmax(18rem, 0.48fr) minmax(0, 0.98fr);
-  gap: 1rem;
-  color: var(--ia-dark-text);
-  background: var(--ia-dark);
+.issue-article .issue-pager a:hover {
+  color: var(--accent-primary);
 }
 
-.archive-listing-copy {
-  padding: 0 1.25rem;
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
-  align-content: start;
-  border-top: 1px solid var(--ia-rule-dark);
-  border-bottom: 1px solid var(--ia-rule-dark);
-}
-
-.archive-listing-copy h1 {
-  max-width: 12ch;
-  margin: 1.5rem 0 0;
-  font-size: 2.5rem;
-  font-weight: 520;
-  line-height: 1.1;
-  letter-spacing: 0;
-  text-wrap: balance;
-}
-
-.archive-listing-copy p:not(.archive-eyebrow):not(.index-totals) {
-  align-self: end;
-  max-width: 23rem;
-  margin: 0 0 2rem;
-  color: color-mix(in srgb, var(--ia-dark-text) 82%, transparent);
-}
-
-.archive-listing-copy .index-totals {
-  margin: 0 0 1.25rem;
-  font-family: var(--font-utility);
-  font-size: var(--type-label);
-  color: var(--ia-dark-muted);
-}
-
-.archive-feature-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.875rem;
-}
-
-.archive-feature-card {
-  position: relative;
-  min-height: 12rem;
-  display: block;
-  overflow: hidden;
-  border-radius: var(--ia-card-radius);
-  color: var(--text-inverse);
-  text-decoration: none;
-  background: var(--surface-soft);
-}
-
-.archive-feature-card:first-child {
-  min-height: 42.5rem;
-}
-
-.archive-feature-card img,
-.archive-card-scrim {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.archive-feature-card img {
-  object-fit: cover;
-  transition: transform var(--motion-standard) var(--ease-out), filter var(--motion-standard) var(--ease-standard);
-}
-
-.archive-card-scrim {
-  background: var(--ia-scrim);
-}
-
-.archive-card-copy {
-  position: absolute;
-  inset: auto var(--space-5) var(--space-5);
-  display: grid;
-  gap: var(--space-2);
-}
-
-.archive-card-meta {
-  color: color-mix(in srgb, var(--text-inverse) 76%, transparent);
-}
-
-.archive-card-title {
-  max-width: 28ch;
-  font-size: 1.35rem;
-  font-weight: 620;
-  line-height: 1.2;
-  text-wrap: balance;
-}
-
-.archive-feature-card:hover,
-.archive-feature-card:focus-visible {
-  color: var(--text-inverse);
-}
-
-.archive-feature-card:hover img,
-.archive-feature-card:focus-visible img {
-  transform: scale(1.025);
-  filter: saturate(112%) contrast(104%);
-}
-
-.archive-index-body {
-  padding: 5rem 0 6rem;
-}
-
-.archive-index-body > * {
-  width: var(--ia-wide-reading);
-  margin-inline: auto;
-}
-
-.archive-index-head {
-  margin-bottom: 2rem;
-  display: grid;
-  grid-template-columns: minmax(12rem, 0.35fr) minmax(0, 0.65fr);
-  gap: var(--space-8);
-  align-items: start;
-}
-
-.archive-index-head h2 {
-  margin: 0;
-  font-size: var(--type-h2);
-  line-height: 1.15;
-  letter-spacing: 0;
-}
-
-.archive-index-head .index-hint {
-  margin: 0;
-  color: var(--text-secondary);
-}
-
-.archive-index-body .index-search {
-  margin-bottom: 2rem;
-}
-
-.archive-index-body .index-list {
-  columns: 3;
-  column-gap: 2.5rem;
-}
-
-.archive-index-body .index-row {
-  min-height: 3.25rem;
-  break-inside: avoid;
-}
-
-.archive-index-body .index-line {
-  min-height: 2.75rem;
-}
-
-.archive-tag-hero {
-  padding: 8.75rem 0 4rem;
-  display: grid;
-  justify-items: center;
-  text-align: center;
-}
-
-.archive-tag-hero h1 {
-  max-width: var(--ia-reading);
-  margin: 1.75rem 0 0;
-  font-size: 3.125rem;
-  font-weight: 520;
-  line-height: 1.1;
-  letter-spacing: 0;
-}
-
-.archive-tag-hero p {
-  max-width: var(--ia-reading);
-  margin: 1.25rem 0 0;
-  color: color-mix(in srgb, var(--ia-dark-text) 76%, transparent);
-}
-
-.archive-tag-hero a {
-  color: var(--ia-green);
-}
-
-.archive-results {
-  padding: 4rem 0 6rem;
-}
-
-.has-reveal-js [data-reveal] {
-  opacity: 0;
-  transform: translateY(1.5rem);
-  transition: opacity var(--motion-emphasis) var(--ease-standard), transform var(--motion-emphasis) var(--ease-out);
-}
-
-.has-reveal-js [data-reveal].is-revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
+/* ------------------------------------------------------------
+   1200px 이상 — 쪽번호가 단 바깥 여백에 매달린다.
+   x≈140px 자리라 왼쪽 아래 양 세기 표시(x≈24–96px)와 겹치지 않는다.
+   ------------------------------------------------------------ */
 @media (min-width: 1200px) {
-  .archive-feature-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.5fr);
+  .issue-reading .entry-folio {
+    position: absolute;
+    top: var(--space-8);
+    left: -4.75rem;
+    width: 3rem;
+    margin: 0;
+    text-align: right;
   }
 
-  .archive-feature-card:first-child {
-    grid-row: span 2;
+  .issue-reading .entry:first-of-type .entry-folio {
+    top: var(--space-10);
   }
 }
 
 @media (min-width: 810px) and (max-width: 1199.98px) {
-  .issue-hero {
-    min-height: auto;
-    padding-top: 6rem;
+  .index-head {
+    padding-block: 6rem 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
   }
 
-  .issue-hero h1,
-  .archive-tag-hero h1 {
-    font-size: 2.5rem;
-    line-height: 1.1;
+  .index-headline {
+    order: 1;
   }
 
-  .issue-hero-media {
-    width: min(calc(100% - (2 * var(--space-6))), 70.5rem);
-    margin-top: 3.5rem;
+  .index-find {
+    order: 2;
   }
 
-  .archive-listing-hero {
-    min-height: auto;
-    padding: 4rem var(--space-5);
-    grid-template-columns: 1fr;
-    gap: 3.5rem;
-  }
-
-  .archive-listing-copy {
-    min-height: 18rem;
-  }
-
-  .archive-feature-card:first-child {
-    min-height: 30.3125rem;
-  }
-
-  .archive-feature-card {
-    min-height: 24rem;
-  }
-
-  .archive-index-body .index-list {
-    columns: 2;
-  }
-
-  .archive-index-body > *,
-  .issue-pager {
-    width: min(calc(100% - (2 * var(--space-6))), 70.5rem);
-  }
-
-  .issue-reading .entry-title,
-  .archive-results .entry-title {
-    font-size: 1.35rem;
-  }
-
-  .issue-reading .entry-summary,
-  .archive-results .entry-summary {
-    font-size: 1.25rem;
+  .index-stats {
+    order: 3;
   }
 }
 
 @media (max-width: 809.98px) {
-  .issue-hero {
-    min-height: auto;
-    padding-top: 4.6875rem;
+  :root {
+    --ia-index: calc(100% - (2 * var(--space-5)));
   }
 
-  .issue-hero-copy {
-    width: calc(100% - (2 * var(--space-5)));
+  .index-head {
+    padding-block: 3.5rem 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
   }
 
-  .issue-hero-eyebrow,
-  .archive-eyebrow,
-  .archive-card-meta {
-    font-size: 0.625rem;
-    line-height: 1.2;
-    letter-spacing: 0.08em;
+  .index-headline {
+    order: 1;
   }
 
-  .issue-hero h1 {
-    margin-top: 2.5rem;
-    font-size: 1.625rem;
-    line-height: 1.1;
+  .index-find {
+    order: 2;
   }
 
-  .issue-hero-date {
-    margin-top: 2rem;
-    font-size: 0.75rem;
-    line-height: 1.2;
+  .index-stats {
+    order: 3;
   }
 
-  .issue-hero-intro {
-    margin-top: 1.25rem;
-    font-size: 1rem;
+  .index-tags {
+    padding-block: var(--space-10) var(--space-16);
   }
 
-  .issue-hero-media {
-    width: min(calc(100% - 2rem), 22.3125rem);
-    margin-top: 3.875rem;
-    aspect-ratio: 357 / 250;
+  .index-tags-head .index-hint {
+    text-align: left;
+  }
+
+  .tag-head {
+    padding-block: 3.5rem var(--space-6);
+  }
+
+  .archive-results {
+    padding-block: 0 var(--space-16);
+  }
+
+  .issue-article .issue-head {
+    padding: 3.5rem 0 var(--space-6);
   }
 
   .issue-reading {
-    padding: 3rem 0 4rem;
+    padding-block: 0 var(--space-12);
   }
 
-  .issue-section .section-heading {
-    font-size: 1.2rem;
-  }
-
-  .issue-section,
-  .archive-results,
-  .archive-index-body > *,
-  .issue-pager {
-    width: calc(100% - (2 * var(--space-5)));
-  }
-
+  /* 클립 알약이 제목과 요약 사이에 끼어들지 않도록 마지막으로 내린다 */
   .issue-reading .entry,
   .archive-results .entry {
-    padding: 1.25rem 0;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-6) 0;
+  }
+
+  .issue-reading .entry:first-of-type,
+  .archive-results .entry:first-of-type {
+    padding-top: var(--space-4);
   }
 
   .issue-reading .entry-top,
   .archive-results .entry-top {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: contents;
+  }
+
+  .issue-reading .entry-folio {
+    order: 0;
+  }
+
+  .issue-reading .entry-headline,
+  .archive-results .entry-headline {
+    order: 1;
   }
 
   .issue-reading .entry-summary,
   .archive-results .entry-summary {
-    font-size: 1.125rem;
-    line-height: 1.4;
+    order: 2;
+    font-size: 1.0625rem;
+    line-height: 1.7;
   }
 
-  .issue-pager {
-    padding: 1.5rem 0 4rem;
+  .issue-reading .entry-note,
+  .archive-results .entry-note {
+    order: 3;
+  }
+
+  .issue-reading .entry-tags,
+  .archive-results .entry-tags,
+  .issue-reading .entry-issue-ref,
+  .archive-results .entry-issue-ref {
+    order: 4;
+  }
+
+  .issue-reading .entry-top .clip-btn,
+  .archive-results .entry-top .clip-btn {
+    order: 5;
+    align-self: flex-start;
+    margin-top: var(--space-4);
+  }
+
+  .issue-article .issue-pager {
+    padding: var(--space-6) 0 var(--space-16);
     flex-direction: column;
-  }
-
-  .archive-listing-hero {
-    min-height: auto;
-    padding: 3.75rem var(--space-5) 3rem;
-    grid-template-columns: 1fr;
-    gap: 3.75rem;
-  }
-
-  .archive-listing-copy {
-    min-height: auto;
-    padding: 0;
-    border-bottom: 0;
-  }
-
-  .archive-listing-copy h1 {
-    max-width: 11ch;
-    font-size: 1.875rem;
-    line-height: 1.1;
-  }
-
-  .archive-listing-copy p:not(.archive-eyebrow):not(.index-totals) {
-    display: none;
-  }
-
-  .archive-listing-copy .index-totals {
-    margin-top: 2rem;
-  }
-
-  .archive-feature-grid {
-    gap: 1.875rem;
-  }
-
-  .archive-feature-card,
-  .archive-feature-card:first-child {
-    min-height: auto;
-    aspect-ratio: 350 / 233;
-  }
-
-  .archive-card-copy {
-    inset: auto var(--space-4) var(--space-4);
-  }
-
-  .archive-card-title {
-    font-size: 1.125rem;
-  }
-
-  .archive-index-body {
-    padding: 3.5rem 0 4rem;
-  }
-
-  .archive-index-head {
-    grid-template-columns: 1fr;
-    gap: var(--space-4);
-  }
-
-  .archive-index-body .index-list {
-    columns: 1;
-  }
-
-  .archive-tag-hero {
-    padding: 4.6875rem var(--space-5) 3rem;
-  }
-
-  .archive-tag-hero h1 {
-    font-size: 1.625rem;
-    line-height: 1.1;
-  }
-
-  .archive-results {
-    padding: 3rem 0 4rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .archive-feature-card img,
-  [data-reveal] {
-    transition-duration: 0.01ms !important;
-  }
-
-  [data-reveal] {
-    opacity: 1;
-    transform: none;
-  }
-
-  .archive-feature-card:hover img,
-  .archive-feature-card:focus-visible img {
-    transform: none;
+    gap: var(--space-3);
   }
 }
 
 @media (forced-colors: active) {
-  .issue-hero,
-  .archive-listing-hero,
-  .archive-tag-hero,
   .issue-reading,
-  .archive-index-body,
+  .index-head,
+  .index-tags,
   .archive-results {
     color: CanvasText;
     background: Canvas;
   }
 
-  .issue-hero-media,
-  .archive-feature-card,
   .issue-reading .entry,
   .archive-results .entry,
-  .issue-pager {
-    border: 1px solid CanvasText;
-  }
-
-  .archive-card-scrim {
-    background: var(--forced-media-scrim);
+  .issue-article .issue-pager {
+    border-color: CanvasText;
   }
 }

@@ -6,8 +6,13 @@ npm-debug.log*
 
 # Local design/runtime evidence
 .omo/
+.omc/
 artifacts/baseline/
 artifacts/book-of-shapes/*.png
 artifacts/qa/comparisons/
 artifacts/qa/current/
 artifacts/qa/final-captures/
+artifacts/qa/baseline/
+artifacts/qa/after/
+artifacts/qa/after-fixes/
+artifacts/qa/final/

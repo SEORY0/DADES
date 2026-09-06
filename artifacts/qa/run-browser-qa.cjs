@@ -149,6 +149,26 @@ async function auditResponsiveHome(browser) {
     await settle(page);
     await capture(page, `home-${name}--rest`);
 
+    const homeMetrics = await page.evaluate(() => {
+      const coverAction = document.querySelector('.current-cover-action')?.getBoundingClientRect();
+      return {
+        publication: document.querySelector('[data-magazine-nameplate] h1')?.textContent?.trim(),
+        cover: document.querySelector('[data-current-cover]') !== null,
+        coverActionTop: coverAction?.top,
+        storyCount: document.querySelectorAll('[data-issue-story]').length,
+        snap: getComputedStyle(document.documentElement).scrollSnapType,
+      };
+    });
+    assert(homeMetrics.publication === 'DADES', `${name} exposes the publication nameplate`, homeMetrics);
+    assert(homeMetrics.cover, `${name} exposes the current issue cover`, homeMetrics);
+    assert(homeMetrics.storyCount === 5, `${name} exposes all five current stories`, homeMetrics);
+    assert(homeMetrics.snap === 'none', `${name} uses normal document scrolling`, homeMetrics);
+    assert(
+      typeof homeMetrics.coverActionTop === 'number' && homeMetrics.coverActionTop < viewport.height,
+      `${name} exposes the primary issue action in the first viewport`,
+      homeMetrics,
+    );
+
     const desktopNavVisible = await page.locator('.site-nav').isVisible();
     const menuToggleVisible = await page.locator('[data-menu-toggle]').isVisible();
     if (name === 'desktop') {
@@ -164,7 +184,6 @@ async function auditResponsiveHome(browser) {
           radius: style.borderRadius,
           blur: style.backdropFilter,
           fill: fill.backgroundColor,
-          snap: getComputedStyle(document.documentElement).scrollSnapType,
         };
       });
       assert(Math.abs(chromeMetrics.width - 663.42) < 1, 'desktop glass width matches Recent measurement', chromeMetrics);
@@ -173,15 +192,6 @@ async function auditResponsiveHome(browser) {
       assert(chromeMetrics.radius === '30px', 'desktop glass radius matches Recent measurement', chromeMetrics);
       assert(chromeMetrics.blur.includes('9px'), 'desktop glass uses measured 9px backdrop blur', chromeMetrics);
       assert(chromeMetrics.fill === 'rgba(212, 215, 222, 0.7)', 'desktop glass uses measured live fill', chromeMetrics);
-      assert(chromeMetrics.snap.includes('mandatory'), 'desktop home uses mandatory scene snapping', chromeMetrics);
-
-      await page.locator('[data-home-hero]').hover({ position: { x: 980, y: 640 } });
-      await page.waitForTimeout(80);
-      const parallax = await page.locator('[data-home-hero]').evaluate((element) => ({
-        x: element.style.getPropertyValue('--hero-shift-x'),
-        y: element.style.getPropertyValue('--hero-shift-y'),
-      }));
-      assert(parallax.x !== '0px' && parallax.y !== '0px', 'hero responds to pointer position', parallax);
 
       const navLink = page.locator('.site-nav a').first();
       await navLink.hover();
@@ -200,19 +210,40 @@ async function auditResponsiveHome(browser) {
       assert(ctaState.background === 'rgb(18, 20, 22)', 'desktop CTA inverts to ink on hover', ctaState);
       await capture(page, 'home-desktop--cta-hover');
 
-      await page.locator('.home-featured').scrollIntoViewIfNeeded();
-      await page.waitForTimeout(620);
-      assert(await page.locator('.home-featured [data-reveal].is-revealed').count() > 0, 'home featured content reveals on scroll');
-      assert(await page.locator('.feature-card img').first().evaluate((image) => image.complete && image.naturalWidth > 0), 'feature art loads at its real slot');
-      await capture(page, 'home-desktop--featured-state');
-
-      await page.locator('.home-topics').scrollIntoViewIfNeeded();
-      await page.waitForTimeout(620);
-      assert(await page.locator('.home-topics [data-reveal].is-revealed').count() > 0, 'home topic scene reveals on scroll');
-      await capture(page, 'home-desktop--topics-state');
+      const coverImage = page.locator('.current-cover-art img');
+      const coverBefore = await coverImage.evaluate((image) => getComputedStyle(image).transform);
+      await page.locator('.current-cover-art').hover();
+      await page.waitForTimeout(80);
+      await capture(page, 'home-desktop--cover-hover-mid', { animations: 'allow' });
+      await page.waitForTimeout(320);
+      const coverAfter = await coverImage.evaluate((image) => getComputedStyle(image).transform);
+      assert(coverBefore !== coverAfter, 'current issue cover signals its linked state on hover', { coverBefore, coverAfter });
+      await capture(page, 'home-desktop--cover-hover-settled');
     } else {
       assert(!desktopNavVisible && menuToggleVisible, `${name} uses compact menu control`);
     }
+
+    for (const story of await page.locator('[data-issue-story]').all()) {
+      await story.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(80);
+    }
+    assert(
+      await page.locator('[data-issue-story] img').evaluateAll((images) => images.every((image) => image.complete && image.naturalWidth > 0)),
+      `${name} loads every current-story image as the reader reaches it`,
+    );
+    assert(
+      await page.locator('.issue-contents [data-reveal].is-revealed').count() > 0,
+      `${name} reveals the issue contents in document order`,
+    );
+    await capture(page, `home-${name}--contents`);
+
+    await page.locator('.editorial-guide').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(620);
+    assert(
+      await page.locator('.editorial-guide [data-reveal].is-revealed').count() > 0,
+      `${name} reveals the editor note and department index`,
+    );
+    await capture(page, `home-${name}--editorial-guide`);
 
     await capture(page, `home-${name}--full`, { fullPage: true, revealAll: true });
 

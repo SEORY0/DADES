@@ -13,19 +13,48 @@ Reference measurements come from:
 - `/home/seory0/recent-reference/about-2026-09-06/findings.md`
 - `/home/seory0/recent-reference/articles-2026-09-06/report.md`
 
+## 0. Home Editorial Research Log — 2026-09-06
+
+The September 2026 home revision replaces the campaign-like, viewport-snapped
+landing sequence with an issue-led magazine front. The evidence baseline is
+`artifacts/qa/baseline/home-{desktop,mobile}.png`: the old desktop page measured
+roughly 5,000px tall for one five-story issue, reserved near-viewport-height
+fields around short copy, repeated the same three stories in multiple sections,
+and delayed article summaries until the issue page.
+
+Live editorial references were reviewed on 2026-09-06. Only layout grammar and
+content hierarchy are inputs; no brand assets, copy, photography, or proprietary
+type is reused.
+
+| Reference | Keep | Explicitly leave behind |
+| --- | --- | --- |
+| [Monocle](https://monocle.com/) | Publication-scale masthead, section rules, visible issue/read metadata, dense but ordered index | Commerce density, yellow brand color, and its wordmark treatment |
+| [Kinfolk Stories](https://www.kinfolk.com/stories/) | Quiet paper field, large image-led browsing, restrained serif/sans hierarchy, issue labels | Lifestyle photography and category copy |
+| [AIGA Eye on Design](https://eyeondesign.aiga.org/) | Category-first metadata, short decks, scannable text-led story entries | AIGA identity and archive-specific taxonomy |
+| [Wallpaper*](https://www.wallpaper.com/) | One decisive lead, supporting-story hierarchy, strong editorial rails | Advertising and newsletter conversion density |
+| [It's Nice That](https://www.itsnicethat.com/) | Compact current-feed rhythm and intentionally varied story scale | Loud campaign graphics and commercial modules |
+| [Apartamento](https://www.apartamentomagazine.com/) | Current-issue focus and direct, low-friction navigation | Store banner, membership, and product-card hierarchy |
+
+The selected direction is **the issue desk**: warm paper opens with a very large
+DADES nameplate, one cobalt pattern acts as the current issue cover, and every
+story in that issue follows immediately in an asymmetric but predictable grid.
+The memorable moment is the nameplate-to-cover handoff, not a scroll effect.
+Cobalt remains the only action ink; black rules, warm paper, editorial serif,
+and mono folios make the page read as a periodical rather than an AI product
+landing page.
+
 ## 1. Atmosphere & Identity
 
-DADES is a Korean editorial observatory for a noisy AI landscape. It borrows
-Recent's measured pacing (fixed glass chrome, viewport-scale scenes, dark media
-fields, warm reading paper, and oversized editorial type) without borrowing its
-brand. DADES replaces the agency voice with issue data, sourced definitions,
-status decisions, browser-local tools, cobalt light, and an electric-sheep mark.
+DADES is a Korean editorial observatory for a noisy AI landscape. It uses a
+precise glass capsule for persistent navigation, warm paper for reading, dark
+fields for reference and status surfaces, cobalt pattern media for issue art,
+and oversized editorial type for a recognisable independent-magazine voice.
 
-The signature is a three-part transition: a cinematic cobalt field establishes
-the issue, a precise glass capsule keeps navigation continuously available, and
-the page resolves into quiet paper where evidence is easy to read. Dark and
-light regions therefore have different jobs; they are not interchangeable theme
-skins.
+The home signature is now a printed-front-page sequence: publication nameplate,
+current-issue cover, complete contents, then editor's note and department index.
+It uses normal document scroll at every breakpoint. Immersive About and Status
+routes retain their scene grammar, while issue and wiki routes retain their
+dark-hero-to-paper reading transition.
 
 Implementation authority is layered in this order:
 
@@ -37,7 +66,9 @@ Implementation authority is layered in this order:
 4. `pattern-surfaces.css` supplies Book of Shapes color fields, blend modes,
    media glow, card backgrounds, and adaptive fallbacks without changing page
    geometry.
-5. A route stylesheet supplies the immersive, wiki/article, or issue/archive
+5. `home-editorial.css` supplies the home-only nameplate, cover, contents grid,
+   editor's note, and department index.
+6. A route stylesheet supplies the immersive, wiki/article, or issue/archive
    composition where that route opts into one.
 
 ## 2. Color & Material Tokens
@@ -114,7 +145,9 @@ theme-aware text tokens.
 | Reading paper | `--wiki-paper` | `--ia-light` | `#fbfaf6` |
 | Inline article link | `--wiki-link` | `--ia-blue` | `#0099ff` / `#227aff` |
 | DADES cobalt | Not used | `--ia-blue-deep` | `#315de8` |
-| Source acid accent | Not used | `--ia-green` | `#bef263` |
+| Source acid accent | Not used | `--ia-green` / `--accent-acid` | `#bef263` |
+| Acid pressed state | Not used | `--accent-acid-press` | `#a1ea27` |
+| Chrome ink | Not used | `--chrome-ink` / `--chrome-ink-strong` | `#191919` / `#0c0c0c` |
 
 Immersive pages do inherit the selected DADES theme. Their
 `--immersive-paper`, `--immersive-ink`, `--immersive-muted`, blue, and rule
@@ -126,9 +159,12 @@ foundation scene.
 
 - Cobalt signals DADES actions and editorial selection. It is not an ambient
   purple AI gradient.
-- The source acid green appears only in the issue/archive dark-field link
-  language. The global navigation CTA uses DADES cobalt and inverts to dark
-  with the yellow electric detail on hover/focus.
+- The source acid green has exactly two homes: the issue/archive dark-field link
+  language, and the global navigation CTA. The CTA carries Recent's measured
+  "Button - Green" recipe — `--accent-acid` fill with a near-black `--chrome-ink`
+  label — and inverts on hover/focus to `--chrome-ink-strong` with
+  `--accent-acid-press` copy. It is the one accent that does not change by theme,
+  because it is brand rather than page ink.
 - Hero and card copy never relies on an image alone for contrast; a declared
   scrim sits between media and text.
 - Wiki reading copy is fixed black on warm paper. Issue/archive reading paper
@@ -158,6 +194,10 @@ font files are reference evidence only and are not shipped by DADES.
 | Level | Token | Size | Weight | Line height | Tracking | Primary use |
 | --- | --- | --- | --- | --- | --- | --- |
 | Hero | `--type-hero` | `clamp(2.4rem, 5.5vw, 5.25rem)` | 520 | 1.02 | `-0.045em` | Home masthead |
+| Nameplate | `--type-nameplate` | `clamp(5rem, 17vw, 14rem)` | 600 | `.72` | `-0.075em` | Home publication name |
+| Cover | `--type-cover` | `clamp(2.4rem, 5vw, 5rem)` | 520 | `.98` | `-0.05em` | Current-issue cover title |
+| Compact nameplate | `--type-nameplate-compact` | `clamp(5rem, 27vw, 7.25rem)` | 600 | `.74` | `-0.075em` | Home name below 810px |
+| Compact cover | `--type-cover-compact` | `clamp(2rem, 9vw, 2.75rem)` | 520 | `1` | `-0.05em` | Home cover title below 810px |
 | Display | `--type-display` | `clamp(2.5rem, 5vw, 4.75rem)` | 520 | 1.06 | `-0.04em` | Home scene statements |
 | H1 | `--type-h1` | `clamp(2rem, 4vw, 3.75rem)` | 600 | 1.08 | `-0.035em` | Contained reading title |
 | H2 | `--type-h2` | `clamp(1.55rem, 2.4vw, 2.4rem)` | 600 | 1.15 | `-0.025em` where applied | Section title |
@@ -262,16 +302,23 @@ content to six DADES destinations and a dynamic latest-issue CTA.
 | Fixed wrapper | Full viewport width, `top: 30px`, `z-index: 50`, pointer events disabled outside the shell |
 | Shell | `width: min(663.42px, 100% - 40px)`; `min-height: 46.2px`; `padding: 4px`; `border-radius: 30px`; border-box sizing |
 | Interior track | `38.2px` available height; brand, nav links, and CTA render at `38px` |
-| Fill | Separate layer at `rgba(212, 215, 222, 0.7)` |
-| Blur | `blur(9px) saturate(122%)` |
-| Rim/depth | White inset shadows at alpha `.72` and `.34`, plus `0 16px 40px rgba(17,20,29,.12)` |
-| Scrolled depth | After `scrollY > 8`, outside shadow becomes `0 20px 48px rgba(17,20,29,.16)` |
-| Pointer sheen | Radial white `.58` to transparent over `130px`, plus a top-down white `.5` sheen at `.72` layer opacity |
-| DADES brand slot | `74 × 38px`; repository-local mark centered inside |
-| Link hit box | `38px` high; four primary destinations shown; Pretendard `13px` at line-height `1`; horizontal padding is `16px` at `>=1200px` and `12px` at `810–1199.98px` |
+| Fill | Painted on the shell itself at `rgba(212, 215, 222, 0.7)` — no separate fill/highlight layer |
+| Blur | `blur(9px)` |
+| Rim/depth | Two hairline white insets, `0 0.36px 0.36px -1.375px` at `.08` and `0 3px 3px -2.75px` at `.07`; no outer shadow and no scrolled variant |
+| DADES brand slot | Lockup, not a raster: `SheepMark` glyph at `37 × 26px` plus a `DADES` wordmark at Pretendard `17px/700`, `-0.02em`, in a `38px` row with `4.4px` gap |
+| Link hit box | `38.2px` high; four primary destinations shown; Pretendard `14px/18.2px`; padding `10px 15px`; `--chrome-ink` at rest, `--chrome-ink-strong` on hover/focus/current |
 | Active layer | `inset: 3px`, `rgba(255,255,255,.73)`, `blur(75px)`, opacity `.6`, over a `.46` white base pill |
-| Hover layer | `inset: 3px`, `rgb(120,124,128)`, `blur(18px)`, opacity `.16` on hover/focus |
-| CTA | Content-sized `38px` pill; inherits Pretendard `16px/1.7`; DADES cobalt at rest, dark `#121416` with yellow text and inset yellow rim on hover/focus |
+| Hover layer | `inset: 0`, `rgb(120,124,128)`, `blur(18px)`, opacity `.16` on hover/focus |
+| CTA | Recent's "Button - Green": `37px` pill, `9px 15px` padding, `13px/14.3px`, radius `50px`, `--accent-acid` fill with `--chrome-ink` label; inverts to `--chrome-ink-strong` with `--accent-acid-press` copy on hover/focus |
+
+In the `ink` theme the capsule keeps every one of those measurements and only
+reverses its material: the shell fill becomes `rgba(46, 51, 58, 0.72)` (desktop
+only — on mobile the shell is transparent and the menu panel behind it is the
+glass), link and brand ink lift to `--text-primary`, the route-current pill
+becomes a `rgba(255,255,255,.12)` wash, and the mobile panel darkens to
+`rgba(46, 51, 58, 0.8)`. Without that reversal the light-panel recipe left the
+capsule as a pale bar under near-white labels at `1.44:1`. The acid CTA is
+deliberately excluded — it is brand, not page ink.
 
 The captured Recent inner row was `650.42 × 38.20px` with a 35px visual gap,
 a `116.81 × 26px` logo lockup, `14px/18.2px` links, and a
@@ -314,9 +361,10 @@ at `x=20, y=771.7`, and the expanded panel is `350 × 343.3px` at
 
 #### `SiteHeader` / capsule navigation
 
-- **Structure:** two explicit glass layers, linked DADES mark, four desktop
-  destinations, hamburger/X toggle, latest-issue CTA, and one six-link mobile
-  panel.
+- **Structure:** a single self-filling glass capsule (no separate fill/highlight
+  layers), a linked `SheepMark` + `DADES` wordmark lockup, four desktop
+  destinations, hamburger/X toggle, acid latest-issue CTA, and one six-link
+  mobile panel closing with RSS/GitHub links.
 - **States:** default, scrolled, route-current, link hover/focus, CTA
   hover/focus/press, menu closed/open, and forced colors.
 - **Behavior:** opening moves focus to the first link; Escape and outside click
@@ -338,26 +386,40 @@ at `x=20, y=771.7`, and the expanded panel is `350 × 343.3px` at
 - **State:** CTA rises 3px and deepens its shadow; its inner action shifts 8px.
   Theme buttons expose the selected state through `aria-pressed`.
 
-### Home: viewport editorial sequence
+### Home: issue desk
 
-At `>=1200px`, `html:has(.page-home)` uses `scroll-snap-type: y mandatory` and
-smooth scrolling. Every `[data-home-scene]` plus the footer is at least
-`100svh`, aligns to the start, and uses `scroll-snap-stop: always`. Mobile and
-tablet remain normal document flow.
+The home owns normal document scroll at every breakpoint. It does not force a
+reader through viewport-sized scenes and does not reserve blank space to make
+short copy fill a screen.
 
-| Scene | Desktop composition | Mobile composition |
+| Region | Desktop composition | Mobile composition |
 | --- | --- | --- |
-| Masthead | Full-bleed media, cobalt scrim, centered `13ch` statement, glass issue pill, bottom scroll cue | `max(42rem, 100svh)` hero, pattern media crop at 52%, left-aligned `11ch` statement, no scroll cue |
-| Introduction | 90rem frame; label then `1.35fr / .65fr` statement-copy grid; visit pulse below | 20px gutters, one column, 80px/64px vertical padding |
-| Featured | Three equal 4:3 media cards with 12px gaps and an issue summary row | Horizontal rail; each card is `min(82vw, 350px)`, 12px gap, proximity snap, next card peeks |
-| Editorial lenses | Full-width dark field; `.8fr / 1.2fr`; sticky left statement at `top: 8.5rem`; 120px topic rows | One column; static copy; topic row becomes index/title/count plus wrapped story title |
-| Past issues, when present | 90rem framed issue table centered in an 80px vertical field | Same semantic table in normal flow |
-| Footer | Final full-viewport snap scene | Normal footer above the fixed dock clearance |
+| Publication nameplate | 90rem frame below the fixed capsule; mono identity line, `DADES` at `--type-nameplate`, then a ruled issue strap | 20px gutters; nameplate stays on one line, issue strap becomes a compact two-row folio |
+| Current cover | `7 / 5` editorial split; 3:2 cobalt pattern lead at left, issue title/deck/signals/action at right | One column; art first at 4:3, then title, concise deck, signals, and full-width action |
+| Complete contents | Twelve-column asymmetric grid: lead story spans 7 columns, second spans 5, remaining stories use a balanced three-column row; every item carries image, section/origin, title, and a short deck | One-column reading list below 672px; at 672–809px the lead stays full width and supporting stories form two columns. No horizontal carousel and stable document order |
+| Editor's note / departments | Ruled `5 / 7` split; mission and visit pulse at left, source-based department list at right | One column with note first and department rows below |
+| Past issues, when present | Framed semantic issue table after the current issue | Same table in document flow |
+| Footer | Normal footer; home CTA is capped at `min(26rem, 52svh)` rather than a full-viewport scene | Normal footer above fixed dock clearance; home CTA is 22rem |
 
-`Masthead` adds mouse-only, reduced-motion-aware parallax. A pointer at the
-edge moves the scaled image by at most 9px horizontally and 6px vertically;
-the glass highlight travels from 25% to 75%. The home hero media enters over
-500ms, and the copy follows after a 120ms delay.
+`Masthead` is now semantic issue-front content and contains no pointer-tracking
+script. The current-cover link reuses the documented story-media hover/focus
+mechanism: a small image scale and color lift indicate clickability; reduced
+motion removes the transform without removing the state change.
+
+#### Home primitives
+
+- **Publication nameplate:** identity line, publication name, and issue strap.
+  It is typographic rather than a raster logo and has no interactive state.
+- **Current cover:** one linked pattern-art surface plus an issue brief. States
+  are default, hover/focus, press, and reduced motion; the link has an explicit
+  Korean accessible name.
+- **Story tile:** a semantic `<article>` with one media link and one title link
+  to the same issue anchor. The deck remains visible. Variants are lead,
+  secondary, and standard; all use the same metadata and state contract.
+- **Department row:** index, Korean source label, first story title, and count in
+  a ruled link row. Hover/focus shifts only the title by `--space-2`.
+- **Editor's note:** text-only mission block with an optional enhanced
+  `HomePulse`; hidden pulse state does not reserve space.
 
 `HomePulse` is text-first enhancement. It reads a session-stable visit baseline
 and browser-local interests, then reports new issues, action signals, status
@@ -531,9 +593,9 @@ blocking JavaScript does not remove the reading surface.
 | Desktop nav link | Reveals the blurred gray inner pill | Current route shows light active pill and `aria-current="page"` |
 | Latest-issue nav CTA | Dark fill, yellow copy/rim, rises 1px | Moves down 1px and scales to `.985` |
 | Mobile menu | Current/hover/focus row gets `.34` white field and strong accent | `aria-expanded`, `aria-hidden`, `inert`, body scroll lock |
-| Home glass issue link | Rises 3.2px, scales `1.012`, brightens sheen/shadow | Returns to baseline and scales `.99` |
+| Home current-cover link | Image scales `1.018`, cobalt field deepens, and the directional label shifts 8px | Returns to baseline and scales `.99` |
 | Text pill | Cobalt fill with inverse text, rises 2px | Returns and scales `.985` |
-| Home feature card | Rises 4px, gains `0 22px 48px` shadow, image `1.025` | Scale `.99`, reduced shadow |
+| Home story tile | Title underline strengthens and image scales `1.018` with a small color lift | Image settles to `1.008`; reduced motion removes scale |
 | Wiki/archive media card | Image scales `1.025` and gains saturation/contrast | Wiki image settles to `1.012` |
 | Status linked answer | Strong cobalt and 1px rise; row gets accent wash | Native link activation |
 | About capability row | Entire row inverts to cobalt/white | Native link activation |

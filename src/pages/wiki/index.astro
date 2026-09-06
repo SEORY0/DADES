@@ -1,19 +1,13 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import StoryCard from '../../components/StoryCard.astro';
-import { WIKI_CATEGORY, fmtDate, sortWiki, stripRefs, wikiHref } from '../../lib/mag';
+import { WIKI_CATEGORY, fmtDate, href, sortWiki, stripRefs, wikiHref } from '../../lib/mag';
 import '../../styles/wiki-articles.css';
 
 const entries = sortWiki(await getCollection('wiki'));
 const updated = entries.map((e) => e.data.updated).sort().at(-1) ?? '';
 const sourceCount = entries.reduce((sum, e) => sum + e.data.sources.length, 0);
-const entryBySlug = new Map(entries.map((entry) => [entry.data.slug, entry]));
-const featured = entryBySlug.get('mcp') ?? entries[0];
-const secondary = ['harness', 'agent']
-  .map((slug) => entryBySlug.get(slug))
-  .filter((entry): entry is (typeof entries)[number] => Boolean(entry))
-  .slice(0, 2);
+const pad2 = (n: number) => String(n).padStart(2, '0');
 
 const groups = (Object.keys(WIKI_CATEGORY) as (keyof typeof WIKI_CATEGORY)[])
   .map((key) => ({
@@ -22,6 +16,17 @@ const groups = (Object.keys(WIKI_CATEGORY) as (keyof typeof WIKI_CATEGORY)[])
     entries: entries.filter((e) => e.data.category === key),
   }))
   .filter((g) => g.entries.length > 0);
+
+/** 거르개가 훑는 문자열 — 표제어·영문·별칭·한 줄 정의를 한 줄로 눕힌다. 별칭은 찾을 수만 있고 지면에는 싣지 않는다. */
+const searchKey = (entry: (typeof entries)[number]) =>
+  [entry.data.term, entry.data.en ?? '', ...entry.data.aliases, stripRefs(entry.data.oneLiner)]
+    .join(' ')
+    .toLowerCase();
+
+const scopes = [
+  { key: 'all', label: '전체' },
+  ...groups.map((group) => ({ key: group.key as string, label: group.meta.ko })),
+];
 ---
 
 <Base
@@ -30,53 +35,76 @@ const groups = (Object.keys(WIKI_CATEGORY) as (keyof typeof WIKI_CATEGORY)[])
   active="wiki"
   layout="listing"
 >
-  <div class="wiki-articles-index" data-articles-index>
-    <div class="wiki-index-grid">
-      <header class="wiki-index-rail" data-reveal>
-        <div>
-          <h1>위키 · 용어집</h1>
-          <p class="wiki-index-stats">
-            항목 {entries.length} · 출처 {sourceCount} · 기준일 {fmtDate(updated)}
-          </p>
-        </div>
-        <p>
+  <div class="wiki-index" data-articles-index>
+    <header class="wiki-masthead" data-reveal>
+      <div>
+        <p class="wiki-eyebrow">Glossary</p>
+        <h1>용어집</h1>
+      </div>
+      <div class="wiki-masthead-note">
+        <p class="wiki-standfirst">
           하네스, MCP처럼 쓰는 곳마다 뜻이 조금씩 다른 말을 한 뜻으로 규정합니다. 뜻이
           갈리면 갈래째 싣고, 출처가 확인된 서술만 싣습니다.
         </p>
-      </header>
+        <p class="wiki-stats">
+          항목 {pad2(entries.length)} · 출처 {pad2(sourceCount)} · 기준일 {fmtDate(updated)}
+        </p>
+      </div>
+    </header>
 
-      <section class="wiki-story-stack" aria-label="주요 위키 항목" data-reveal>
-        {featured && <StoryCard entry={featured} image="/patterns/dades-node-garden.svg" featured />}
-        <div class="wiki-secondary-grid">
-          {secondary.map((entry, index) => (
-            <StoryCard
-              entry={entry}
-              image={index === 0 ? '/patterns/dades-isometric-noise.svg' : '/patterns/dades-rect-void.svg'}
-            />
-          ))}
+    <section class="wiki-terms" aria-label="용어 목록">
+      <form class="wiki-filter" role="search" data-wiki-filter>
+        <label class="sr-only" for="wiki-q">용어 찾기</label>
+        <input
+          id="wiki-q"
+          type="search"
+          name="q"
+          autocomplete="off"
+          placeholder="용어·영문·별칭으로 찾기"
+          data-wiki-query
+        />
+        <div class="wiki-scope" role="group" aria-label="분류 좁히기">
+          {
+            scopes.map((scope, index) => (
+              <button type="button" data-wiki-scope={scope.key} aria-pressed={index === 0 ? 'true' : 'false'}>
+                {scope.label}
+              </button>
+            ))
+          }
         </div>
-      </section>
-    </div>
+      </form>
 
-    <section class="wiki-complete-list" aria-labelledby="all-wiki-terms" data-reveal>
-      <h2 id="all-wiki-terms">모든 항목</h2>
+      <p class="wiki-count" data-wiki-status role="status" aria-live="polite">
+        전체 {pad2(entries.length)}개
+      </p>
+
+      {/* 갱신 칸은 두지 않는다 — 여덟 줄이 모두 같은 날짜라 줄마다 알려 주는 게 없다.
+          기준일은 머리의 한 줄이, 항목별 점검일은 낱개 지면이 맡는다. */}
+      <div class="wiki-cols" aria-hidden="true">
+        <span>용어</span>
+        <span>한 줄 정의</span>
+        <span>출처</span>
+      </div>
+
       {
         groups.map((group) => (
-          <section class="wiki-group" aria-label={group.meta.ko}>
-            <h3>{group.meta.ko}</h3>
+          <section class="wiki-group" data-wiki-group={group.key} aria-labelledby={`group-${group.key}`}>
+            <h2 id={`group-${group.key}`}>
+              {group.meta.ko}
+              <span class="wiki-group-count">항목 <span data-group-count>{pad2(group.entries.length)}</span></span>
+            </h2>
             <ul class="wiki-list">
               {group.entries.map((entry) => (
-                <li class="wiki-row">
+                <li class="wiki-row" data-wiki-row data-category={group.key} data-terms={searchKey(entry)}>
                   <a href={wikiHref(entry.data.slug)}>
-                    <span class="wiki-list-title">
-                      {entry.data.term}
-                      {entry.data.en && <span lang="en">{entry.data.en}</span>}
+                    <span class="wiki-row-term">
+                      <span class="wiki-row-ko">{entry.data.term}</span>
+                      {entry.data.en && <span class="wiki-row-en" lang="en">{entry.data.en}</span>}
                     </span>
-                    <span>
-                      <span class="wiki-list-summary">{stripRefs(entry.data.oneLiner)}</span>
-                      <span class="wiki-list-meta">
-                        {fmtDate(entry.data.updated)} · {entry.data.sources.length} sources
-                      </span>
+                    <span class="wiki-row-sum">{stripRefs(entry.data.oneLiner)}</span>
+                    <span class="wiki-row-src">
+                      {pad2(entry.data.sources.length)}
+                      <span class="wiki-row-src-label">출처</span>
                     </span>
                   </a>
                 </li>
@@ -85,6 +113,75 @@ const groups = (Object.keys(WIKI_CATEGORY) as (keyof typeof WIKI_CATEGORY)[])
           </section>
         ))
       }
+
+      <p class="wiki-empty" data-wiki-empty hidden>찾는 용어가 없습니다.</p>
+
+      <p class="wiki-note">
+        출처가 확인된 서술만 싣고, 문장마다 [n]으로 근거를 답니다. 뜻이 갈리는 말은 갈래째 나눠 규정합니다.<br />
+        전체 검색은 <a href={href('/archive/')}>Index</a>에서, 문체 규정은 <a href="https://github.com/seory0/DADES/blob/main/src/content/wiki/STYLE.md" target="_blank" rel="noopener">STYLE.md</a>에 있습니다.
+      </p>
     </section>
   </div>
+
+  <script>
+    // 용어 거르개 — 목록은 항상 DOM에 남고, 여기서는 보이고 감추기만 한다.
+    const form = document.querySelector<HTMLFormElement>('[data-wiki-filter]');
+    const query = document.querySelector<HTMLInputElement>('[data-wiki-query]');
+    const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-wiki-row]'));
+    const groups = Array.from(document.querySelectorAll<HTMLElement>('[data-wiki-group]'));
+    const scopeButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-wiki-scope]'));
+    const emptyNote = document.querySelector<HTMLElement>('[data-wiki-empty]');
+    const status = document.querySelector<HTMLElement>('[data-wiki-status]');
+    const total = rows.length;
+    const pad2 = (n: number) => String(n).padStart(2, '0');
+    let scope = 'all';
+
+    // 엔터로 페이지가 새로 뜨지 않게 — 거르기는 입력 즉시 끝난다.
+    form?.addEventListener('submit', (event) => event.preventDefault());
+
+    function apply() {
+      const q = (query?.value ?? '').trim().toLowerCase();
+      let shown = 0;
+
+      for (const row of rows) {
+        const inScope = scope === 'all' || row.dataset.category === scope;
+        const hit = q === '' || (row.dataset.terms ?? '').includes(q);
+        const visible = inScope && hit;
+        row.hidden = !visible;
+        if (visible) shown += 1;
+      }
+
+      for (const group of groups) {
+        const live = Array.from(group.querySelectorAll<HTMLElement>('[data-wiki-row]')).filter(
+          (row) => !row.hidden,
+        );
+        group.hidden = live.length === 0;
+        const count = group.querySelector<HTMLElement>('[data-group-count]');
+        if (count) count.textContent = pad2(live.length);
+      }
+
+      if (emptyNote) emptyNote.hidden = shown > 0;
+      if (status) {
+        status.textContent =
+          q === '' && scope === 'all' ? `전체 ${pad2(total)}개` : `${total}개 중 ${shown}개`;
+      }
+    }
+
+    query?.addEventListener('input', apply);
+    query?.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !query.value) return;
+      query.value = '';
+      apply();
+    });
+
+    for (const button of scopeButtons) {
+      button.addEventListener('click', () => {
+        scope = button.dataset.wikiScope ?? 'all';
+        for (const other of scopeButtons) {
+          other.setAttribute('aria-pressed', String(other === button));
+        }
+        apply();
+      });
+    }
+  </script>
 </Base>

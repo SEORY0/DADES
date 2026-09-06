@@ -1,3 +1,7 @@
+/* 씬 지면 — /about/의 원형(히어로·파운데이션·페이퍼)과 /status/ 상태판.
+   스크롤 스냅과 100svh 씬은 걷어냈다. 지면 높이는 크롬이 아니라 내용이 정한다.
+   조판은 Pretendard 한 벌이므로 위계는 굵기·크기·자간·대소문자·색으로만 만든다. */
+
 :root {
   --immersive-paper: var(--surface-canvas);
   --immersive-paper-raised: var(--surface-raised);
@@ -26,29 +30,32 @@
   margin-inline: 0;
 }
 
-.has-reveal-js [data-reveal] {
-  opacity: 0;
-  transform: translateY(1.25rem);
-  transition:
-    opacity var(--motion-emphasis) var(--ease-standard),
-    transform var(--motion-emphasis) var(--ease-out);
-}
+/* ---------------------------------------------------------------
+   /about/ 씬 원형 — 이제 뷰포트가 아니라 내용이 높이를 정한다.
+   --------------------------------------------------------------- */
 
-.has-reveal-js [data-reveal].is-revealed {
-  opacity: 1;
-  transform: translateY(0);
+/* 고정 남색 띠 위의 잉크 — --text-inverse는 '지면 글자색의 반대'라는 뜻이라
+   ink 테마에서 #141619로 뒤집힌다. 이 두 띠는 테마와 무관하게 늘 어두우므로
+   글자색도 테마와 무관해야 한다. 그래서 [data-theme] 바깥에서 못박는다. */
+.immersive-hero,
+.immersive-foundation {
+  --on-dark: #ffffff;
+  --on-dark-muted: color-mix(in srgb, var(--on-dark) 82%, transparent);
+  --on-dark-faint: color-mix(in srgb, var(--on-dark) 68%, transparent);
+  --on-dark-rule: color-mix(in srgb, var(--on-dark) 22%, transparent);
+  /* 그늘도 마찬가지 — --surface-inverse는 ink에서 밝은 회색으로 뒤집힌다. */
+  --on-dark-shade: #121416;
 }
 
 .immersive-hero {
   position: relative;
-  min-block-size: 100svh;
+  padding: clamp(6.5rem, 9vw, 8rem) var(--space-10) clamp(3rem, 4.5vw, 4rem);
   display: grid;
   place-items: center;
   overflow: hidden;
-  color: var(--text-inverse);
+  color: var(--on-dark);
   background: var(--hero-fallback);
   isolation: isolate;
-  scroll-snap-align: start;
 }
 
 .immersive-hero-media,
@@ -70,81 +77,84 @@
   z-index: -1;
   background:
     radial-gradient(circle at 52% 44%, transparent 0 24%, var(--immersive-hero-shade) 70%),
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-inverse) 8%, transparent), var(--immersive-hero-shade));
+    linear-gradient(180deg, color-mix(in srgb, var(--on-dark-shade) 8%, transparent), var(--immersive-hero-shade));
 }
 
 .immersive-hero-copy {
-  width: min(calc(100% - (2 * var(--space-10))), var(--frame-max));
+  width: min(100%, 52rem);
   margin-inline: auto;
   text-align: center;
 }
 
 .immersive-hero-copy h1 {
-  max-width: 16ch;
+  max-width: 18ch;
   margin: var(--space-4) auto 0;
-  font-size: clamp(3.75rem, 4.2vw, 3.75rem);
+  font-size: clamp(2.25rem, 4vw, 3.25rem);
   font-weight: 520;
-  line-height: 1;
-  letter-spacing: 0;
-  overflow-wrap: anywhere;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  word-break: keep-all;
   text-wrap: balance;
 }
 
 .immersive-hero-copy p:not(.immersive-label) {
   max-width: 44rem;
-  margin: var(--space-6) auto 0;
+  margin: var(--space-5) auto 0;
   font-size: var(--type-body-lg);
   line-height: 1.55;
-  color: color-mix(in srgb, var(--text-inverse) 82%, transparent);
-  overflow-wrap: anywhere;
+  color: var(--on-dark-muted);
   text-wrap: pretty;
 }
 
+/* 오버라인 — mono가 사라진 만큼 자간과 굵기로 라벨성을 되찾는다. */
 .immersive-label {
   margin: 0;
-  font-family: var(--font-utility);
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.6875rem;
+  font-weight: 600;
   line-height: 1.2;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
   color: var(--immersive-blue);
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
 }
 
-.immersive-hero .immersive-label {
-  color: color-mix(in srgb, var(--text-inverse) 82%, transparent);
+/* 두 어두운 띠의 오버라인은 누를 수 없는 이름표다. 코발트(밝은 쪽이라도)는
+   행동 잉크이므로 여기 쓰지 않는다 — 흰색을 한 단 낮춘 잉크로 통일한다. */
+.immersive-hero .immersive-label,
+.immersive-foundation .immersive-label {
+  color: var(--on-dark-muted);
 }
 
+/* 지표 띠는 ImmersiveHero가 stats를 받았을 때만 나온다. /about/은 같은 사실을
+   콜로폰에서 문장으로 말하므로 더 넘기지 않지만, 컴포넌트 계약은 남겨둔다. */
 .immersive-hero-stats {
-  position: absolute;
-  inset: auto var(--space-10) var(--space-10);
-  width: min(calc(100% - (2 * var(--space-10))), 58rem);
-  margin: 0 auto;
+  width: min(100%, 58rem);
+  margin: var(--space-10) auto 0;
   padding: var(--space-2);
   display: grid;
-  grid-template-columns: repeat(var(--stat-count, 5), minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
   gap: var(--space-2);
-  border: 1px solid color-mix(in srgb, var(--text-inverse) 22%, transparent);
+  border: 1px solid var(--on-dark-rule);
   border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--surface-inverse) 26%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text-inverse) 20%, transparent);
-  backdrop-filter: blur(1.875rem) saturate(140%);
-  -webkit-backdrop-filter: blur(1.875rem) saturate(140%);
+  background: color-mix(in srgb, var(--on-dark-shade) 26%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--on-dark) 20%, transparent);
 }
 
 .immersive-hero-stats div {
   min-width: 0;
   padding: var(--space-4);
   border-radius: var(--radius-control);
-  background: color-mix(in srgb, var(--text-inverse) 7%, transparent);
+  background: color-mix(in srgb, var(--on-dark) 7%, transparent);
 }
 
 .immersive-hero-stats dt {
-  font-family: var(--font-utility);
-  font-size: var(--type-label);
-  letter-spacing: 0.02em;
-  color: color-mix(in srgb, var(--text-inverse) 62%, transparent);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  color: var(--on-dark-faint);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
 }
 
 .immersive-hero-stats dd {
@@ -153,18 +163,19 @@
   font-size: var(--type-h3);
   font-weight: 620;
   line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
 .immersive-foundation {
   position: relative;
-  min-block-size: 100svh;
+  padding: clamp(3.5rem, 6vw, 5.5rem) var(--space-10);
   display: grid;
   place-items: center;
   overflow: hidden;
-  color: var(--text-inverse);
+  color: var(--on-dark);
   background: var(--hero-fallback);
   isolation: isolate;
-  scroll-snap-align: start;
 }
 
 .immersive-foundation img,
@@ -189,45 +200,42 @@
 }
 
 .immersive-foundation-copy {
-  width: min(calc(100% - (2 * var(--space-10))), 54rem);
+  width: min(100%, 54rem);
   margin-inline: auto;
   text-align: center;
 }
 
 .immersive-foundation-copy h2,
 .immersive-paper-copy h2 {
-  margin: var(--space-5) 0 0;
-  font-size: 2.5rem;
-  font-weight: 520;
-  line-height: 1.1;
-  letter-spacing: 0;
+  margin: var(--space-4) 0 0;
+  font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  word-break: keep-all;
   text-wrap: balance;
 }
 
 .immersive-foundation-copy p:not(.immersive-label) {
   max-width: 47rem;
-  margin: var(--space-6) auto 0;
-  font-size: 1.375rem;
-  line-height: 1.3;
-  color: color-mix(in srgb, var(--text-inverse) 84%, transparent);
+  margin: var(--space-5) auto 0;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--on-dark) 84%, transparent);
   text-wrap: pretty;
 }
 
+/* /about/의 참조 지면 — 값·지면·콜로폰을 씬 셋으로 쪼개던 것을 한 지면으로 합쳤다.
+   단락은 새 띠가 아니라 괘선 한 줄이 가른다.
+   두 단 그리드는 씬이 셋일 때 쓰던 골격이라 함께 걷어낸다. 지금은 한 단으로 흐른다. */
 .immersive-paper {
-  min-block-size: 100svh;
-  padding: clamp(8rem, 11vw, 10rem) var(--space-10) var(--space-20);
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: var(--space-16);
-  align-content: start;
+  padding: clamp(3rem, 4.2vw, 4rem) var(--space-10);
   color: var(--immersive-ink);
   background: var(--immersive-paper);
   border-top: 1px solid var(--immersive-rule-soft);
-  scroll-snap-align: start;
 }
 
 .immersive-paper-copy {
-  grid-column: 2;
   max-width: 42rem;
 }
 
@@ -236,198 +244,76 @@
 }
 
 .immersive-paper-copy p:not(.immersive-label) {
-  margin: var(--space-5) 0 0;
-  font-size: 1.125rem;
-  line-height: 1.3;
-  color: var(--immersive-muted);
-  text-wrap: pretty;
-}
-
-.status-board,
-.status-delta-list,
-.value-grid,
-.service-list,
-.colophon-list {
-  grid-column: 1 / -1;
-  margin: clamp(5rem, 9vw, 7.5rem) 0 0;
-}
-
-.status-board {
-  border-top: 1px solid var(--immersive-rule);
-}
-
-.status-row {
-  min-block-size: 4.5rem;
-  display: grid;
-  grid-template-columns: minmax(8rem, 0.7fr) minmax(0, 1.55fr) minmax(6rem, 0.45fr) minmax(6rem, 0.4fr);
-  gap: var(--space-5);
-  align-items: start;
-  padding: var(--space-5) var(--space-4);
-  border-bottom: 1px solid var(--immersive-rule-soft);
-  transition: background var(--motion-micro) var(--ease-standard);
-}
-
-.status-row-head {
-  min-block-size: 2.75rem;
-  padding-block: var(--space-3);
-  font-family: var(--font-utility);
-  font-size: var(--type-label);
-  line-height: 1.2;
-  letter-spacing: 0.02em;
-  color: var(--immersive-muted);
-}
-
-.status-row.is-actionable:has(a:hover),
-.status-row.is-actionable:has(a:focus-visible) {
-  background: var(--immersive-row-hover);
-}
-
-.status-area,
-.status-since {
-  font-family: var(--font-utility);
-  font-size: var(--type-label);
-  line-height: 1.45;
-  letter-spacing: 0.02em;
-  color: var(--immersive-muted);
-}
-
-.status-pick {
-  min-width: 0;
-}
-
-.status-pick a,
-.status-pick strong {
-  display: inline-flex;
-  min-height: 2.75rem;
-  align-items: center;
-  font-size: var(--type-h3);
-  font-weight: 620;
-  line-height: 1.2;
-  letter-spacing: 0;
-  color: var(--immersive-ink);
-}
-
-.status-pick a {
-  text-decoration: none;
-}
-
-.status-pick a:hover,
-.status-pick a:focus-visible {
-  color: var(--immersive-blue-strong);
-  transform: translateY(-0.0625rem);
-}
-
-.status-note {
-  display: block;
-  max-width: 64rem;
-  margin-top: var(--space-2);
-  font-size: var(--type-body);
+  margin: var(--space-4) 0 0;
+  font-size: 1.0625rem;
   line-height: 1.6;
   color: var(--immersive-muted);
   text-wrap: pretty;
 }
 
-.status-badge {
-  min-height: 2.75rem;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  justify-self: start;
-  font-family: var(--font-utility);
-  font-size: var(--type-label);
-  line-height: 1.2;
-  letter-spacing: 0.02em;
-  color: var(--immersive-muted);
+.about-unit + .about-unit {
+  margin-top: clamp(2rem, 3vw, 2.5rem);
+  padding-top: clamp(1.5rem, 2.2vw, 2rem);
+  border-top: 1px solid var(--immersive-rule);
 }
 
-.st-dot {
-  width: 0.625rem;
-  height: 0.625rem;
-  border-radius: var(--radius-pill);
-  background: currentColor;
+/* 목록의 마감선과 단락 구분선이 나란히 놓이면 그 사이가 빈 행처럼 읽힌다.
+   뒤에 단락이 더 있으면 마감은 구분선에 넘긴다. */
+.about-unit:not(:last-child) .service-list a:last-child,
+.about-unit:not(:last-child) .colophon-list li:last-child {
+  border-bottom: 0;
 }
 
-.st-stable {
-  color: var(--status-success);
+.value-grid,
+.service-list,
+.colophon-list {
+  margin: clamp(1.5rem, 2.4vw, 2rem) 0 0;
 }
 
-.st-watch {
-  color: var(--status-warning);
-}
-
-.st-changed {
-  color: var(--status-error);
-}
-
-.status-since {
-  min-height: 2.75rem;
-  display: inline-flex;
-  align-items: center;
-}
-
-.status-delta-list,
 .colophon-list {
   padding: 0;
   list-style: none;
   border-top: 1px solid var(--immersive-rule);
 }
 
-.status-delta-item,
 .colophon-list li {
   display: grid;
   grid-template-columns: minmax(8rem, 0.28fr) minmax(0, 1fr);
   gap: var(--space-6);
-  padding: var(--space-5) 0;
+  padding: var(--space-4) 0;
   border-bottom: 1px solid var(--immersive-rule-soft);
 }
 
-.status-delta-item time,
+/* 11px 대문자 이름표는 세 곳에 나오는데 그중 누를 수 있는 건 지면 목록뿐이었다.
+   코발트가 행동 잉크 하나로 남으려면 이름표의 기본값이 중립이어야 한다. */
 .colophon-list span,
 .service-list span,
 .value-grid span {
-  font-family: var(--font-utility);
-  font-size: var(--type-label);
+  font-size: 0.6875rem;
+  font-weight: 600;
   line-height: 1.2;
-  letter-spacing: 0.04em;
-  color: var(--immersive-blue);
+  letter-spacing: 0.12em;
+  color: var(--immersive-muted);
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
 }
 
-.status-delta-item > span,
-.colophon-list strong {
-  font-size: var(--type-body-lg);
-  font-weight: 430;
-  line-height: 1.45;
-  color: var(--immersive-ink);
+/* 지면 목록의 이름표만 <a> 안에 있다 — 코발트는 여기 남는다. */
+.service-list a span {
+  color: var(--immersive-blue);
 }
 
-.status-delta-item strong {
-  margin-right: var(--space-3);
-  font-family: var(--font-utility);
-  font-size: var(--type-label);
-  letter-spacing: 0.02em;
+/* 소개 지면의 오버라인도 누를 수 없다. 위계는 색이 아니라 자간과 자리로 낸다. */
+.about-reference .immersive-label {
   color: var(--immersive-muted);
 }
 
-.status-delta-ref {
-  min-height: 2.75rem;
-  margin-left: var(--space-3);
-  padding-inline: var(--space-3);
-  display: inline-flex;
-  align-items: center;
-  border-radius: var(--radius-pill);
-  color: var(--immersive-blue);
-  font-family: var(--font-utility);
-  font-size: var(--type-label);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.status-delta-ref:hover,
-.status-delta-ref:focus-visible {
-  color: var(--text-inverse);
-  background: var(--immersive-blue);
+/* 콜로폰은 읽는 글이 아니라 조회하는 표다 — 본문 크기로 낮춘다. */
+.colophon-list strong {
+  font-size: 1.0625rem;
+  font-weight: 430;
+  line-height: 1.5;
+  color: var(--immersive-ink);
 }
 
 .value-grid {
@@ -437,7 +323,6 @@
 }
 
 .value-grid article {
-  min-height: 19rem;
   padding: var(--space-6);
   display: grid;
   align-content: start;
@@ -448,10 +333,11 @@
 }
 
 .value-grid h3 {
-  margin: var(--space-6) 0 0;
+  margin: var(--space-2) 0 0;
   font-size: var(--type-h3);
+  font-weight: 620;
   line-height: 1.25;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
 }
 
 .value-grid p {
@@ -466,12 +352,12 @@
 }
 
 .service-list a {
-  min-height: 7rem;
+  min-height: 4.25rem;
   display: grid;
   grid-template-columns: minmax(10rem, 0.35fr) minmax(0, 1fr);
   align-items: center;
   gap: var(--space-6);
-  padding: var(--space-5) var(--space-4);
+  padding: var(--space-4);
   border-bottom: 1px solid var(--immersive-rule-soft);
   color: var(--immersive-ink);
   text-decoration: none;
@@ -486,7 +372,9 @@
 .service-list a:hover span,
 .service-list a:focus-visible span,
 .service-list a:hover strong,
-.service-list a:focus-visible strong {
+.service-list a:focus-visible strong,
+.service-list a:hover strong::after,
+.service-list a:focus-visible strong::after {
   color: var(--text-inverse);
 }
 
@@ -494,7 +382,18 @@
   font-size: var(--type-h3);
   font-weight: 560;
   line-height: 1.25;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
+}
+
+/* 행 전체가 링크라는 사실은 색만으로는 안 보인다 — 정지 상태에서도 읽히는
+   화살표 하나를 붙인다. 콜로폰의 밑줄 링크와 함께, 코발트가 붙은 것만 눌린다.
+   화살표는 제호·푸터와 같은 규칙으로 장식이다 — 대체 텍스트를 비워 낭독에서 뺀다
+   (두 번째 content를 못 읽는 브라우저는 첫 줄로 화살표만 그린다). */
+.service-list strong::after {
+  content: ' →';
+  content: ' →' / '';
+  color: var(--immersive-blue);
+  font-weight: 500;
 }
 
 .colophon-list a {
@@ -506,47 +405,473 @@
   color: var(--immersive-blue-strong);
 }
 
-@media (min-width: 1200px) {
-  html:has(.page-immersive) {
-    scroll-snap-type: y proximity;
+/* ---------------------------------------------------------------
+   /status/ 상태판 — 읽는 지면이 아니라 조회하는 계기판(spec sheet).
+   높이는 크롬이 아니라 다섯 개 행이 정한다.
+   --------------------------------------------------------------- */
+
+/* 컬럼 트랙은 한 군데에서만 정의한다 — 상태표·그룹 머리줄·변경 이력이
+   같은 세로 안내선을 쓰게 하는 유일한 방법이다. 어긋나면 표가 아니라 목록이 된다. */
+.status-section {
+  width: 100%;
+  --status-cols: 10rem minmax(0, 1fr) 6rem 6rem;
+  --status-gap: var(--space-4);
+  /* 상태색은 점만이 아니라 낱말도 함께 쓴다. 세 테마의 상태 토큰은
+     지면 바탕 위에서 모두 4.5:1을 넘긴다(먹색 테마는 밝은 단을 쓴다). */
+  --state-ink: var(--text-secondary);
+}
+
+.status-section [data-status='stable'] {
+  --state-ink: var(--status-success);
+}
+
+.status-section [data-status='watch'] {
+  --state-ink: var(--status-warning);
+}
+
+.status-section [data-status='changed'] {
+  --state-ink: var(--status-error);
+}
+
+.status-shell {
+  width: min(100%, 68rem);
+  margin-inline: auto;
+}
+
+/* 1. 상태판 머리 — 표를 읽기 전에 '바뀐 게 있나'부터 답한다. */
+/* 띠 사이 간격은 한 박자(var(--space-12))로 통일한다 — 89px과 128px이 섞여 있었다. */
+.status-masthead {
+  padding: clamp(6rem, 8vw, 7rem) var(--space-10) var(--space-12);
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--rule-default);
+}
+
+.status-masthead .status-shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: var(--space-8);
+  align-items: end;
+}
+
+.status-masthead h1 {
+  margin: var(--space-3) 0 0;
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  word-break: keep-all;
+  text-wrap: balance;
+}
+
+.status-deck {
+  max-width: 34rem;
+  margin: var(--space-4) 0 0;
+  font-size: 1.0625rem;
+  font-weight: 430;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* 집계가 곧 표의 색 범례 — 그래서 별도 legend가 없다. */
+.status-tally {
+  margin: 0;
+  display: grid;
+  grid-auto-flow: row;
+  grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr));
+  gap: var(--space-4) var(--space-6);
+}
+
+.status-tally-item {
+  display: grid;
+  row-gap: var(--space-1);
+}
+
+/* 0인 칸을 알파로 지우면 판의 색 범례까지 함께 흐려진다(변경 라벨 2.19:1, 00 3.34:1).
+   빈 칸은 투명도가 아니라 속이 빈 점과 한 단 낮춘 굵기로 말한다. */
+.status-tally-item[data-zero='true'] dd {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.status-tally-item[data-zero='true'] .status-dot {
+  background: transparent;
+  box-shadow: inset 0 0 0 0.09375rem var(--state-ink);
+}
+
+.status-tally dt {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 550;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--text-secondary);
+}
+
+.status-tally dd {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 620;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.status-tally dt .status-dot {
+  margin-right: var(--space-2);
+}
+
+/* 2. 보드 — 두 판이 같은 컬럼 트랙을 써서 세로로 비교된다. */
+.status-boards {
+  padding: var(--space-12) var(--space-10);
+  background: var(--surface-canvas);
+}
+
+.status-table {
+  isolation: isolate;
+}
+
+.status-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--status-cols);
+  column-gap: var(--status-gap);
+  align-items: start;
+  padding-block: var(--space-4);
+  padding-inline: 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+/* 행 박스는 flush로 두고 배경만 좌우로 흘려보낸다. 표는 흔들리면 안 되므로 transform 없음. */
+.status-row::before {
+  content: '';
+  position: absolute;
+  inset: 0 calc(-1 * var(--space-3));
+  z-index: -1;
+  border-radius: var(--radius-control);
+  transition: background var(--motion-micro) var(--ease-standard);
+}
+
+.status-row:has(a):hover::before,
+.status-row:has(a:focus-visible)::before {
+  background: var(--immersive-row-hover);
+}
+
+.status-row-head {
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--rule-default);
+}
+
+.status-row-head span {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.status-group + .status-group {
+  margin-top: var(--space-8);
+}
+
+/* 보드 제목은 에디토리얼 표제가 아니라 표 안의 그룹 머리줄로 강등한다.
+   머리줄도 같은 트랙 위에 올려서 '점검' 날짜가 아래 기준일 열과 한 선에 선다. */
+.status-group-head {
+  display: grid;
+  grid-template-columns: var(--status-cols);
+  column-gap: var(--status-gap);
+  align-items: baseline;
+  padding: var(--space-5) 0 var(--space-3);
+  border-top: 1px solid var(--text-primary);
+}
+
+.status-group-cell {
+  grid-column: 1 / 4;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--space-3);
+}
+
+.status-group-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.status-group-question {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 430;
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.status-group-updated {
+  grid-column: 4;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.status-group:last-child .status-row:last-child {
+  border-bottom: 1px solid var(--rule-default);
+}
+
+.status-area {
+  padding-top: var(--space-2);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: 0.005em;
+  color: var(--text-secondary);
+  word-break: keep-all;
+}
+
+.status-pick {
+  min-width: 0;
+}
+
+.status-pick a,
+.status-pick strong {
+  display: inline-block;
+  padding-block: var(--space-2);
+  font-size: 1.0625rem;
+  font-weight: 620;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 링크는 색이 아니라 밑줄로 구분한다 — 표의 잉크색을 흐트러뜨리지 않는다. */
+.status-pick a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, var(--accent-primary) 40%, transparent);
+  transition:
+    color var(--motion-micro) var(--ease-standard),
+    text-decoration-color var(--motion-micro) var(--ease-standard);
+}
+
+.status-pick a:hover,
+.status-pick a:focus-visible {
+  color: var(--accent-strong);
+  text-decoration-color: currentColor;
+}
+
+.status-ext {
+  margin-left: 0.3em;
+  font-size: 0.8em;
+}
+
+.status-note {
+  display: block;
+  max-width: 42rem;
+  margin-top: var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 420;
+  line-height: 1.62;
+  letter-spacing: -0.005em;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* 점과 낱말이 같은 색을 쓴다 — 8px 점 하나에 열의 뜻을 다 싣지 않는다.
+   세 테마 모두 상태 토큰이 지면 바탕 위에서 4.5:1을 넘기므로 글자에 써도 된다. */
+.status-state {
+  padding-top: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-self: start;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--state-ink);
+}
+
+.status-dot {
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: var(--state-ink);
+}
+
+.status-since {
+  padding-top: var(--space-2);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 3. 변경 이력 — 표와 같은 리듬이 아니라 아예 같은 트랙을 쓴다. */
+.status-changelog {
+  padding: var(--space-12) var(--space-10) var(--space-20);
+}
+
+.status-changelog-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.status-changelog h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 620;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.status-changelog-count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.status-changelog-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule-default);
+}
+
+/* 열 배정은 뜻으로 맞춘다 — 영역은 영역 열에, 서술은 '현재 답' 열에,
+   날짜는 기준일 열에. 그래야 두 판이 같은 세로선 위에서 비교된다. */
+.status-changelog-item {
+  display: grid;
+  grid-template-columns: var(--status-cols);
+  column-gap: var(--status-gap);
+  align-items: baseline;
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+/* 출처가 비어 있는 항목이 섞여도 날짜는 기준일 열을 떠나지 않도록 자리를 못박는다. */
+.status-changelog-item time {
+  grid-column: 4;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.status-changelog-board {
+  grid-column: 1;
+  font-size: 0.8125rem;
+  font-weight: 620;
+  line-height: 1.5;
+  letter-spacing: 0;
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+.status-changelog-text {
+  grid-column: 2;
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 430;
+  line-height: 1.6;
+  letter-spacing: -0.008em;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.status-changelog-ref {
+  grid-column: 3;
+  padding-block: var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 620;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: var(--accent-primary);
+  font-variant-numeric: tabular-nums;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, var(--accent-primary) 40%, transparent);
+}
+
+.status-changelog-ref:hover,
+.status-changelog-ref:focus-visible {
+  color: var(--accent-strong);
+  text-decoration-color: currentColor;
+}
+
+.status-empty {
+  margin: 0;
+  padding-block: var(--space-6);
+  border-top: 1px solid var(--rule-default);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 1000px) {
+  .status-masthead .status-shell {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-12);
   }
 
-  .mode-immersive .site-foot {
-    scroll-snap-align: start;
+  .status-tally {
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    column-gap: var(--space-8);
+    align-items: end;
+  }
+}
+
+@media (min-width: 1200px) {
+  .status-section {
+    --status-cols: 13rem minmax(0, 1fr) 7rem 6.5rem;
+    --status-gap: var(--space-6);
+  }
+
+  /* 콜로폰 여덟 줄은 넓은 지면에서 두 단으로 접힌다. 읽는 순서는 좌→우 그대로다. */
+  .colophon-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-12);
   }
 }
 
 @media (max-width: 1199.98px) {
-  .immersive-hero,
-  .immersive-foundation,
-  .immersive-paper {
-    min-block-size: auto;
-    scroll-snap-align: none;
-  }
-
-  .immersive-hero {
-    min-block-size: 100svh;
-    padding: 8rem var(--space-5) 11rem;
-  }
-
   .immersive-hero-copy {
     width: min(100%, 46rem);
   }
 
   .immersive-hero-copy h1 {
-    max-width: 10ch;
-    font-size: clamp(2.25rem, 10vw, 3.5rem);
-    line-height: 0.96;
-  }
-
-  .immersive-hero-stats {
-    inset: auto var(--space-5) var(--space-24);
-    width: auto;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .immersive-foundation {
-    padding: 9rem var(--space-5);
+    max-width: 14ch;
+    font-size: clamp(2.25rem, 7vw, 3rem);
   }
 
   .immersive-foundation-copy {
@@ -554,89 +879,57 @@
   }
 
   .immersive-paper {
-    padding: var(--space-20) var(--space-5);
-    display: block;
+    padding: clamp(3rem, 6vw, 4.5rem) var(--space-5);
   }
 
   .immersive-paper-copy {
     max-width: 44rem;
   }
 
-  .status-board,
-  .status-delta-list,
   .value-grid,
   .service-list,
   .colophon-list {
-    margin-top: var(--space-12);
-  }
-
-  .status-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .status-row-head {
-    display: none;
-  }
-
-  .status-pick,
-  .status-note {
-    grid-column: 1 / -1;
-  }
-
-  .status-badge {
-    grid-column: 1;
-  }
-
-  .status-since {
-    grid-column: 2;
-    grid-row: 1;
+    margin-top: var(--space-8);
   }
 
   .value-grid {
     grid-template-columns: 1fr;
   }
-
-  .value-grid article {
-    min-height: auto;
-  }
 }
 
 @media (max-width: 809.98px) {
   .immersive-hero {
-    align-items: center;
-    padding-block: 7rem 17rem;
-  }
-
-  .immersive-hero-copy {
-    position: absolute;
-    inset: 22% var(--space-5) auto;
-    width: auto;
+    padding: 7rem var(--space-5) var(--space-12);
   }
 
   .immersive-hero-copy p:not(.immersive-label),
   .immersive-paper-copy p:not(.immersive-label) {
-    max-width: 30ch;
-    font-size: 0.95rem;
-    line-height: 1.42;
+    max-width: 34ch;
+    font-size: 1rem;
+    line-height: 1.55;
   }
 
   .immersive-hero-copy p:not(.immersive-label) {
     margin-top: var(--space-4);
   }
 
+  .immersive-foundation {
+    padding: clamp(4rem, 12vw, 6rem) var(--space-5);
+  }
+
   .immersive-foundation-copy h2,
   .immersive-paper-copy h2 {
-    font-size: clamp(1.9rem, 9vw, 2.5rem);
+    font-size: clamp(1.6rem, 7vw, 2rem);
   }
 
   .immersive-foundation-copy p:not(.immersive-label) {
-    font-size: 1.125rem;
-    line-height: 1.45;
+    font-size: 1.0625rem;
+    line-height: 1.55;
   }
 
   .immersive-hero-stats {
-    bottom: calc(var(--space-24) + var(--space-8));
-    grid-template-columns: 1fr 1fr;
+    margin-top: var(--space-8);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-1);
     padding: var(--space-1);
   }
@@ -649,45 +942,119 @@
     font-size: 1.1rem;
   }
 
-  .status-row {
-    min-block-size: 0;
-    gap: var(--space-2) var(--space-4);
-    padding-block: var(--space-5);
-  }
-
-  .status-pick a,
-  .status-pick strong,
   .service-list strong,
-  .status-delta-item > span,
   .colophon-list strong {
     font-size: 1.0625rem;
   }
 
-  .status-delta-item,
   .colophon-list li,
   .service-list a {
     grid-template-columns: 1fr;
     gap: var(--space-3);
   }
 
-  .service-list a {
-    min-height: 6rem;
+  /* 상태판 모바일 — 한 행이 3단으로 접힌다: 영역·기준일 / 현재 답 / 상태 */
+  .status-masthead {
+    padding: var(--space-16) var(--space-5) var(--space-8);
   }
 
-  .status-delta-ref {
-    margin-left: 0;
-    margin-top: var(--space-2);
+  .status-boards {
+    padding: var(--space-10) var(--space-5) var(--space-12);
+  }
+
+  .status-changelog {
+    padding: var(--space-12) var(--space-5) var(--space-16);
+  }
+
+  .status-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
+    padding-block: var(--space-5);
+  }
+
+  .status-row-head {
+    display: none;
+  }
+
+  .status-area {
+    grid-area: 1 / 1;
+    padding-top: 0;
+  }
+
+  .status-since {
+    grid-area: 1 / 2;
+    justify-self: end;
+    padding-top: 0;
+  }
+
+  .status-pick {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .status-state {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    padding-top: 0;
+  }
+
+  /* 그룹 머리줄도 상태 행과 같은 모양으로 접는다 — 왼쪽에 이름, 오른쪽에 날짜. */
+  .status-group-head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
+  }
+
+  .status-group-cell {
+    grid-column: 1;
+  }
+
+  .status-group-updated {
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  /* 변경 이력도 상태 행과 같은 3단: 영역·날짜 / 내용 / 출처 */
+  .status-changelog-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: var(--space-2);
+    column-gap: var(--space-4);
+  }
+
+  .status-changelog-board {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .status-changelog-item time {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .status-changelog-text {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .status-changelog-ref {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: start;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html:has(.page-immersive) {
-    scroll-snap-type: none;
-  }
-
   [data-reveal] {
     opacity: 1;
     transform: none;
+    transition: none;
+  }
+
+  .status-row::before,
+  .status-pick a,
+  .status-changelog-ref {
     transition: none;
   }
 }

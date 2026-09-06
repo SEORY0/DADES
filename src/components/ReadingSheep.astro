@@ -1,0 +1,410 @@
+---
+import SheepMark from './SheepMark.astro';
+
+/**
+ * 양 세기 — 긴 지면의 읽기 진행 표시.
+ *
+ * "Do Agents Dream of Electric Sheep?" — 잠들 때 양을 세듯,
+ * 읽는 동안 지나온 읽기 단위를 세어 준다. 장식은 없다.
+ * 전기양 마크 + 등폭 숫자 "03 / 05" + 머리카락 굵기의 진행선이 전부다.
+ *
+ * ## 쓰는 법
+ * 세고 싶은 단위마다 `data-read-unit` 표식을 달고, 본문 안쪽에 한 번 심는다.
+ *
+ *     <article class="issue-article">
+ *       <p data-read-unit>…</p>
+ *       <p data-read-unit>…</p>
+ *       <ReadingSheep total={5} />
+ *     </article>
+ *
+ * 이미 있는 마크업을 그대로 세고 싶으면 선택자를 넘긴다.
+ *
+ *     <ReadingSheep unitSelector=".issue-reading .entry" total={items.length} />
+ *
+ * ## 두는 자리 — 본문을 절대 덮지 않는다
+ * 본문 글자는 어느 폭에서도 왼쪽 20.0px 안쪽으로 들어오지 않는다(360~810px, 이번 호·
+ * 위키 두 지면 전 스크롤 구간 실측). 그 20px 여백 기둥이 **어떤 스크롤 위치에서도
+ * 비어 있는 유일한 자리**다. 다른 자리는 전부 글자를 덮는다 — 바닥에 붙인 띠는
+ * Σ260,947px²(한 화면 최대 13,353px²), 왼쪽 아래 알약은 Σ156,467px²(최대 3,900px²)를
+ * 가린다(390~768px 실측). 바닥 여백을 아무리 줘도 글은 띠 **아래로 흘러 지나가므로**
+ * 소용이 없다.
+ * 그래서 1080px 미만에서는 그 18px 기둥에 양 세기를 세로로 세운다.
+ * 양 마크 → 센 수 → 분수선 → 전체 수를 쌓고, 남은 기둥을 진행 레일이 흐른다.
+ * 세로쓰기·회전은 쓰지 않는다. 숫자는 데스크톱 칩과 같은 12px 그대로다.
+ * 셈표는 **위 가장자리**에 붙인다. 칩과 달리 이 셈표는 깔 판이 없어 지면 색을 그대로
+ * 등에 지는데, 화면 아래에는 두 가지가 먼저 와서 앉는다. 좁은 폭에서는 내비 알약이
+ * 바닥에 붙고(y 772~814, 실측), 지면 끝에서는 먹색 푸터가 밑에서 올라온다. 아래에
+ * 두면 푸터가 셈표를 덮고도 아직 물러날 때가 아닌 140px 구간에서 "05"가 먹색에 먹혀
+ * 사라졌다(1024px 실측). 위쪽은 푸터가 닿기 한참 전에 이미 물러나 있어 안전하다.
+ * 1080px 이상에서 칩이 바닥에 앉을 수 있는 건 --surface-raised 바탕 + --rule-default
+ * 테두리 + 글라스 그림자를 깔아, 겹쳐도 "덧댄 판"으로 읽히기 때문이다.
+ * 한 지면에 하나만 심는다 — 스크립트는 `[data-reading-sheep]` 하나만 집는다.
+ *
+ * ## 동작
+ * - IntersectionObserver로 각 단위가 화면 62% 선을 넘으면 "지나간 것"으로 센다.
+ * - 숫자는 단조 증가한다(뒤로 스크롤해도 줄지 않는다).
+ * - 단위가 3개 미만이거나 IntersectionObserver가 없으면 끝까지 숨은 채로 있다.
+ * - 마지막 양을 센 화면은 1.2초 붙잡아 둔 뒤에 사라진다. 예전에는 같은 프레임에
+ *   숫자를 쓰고 페이드를 걸어 "05 / 05"가 32ms만 보였다 — 센 보람이 없었다.
+ * - 화면 낭독기에는 role=group + role=progressbar로 언제든 물어볼 수 있게 두고,
+ *   절반·완독 두 번만 소리 내어 알린다(수다스럽지 않게).
+ * - prefers-reduced-motion에서는 쓸림 없이 숫자만 갱신된다. 인쇄에는 나오지 않는다.
+ */
+interface Props {
+  /** 읽기 단위를 고르는 선택자. 기본값은 공유 표식 `[data-read-unit]`. */
+  readonly unitSelector?: string;
+  /** 전체 단위 수. 서버에서 아는 값을 넣으면 첫 페인트부터 맞는 분모가 찍힌다. 0이면 실행 시점에 센다. */
+  readonly total?: number;
+  /** 화면 낭독기에 읽어 줄 이름. */
+  readonly label?: string;
+}
+
+const {
+  unitSelector = '[data-read-unit]',
+  total = 0,
+  label = '읽기 진행',
+} = Astro.props;
+
+const pad2 = (n: number) => String(Math.max(0, n)).padStart(2, '0');
+---
+
+<div
+  class="reading-sheep"
+  data-reading-sheep
+  data-unit-selector={unitSelector}
+  data-label={label}
+  role="group"
+  aria-label={label}
+  hidden
+>
+  <p class="reading-sheep-count" aria-hidden="true">
+    <SheepMark class="reading-sheep-mark reading-sheep-mark-mini" variant="mini" />
+    <SheepMark class="reading-sheep-mark reading-sheep-mark-compact" variant="compact" />
+    <span class="reading-sheep-read" data-sheep-read>00</span>
+    <span class="reading-sheep-sep">/</span>
+    <span data-sheep-total>{pad2(total)}</span>
+  </p>
+  <span
+    class="reading-sheep-rule"
+    role="progressbar"
+    aria-label="읽은 분량"
+    aria-valuemin="0"
+    aria-valuemax={total}
+    aria-valuenow="0"
+    aria-valuetext={`${total}마리 중 0마리`}
+    data-sheep-bar
+  >
+    <i data-sheep-fill></i>
+  </span>
+  <p class="sr-only" role="status" aria-live="polite" data-sheep-status></p>
+</div>
+
+<style>
+  /* ── 기본: 왼쪽 여백에 세우는 세로 셈표 ──────────────────────────
+     본문 글자가 들어오지 않는 20px 여백 안쪽, 폭 18px 기둥 하나가 전부다.
+     글자와는 2px 떨어져 있어 어느 스크롤 위치에서도 구조적으로 겹칠 수 없다. */
+  .reading-sheep {
+    /* 트랙이 보여야 "진행 레일"로 읽힌다. --rule-soft는 종이 위에서 1.19:1이라
+       코발트 조각만 허공에 뜬 것처럼 보였다. 잉크를 50% 섞어 세 지면 모두
+       3:1을 넘긴다(렌더 픽셀 실측: 종이 3.27 / 흰 3.37 / 먹 4.91,
+       칩 바탕 위 3.32 / 3.30 / 4.77). */
+    --sheep-track: color-mix(in srgb, var(--text-primary) 50%, transparent);
+    position: fixed;
+    z-index: 45;
+    inset: 0 auto 0 0;
+    width: 1.125rem;
+    display: block;
+    padding: 0;
+    border: 0;
+    color: var(--text-secondary);
+    background: none;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity var(--motion-standard) var(--ease-standard);
+  }
+
+  /* JS가 확인하기 전과 완독을 1.2초 보여 준 뒤에는 조용히 사라진다 */
+  .reading-sheep[hidden] {
+    display: none;
+  }
+
+  .reading-sheep[data-complete='true'] {
+    opacity: 0;
+  }
+
+  /* 셈은 위 여백 모서리에 세로로 쌓는다 — 18px 안에 "02 / 05"를 눕힐 수 없다 */
+  .reading-sheep-count {
+    position: absolute;
+    top: calc(var(--space-4) + env(safe-area-inset-top, 0px));
+    left: 0;
+    right: 0;
+    margin: 0;
+    display: grid;
+    justify-items: center;
+    gap: 0.1875rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 센 숫자만 한 칸 진하게 — 위계는 색으로 세우고, 흐린 글리프는 두지 않는다.
+     예전 .reading-sheep-sep{opacity:.6}은 12px 글자를 2.56:1까지 떨어뜨렸다. */
+  .reading-sheep-read {
+    color: var(--text-primary);
+  }
+
+  /* 좁은 폭에서 빗금은 분수의 가로선이 된다. 글리프는 지우고 선만 남긴다.
+     배경이 아니라 테두리로 긋는다 — 강제 색상 모드에서 배경은 Canvas로 덮인다. */
+  .reading-sheep-sep {
+    width: 0.6875rem;
+    height: 0;
+    font-size: 0;
+    line-height: 0;
+    border-top: 1px solid currentColor;
+  }
+
+  /* 레일은 기둥 한가운데를 타고 셈표에서 반대쪽 끝까지 곧게 흐른다 */
+  .reading-sheep-rule {
+    position: absolute;
+    top: 4.75rem;
+    bottom: var(--space-5);
+    left: 0.5rem;
+    display: block;
+    width: 2px;
+    background: var(--sheep-track);
+    overflow: hidden;
+  }
+
+  .reading-sheep-rule i {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--accent-primary);
+    transform: scaleY(var(--sheep-progress, 0));
+    transform-origin: center top;
+    transition: transform var(--motion-standard) var(--ease-out);
+  }
+
+  /* ── 여백이 있는 폭: 왼쪽 아래 칩 ────────────────────────────────
+     읽기 칼럼은 최대 858px. 1080px에서 왼쪽 여백이 136px이라 상자(20px + 108px)가
+     8px 여유를 두고 들어앉는다. 이보다 좁으면 위의 여백 기둥으로 돌아간다. */
+  @media (min-width: 1080px) {
+    .reading-sheep {
+      inset: auto auto var(--space-8) var(--space-5);
+      width: fit-content;
+      min-width: 5.75rem;
+      display: grid;
+      gap: 0.375rem;
+      padding: 0.5rem 0.625rem;
+      /* 지면과 같은 색으로 스며들면 가린 줄이 "깨진 글"로 읽힌다 — 덧댄 판으로 보이게 */
+      border: 1px solid var(--rule-default);
+      border-radius: var(--radius-control);
+      background: var(--surface-raised);
+      box-shadow: var(--glass-shadow);
+    }
+
+    .reading-sheep-count {
+      position: static;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      letter-spacing: 0.08em;
+    }
+
+    /* 여기서는 가로로 눕힐 자리가 있으므로 빗금이 다시 글자로 돌아온다 */
+    .reading-sheep-sep {
+      width: auto;
+      height: auto;
+      font-size: inherit;
+      line-height: 1;
+      border-top: 0;
+    }
+
+    .reading-sheep-rule {
+      position: static;
+      width: auto;
+      height: 0.125rem;
+      border-radius: var(--radius-pill);
+    }
+
+    .reading-sheep-rule i {
+      transform: scaleX(var(--sheep-progress, 0));
+      transform-origin: left center;
+    }
+  }
+
+  /* 마크는 크기마다 다른 자획으로 새긴다 — 자세한 이유는 SheepMark.astro 주석에.
+     18px 자리에는 mini(면), 28px 자리에는 compact(선). 둘 다 심어 두고 폭으로 고른다. */
+  .reading-sheep :global(.reading-sheep-mark) {
+    height: auto;
+    flex: none;
+  }
+
+  .reading-sheep :global(.reading-sheep-mark-mini) {
+    width: 1.125rem;
+    /* 18px 실루엣은 본문 잉크만큼 진해야 겨우 양으로 읽힌다 */
+    color: var(--text-primary);
+  }
+
+  .reading-sheep :global(.reading-sheep-mark-compact) {
+    display: none;
+    width: 1.75rem;
+  }
+
+  @media (min-width: 1080px) {
+    .reading-sheep :global(.reading-sheep-mark-mini) {
+      display: none;
+    }
+
+    .reading-sheep :global(.reading-sheep-mark-compact) {
+      display: block;
+    }
+  }
+
+  /* 코발트는 번개 꼬리 한 획에만 쓴다 — 이 칩의 유일한 색 */
+  .reading-sheep :global(.sheep-bolt) {
+    stroke: var(--accent-primary);
+  }
+
+  /* 숫자는 정보라서 계속 갱신하고, 쓸림만 걷어낸다 */
+  @media (prefers-reduced-motion: reduce) {
+    .reading-sheep,
+    .reading-sheep-rule i {
+      transition-duration: 1ms;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .reading-sheep {
+      color: CanvasText;
+    }
+
+    .reading-sheep-rule {
+      background: GrayText;
+    }
+
+    .reading-sheep-rule i {
+      background: Highlight;
+    }
+  }
+
+  /* 판은 칩이 뜨는 폭에서만 깐다 — 좁은 폭의 여백 기둥에는 깔 판이 없다 */
+  @media (forced-colors: active) and (min-width: 1080px) {
+    .reading-sheep {
+      background: Canvas;
+      border-color: CanvasText;
+    }
+  }
+
+  @media print {
+    .reading-sheep {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  // 양 세기 — 읽기 단위가 화면 62% 선을 넘을 때마다 한 마리씩 센다.
+  const chip = document.querySelector<HTMLElement>('[data-reading-sheep]');
+
+  if (chip && 'IntersectionObserver' in window) {
+    const selector = chip.dataset.unitSelector || '[data-read-unit]';
+    const units = Array.from(document.querySelectorAll<HTMLElement>(selector));
+    const total = units.length;
+    const readEl = chip.querySelector<HTMLElement>('[data-sheep-read]');
+    const totalEl = chip.querySelector<HTMLElement>('[data-sheep-total]');
+    const barEl = chip.querySelector<HTMLElement>('[data-sheep-bar]');
+    const fillEl = chip.querySelector<HTMLElement>('[data-sheep-fill]');
+    const statusEl = chip.querySelector<HTMLElement>('[data-sheep-status]');
+    const label = chip.dataset.label || '읽기 진행';
+    const pad2 = (n: number) => String(n).padStart(2, '0');
+
+    // 셀 것이 두어 개뿐이면 표시가 정보보다 소란스럽다 — 그냥 숨은 채로 둔다.
+    if (total >= 3) {
+      if (totalEl) totalEl.textContent = pad2(total);
+      if (barEl) barEl.setAttribute('aria-valuemax', String(total));
+      chip.hidden = false;
+
+      let passed = 0;
+      let announced = 0; // 마지막으로 알린 이정표(50 / 100)
+      let fadeTimer = 0; // 완독 화면을 붙잡아 두는 시간
+
+      // 자리를 비킨다 — 붙잡아 둘 이유가 없어졌을 때.
+      const stepAside = () => {
+        window.clearTimeout(fadeTimer);
+        chip.dataset.complete = 'true';
+      };
+
+      const render = () => {
+        if (readEl) readEl.textContent = pad2(passed);
+        if (fillEl) fillEl.style.setProperty('--sheep-progress', String(passed / total));
+        if (barEl) {
+          barEl.setAttribute('aria-valuenow', String(passed));
+          barEl.setAttribute('aria-valuetext', `${total}마리 중 ${passed}마리`);
+        }
+
+        // 마지막 양을 센 화면은 1.2초 그대로 둔다 — 같은 프레임에 지우면 셈이 헛돈다.
+        if (passed >= total && !fadeTimer) {
+          fadeTimer = window.setTimeout(stepAside, 1200);
+        }
+
+        // 수다 금지 — 절반과 완독, 두 번만 알린다.
+        const pct = Math.round((passed / total) * 100);
+        const milestone = pct >= 100 ? 100 : pct >= 50 ? 50 : 0;
+        if (statusEl && milestone > announced) {
+          announced = milestone;
+          statusEl.textContent =
+            milestone === 100 ? `${label} 100퍼센트 — 다 읽었습니다.` : `${label} ${milestone}퍼센트.`;
+        }
+      };
+
+      render();
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          let changed = false;
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const index = units.indexOf(entry.target as HTMLElement);
+            if (index < 0) continue;
+            // 단조 증가 — 되돌아 올라가도 숫자가 줄지 않는다.
+            if (index + 1 > passed) {
+              passed = index + 1;
+              changed = true;
+            }
+            observer.unobserve(entry.target);
+          }
+          if (changed) render();
+        },
+        { rootMargin: '0px 0px -38% 0px', threshold: 0 },
+      );
+
+      for (const unit of units) observer.observe(unit);
+
+      // 푸터가 칩 자리까지 올라오면 붙잡아 두지 않고 비켜 준다. 바닥으로 한 번에
+      // 뛰면 완독과 푸터 도착이 같은 순간이라, 유지 1.2초가 그대로 어두운 푸터를
+      // 덮는다(측정 4859px²). 아래쪽 160px을 뷰포트에서 덜어 낸 자리 = 칩이 앉는 띠라,
+      // 푸터가 "보이기 시작할 때"가 아니라 "칩에 닿기 직전"에만 물러난다.
+      // 정상 속도로 읽으면 완독이 한참 먼저라 셈의 보람은 그대로 남는다.
+      // 본문 안쪽 <footer>(위키 항목의 출처 상자 같은 것)가 아니라 지면 맨 끝 푸터를 집는다.
+      const foot = Array.from(document.querySelectorAll<HTMLElement>('footer'))
+        .filter((el) => !el.closest('#main'))
+        .pop();
+      if (foot) {
+        const footObserver = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting || passed < 1) continue;
+              stepAside();
+              footObserver.disconnect();
+            }
+          },
+          { rootMargin: '0px 0px -160px 0px', threshold: 0 },
+        );
+        footObserver.observe(foot);
+      }
+    }
+  }
+</script>

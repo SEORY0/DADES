@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Entry from '../../components/Entry.astro';
 import IssueHero from '../../components/IssueHero.astro';
+import ReadingSheep from '../../components/ReadingSheep.astro';
 import '../../styles/issue-archive.css';
 import {
   SOURCE_META,
@@ -52,6 +53,11 @@ const flat = (item: (typeof items)[number]) => ({
   item,
   issue: { number, title, date },
 });
+
+// 쪽번호와 양 세기 숫자는 같은 수를 가리켜야 한다 —
+// 둘 다 지면에 실제로 놓인 순서(섹션 편성 뒤의 순서)를 센다.
+const ordered = useSections ? sections.flatMap((section) => section.items) : items;
+const ordinalOf = (item: (typeof items)[number]) => ordered.indexOf(item) + 1;
 ---
 
 <Base title={`Issue ${issueNo(number)} — ${title}`} description={intro} active="home" ogType="article" layout="article">
@@ -71,37 +77,40 @@ const flat = (item: (typeof items)[number]) => ({
       {
         useSections ? (
           sections.map((section) => (
-            <section class="issue-section" aria-label={section.meta.ko} data-reveal>
+            <section class="issue-section" aria-label={section.meta.ko}>
               <h2 class="section-heading">
                 {section.meta.ko}
                 <span class="count">{section.items.length}</span>
               </h2>
               {section.items.map((item) => (
-                <Entry flat={flat(item)} />
+                <Entry flat={flat(item)} ordinal={ordinalOf(item)} />
               ))}
             </section>
           ))
         ) : (
-          <section aria-label="이번 호 수록" class="flat-entries issue-section" data-reveal>
+          <section aria-label="이번 호 수록" class="flat-entries issue-section">
             {items.map((item) => (
-              <Entry flat={flat(item)} headingLevel="h2" />
+              <Entry flat={flat(item)} headingLevel="h2" ordinal={ordinalOf(item)} />
             ))}
           </section>
         )
       }
     </div>
 
-    <nav class="issue-pager" aria-label="이슈 넘기기" data-reveal>
-      <span>
-        {older && (
-          <a href={issueHref(older.data.number)}>← 지난 호 {issueNo(older.data.number)}</a>
-        )}
-      </span>
-      <span>
-        {newer && (
-          <a href={issueHref(newer.data.number)}>다음 호 {issueNo(newer.data.number)} →</a>
-        )}
-      </span>
-    </nav>
+    {
+      (newer || older) && (
+        <nav class="issue-pager" aria-label="이슈 넘기기">
+          <span>
+            {older && <a href={issueHref(older.data.number)}>← 지난 호 {issueNo(older.data.number)}</a>}
+          </span>
+          <span>
+            {newer && <a href={issueHref(newer.data.number)}>다음 호 {issueNo(newer.data.number)} →</a>}
+          </span>
+        </nav>
+      )
+    }
+
+    {/* 양 세기 — 읽으며 지나온 항목을 한 마리씩 센다. 반드시 본문 안쪽에 심는다 */}
+    <ReadingSheep unitSelector=".issue-reading .entry" total={items.length} label="이번 호 읽기" />
   </article>
 </Base>

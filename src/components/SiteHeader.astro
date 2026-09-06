@@ -1,5 +1,6 @@
 ---
 import { href } from '../lib/mag';
+import SheepMark from './SheepMark.astro';
 
 interface NavigationItem {
   readonly key: string;
@@ -20,16 +21,9 @@ const { active, nav, latestIssueTo, latestIssueLabel } = Astro.props;
 
 <header class="site-head">
   <div class="nav-shell" data-glass-surface>
-    <span class="glass-fill-layer" aria-hidden="true"></span>
-    <span class="glass-highlight-layer" data-glass-highlight aria-hidden="true"></span>
     <a class="brand" href={href('/')} aria-label="DADES 매거진 홈으로">
-      <img
-        class="brand-mark"
-        src={href('/brand/dades-editorial-logo.webp')}
-        width="1128"
-        height="912"
-        alt=""
-      />
+      <SheepMark class="brand-glyph" />
+      <span class="brand-word" aria-hidden="true">DADES</span>
       <span class="sr-only">DADES</span>
     </a>
     <nav class="site-nav" aria-label="매거진 내비게이션">
@@ -60,8 +54,6 @@ const { active, nav, latestIssueTo, latestIssueLabel } = Astro.props;
   </div>
 
   <div class="mobile-menu" id="mobile-menu" data-mobile-menu data-glass-surface aria-hidden="true" inert>
-    <span class="glass-fill-layer" aria-hidden="true"></span>
-    <span class="glass-highlight-layer" data-glass-highlight aria-hidden="true"></span>
     <nav aria-label="모바일 매거진 내비게이션">
       {
         nav.map((link, index) => (
@@ -71,15 +63,14 @@ const { active, nav, latestIssueTo, latestIssueLabel } = Astro.props;
             data-menu-first={index === 0 ? '' : undefined}
           >
             <span>{link.label}</span>
-            {link.clipCount ? (
-              <span class="mobile-menu-meta" data-clip-count />
-            ) : (
-              <span class="mobile-menu-meta" aria-hidden="true">0{index + 1}</span>
-            )}
+            {link.clipCount && <span class="mobile-menu-meta" data-clip-count />}
           </a>
         ))
       }
     </nav>
-    <p class="mobile-menu-note">사람이 고르고, 에이전트가 엮는 AI 매거진.</p>
+    <div class="mobile-menu-socials">
+      <a href={href('/rss.xml')}>RSS</a>
+      <a href="https://github.com/seory0/DADES" target="_blank" rel="noopener">GitHub</a>
+    </div>
   </div>
 </header>

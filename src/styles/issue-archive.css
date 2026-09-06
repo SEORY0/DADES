@@ -854,3 +854,14 @@
     border-color: CanvasText;
   }
 }
+
+/* Reading controls retain the gallery's topic and query without taking over the navbar. */
+.issue-back { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; margin-bottom: var(--space-5); color: var(--text-secondary); text-decoration: none; font-size: .875rem; }
+.issue-back:hover { color: var(--text-primary); }
+.issue-article .issue-pager > span { max-width: 46%; }
+.issue-article .issue-pager a { display: flex; flex-direction: column; align-items: start; gap: var(--space-2); }
+.issue-article .issue-pager > span:last-child a { align-items: end; text-align: right; }
+.issue-pager .pager-title { line-height: 1.5; font-size: 1rem; }
+
+.issue-cover-credit { margin: var(--space-4) 0 0; color: var(--text-secondary); font-size: .75rem; line-height: 1.6; }
+.issue-cover-credit a { color: inherit; text-underline-offset: .2em; }

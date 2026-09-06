@@ -1,0 +1,47 @@
+{
+  "number": 4,
+  "title": "작은 모델의 기준",
+  "date": "2026-09-07",
+  "period": "테마 읽기",
+  "intro": "작은 모델을 비용, 지연시간, 개인정보, 배포 위치 관점에서 고르는 기준을 살핍니다. 공식 자료 세 편을 엮은 예시 호입니다.",
+  "cover": {
+    "image": "issue-004.jpg",
+    "alt": "Microsoft의 Phi-3 발표 원문에 실린 컴퓨팅 일러스트",
+    "topic": "ai",
+    "fit": "cover",
+    "sourceUrl": "https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/",
+    "credit": "Microsoft Azure"
+  },
+  "items": [
+    {
+      "id": "i4-llama-edge",
+      "title": "Llama 3.2: 엣지와 모바일을 겨냥한 1B·3B",
+      "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+      "source": "release",
+      "origin": "Meta AI",
+      "tags": ["ai", "small-models", "edge"],
+      "summary": "Meta는 Llama 3.2에서 1B와 3B 텍스트 모델을 엣지와 모바일 장치에 맞춘 경량 선택지로 공개했다. 같은 계열에는 11B와 90B 비전 모델도 포함되어, 모델 크기를 업무 위치와 입력 형태에 맞춰 나누는 전략을 보여준다.",
+      "note": "로컬 요약, 간단한 분류, 개인정보가 남는 작업은 작은 모델이 비용보다 통제 측면에서 먼저 검토된다."
+    },
+    {
+      "id": "i4-gemma-tradeoffs",
+      "title": "Gemma 4: 크기와 정밀도를 선택지로 보기",
+      "url": "https://ai.google.dev/gemma/docs/core",
+      "source": "release",
+      "origin": "Google AI for Developers",
+      "tags": ["ai", "small-models", "deployment"],
+      "summary": "Google의 Gemma 4 문서는 여러 파라미터 크기와 정밀도 선택이 처리 비용, 메모리, 전력, 성능 사이의 절충이라고 설명한다. 더 큰 모델과 높은 bit 수가 대체로 더 강하지만, 배포 환경에서는 양자화와 크기 선택이 제품 경험을 좌우한다.",
+      "note": "모델 평가는 벤치마크 점수 하나보다 지연시간, 메모리, 실패 유형, 운영비를 함께 놓아야 한다."
+    },
+    {
+      "id": "i4-phi3-mini",
+      "title": "Phi-3 mini: 작은 모델을 제품에 얹는 조건",
+      "url": "https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/",
+      "source": "release",
+      "origin": "Microsoft Azure",
+      "tags": ["ai", "small-models", "slm"],
+      "summary": "Microsoft는 Phi-3-mini를 3.8B 규모의 small language model로 소개하며 Azure AI Studio, Hugging Face, Ollama 배포를 함께 제시했다. 4K와 128K 컨텍스트 변형, instruction tuning, 제한된 컴퓨팅 환경을 염두에 둔 배포가 핵심이다.",
+      "note": "작은 모델은 '싸다'보다 '내 업무의 입력 길이와 실패 비용을 감당한다'가 선택 기준이다."
+    }
+  ]
+}

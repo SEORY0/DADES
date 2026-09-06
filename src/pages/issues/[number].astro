@@ -71,6 +71,7 @@ const ordinalOf = (item: (typeof items)[number]) => ordered.indexOf(item) + 1;
       items={items}
       signals={signals}
       firstActionId={firstAction?.id}
+      coverCredit={issue.data.cover}
     />
 
     <div class="issue-reading" data-pagefind-body>
@@ -101,10 +102,10 @@ const ordinalOf = (item: (typeof items)[number]) => ordered.indexOf(item) + 1;
       (newer || older) && (
         <nav class="issue-pager" aria-label="이슈 넘기기">
           <span>
-            {older && <a href={issueHref(older.data.number)}>← 지난 호 {issueNo(older.data.number)}</a>}
+            {older && <a href={issueHref(older.data.number)} data-issue-next><span>← 지난 호 {issueNo(older.data.number)}</span><span class="pager-title">{older.data.title}</span></a>}
           </span>
           <span>
-            {newer && <a href={issueHref(newer.data.number)}>다음 호 {issueNo(newer.data.number)} →</a>}
+            {newer && <a href={issueHref(newer.data.number)} data-issue-next><span>다음 호 {issueNo(newer.data.number)} →</span><span class="pager-title">{newer.data.title}</span></a>}
           </span>
         </nav>
       )
@@ -114,3 +115,17 @@ const ordinalOf = (item: (typeof items)[number]) => ordered.indexOf(item) + 1;
     <ReadingSheep unitSelector=".issue-reading .entry" total={items.length} label="이번 호 읽기" />
   </article>
 </Base>
+
+<script>
+  const incoming = new URLSearchParams(location.search);
+  const params = new URLSearchParams();
+  const topic = incoming.get('topic');
+  if (topic && ['ai', 'agents', 'security'].includes(topic)) params.set('topic', topic);
+  const query = (incoming.get('q') ?? '').trim().slice(0, 160);
+  if (query) params.set('q', query);
+  if (params.size) {
+    document.querySelectorAll<HTMLAnchorElement>('[data-gallery-back], [data-issue-next]').forEach((link) => {
+      link.search = params.toString();
+    });
+  }
+</script>

@@ -33,6 +33,18 @@ const issues = defineCollection({
     period: z.string().optional(),
     /** 에디터의 말 — 이슈 머리글 */
     intro: z.string().optional(),
+    /** 홈 갤러리 표지 이미지 */
+    cover: z
+      .object({
+        image: z.string(),
+        alt: z.string(),
+        topic: z.enum(['ai', 'agents', 'security']),
+        position: z.string().optional(),
+        fit: z.enum(['cover', 'contain']).optional(),
+        sourceUrl: z.string().url().optional(),
+        credit: z.string().optional(),
+      })
+      .optional(),
     items: z.array(item).min(1),
   }),
 });

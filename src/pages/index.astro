@@ -1,191 +1,100 @@
 ---
 import { getCollection } from 'astro:content';
+import IssueCard from '../components/IssueCard.astro';
 import Base from '../layouts/Base.astro';
-import HomePulse from '../components/HomePulse.astro';
-import Masthead from '../components/Masthead.astro';
+import { sortIssues } from '../lib/mag';
 import '../styles/home-editorial.css';
-import {
-  SIGNAL_META,
-  SOURCE_META,
-  flattenChangelog,
-  fmtDate,
-  href,
-  issueHref,
-  issueNo,
-  signalCounts,
-  sortBoards,
-  sortIssues,
-} from '../lib/mag';
 
 const issues = sortIssues(await getCollection('issues'));
-const boards = sortBoards(await getCollection('boards'));
-const [latest, ...older] = issues;
-const latestSignals = latest ? signalCounts(latest.data.items) : null;
-const latestHref = latest ? issueHref(latest.data.number) : '#latest';
-
-// 이 지면에서 그림은 표지 한 장뿐이다. 기사마다 붙던 패턴 섬네일은 걷어냈다.
-// 표지 도형은 표지 기사(에이전트·MCP)를 따라 Node Garden으로 둔다.
-const issueCoverArt = {
-  src: href('/patterns/dades-node-garden.svg'),
-  alt: '푸른 노드와 연결선이 정원처럼 퍼지는 Book of Shapes ‘Node Garden’ 패턴',
-};
-
-const coverStory = latest?.data.items.find((item) => item.signal === 'action') ?? latest?.data.items[0];
-const orderedItems = latest && coverStory
-  ? [coverStory, ...latest.data.items.filter((item) => item.id !== coverStory.id)]
-  : latest?.data.items ?? [];
-const stories = orderedItems;
-const issueFront = latest && coverStory && latestSignals
-  ? {
-      href: latestHref,
-      label: issueNo(latest.data.number),
-      title: latest.data.title,
-      date: fmtDate(latest.data.date),
-      period: latest.data.period,
-      intro: latest.data.intro ?? '',
-      itemCount: latest.data.items.length,
-      coverImage: issueCoverArt.src,
-      coverAlt: issueCoverArt.alt,
-      signals: latestSignals,
-    }
-  : null;
-
-// 상시 지면 — 이야기 제목을 다시 늘어놓지 않고, 지면이 하는 일만 한 줄로 적는다.
-const routes = [
-  { to: href('/status/'), label: '상태판', gloss: '지금 뭘 쓰면 되는지와 무엇이 바뀌었는지' },
-  { to: href('/wiki/'), label: '위키', gloss: '용어 하나를 빠르게 찾고 출처까지 확인' },
-  { to: href('/archive/'), label: 'Index', gloss: '태그로 지난 항목을 되짚기' },
-  { to: href('/clippings/'), label: '스크랩북', gloss: '이 브라우저에 담아둔 항목 모음' },
+const topics = [
+  { key: 'all', label: '전체' }, { key: 'ai', label: 'AI' },
+  { key: 'agents', label: '에이전트' }, { key: 'security', label: 'AI 보안' },
 ];
-
-// "지난 방문 이후" 계산용 스냅샷 — 날짜 단위, 정적 페이지에 인라인
-const pulse = {
-  issues: issues.map((i) => ({
-    n: i.data.number,
-    d: i.data.date,
-    action: signalCounts(i.data.items).action,
-    tags: [...new Set(i.data.items.flatMap((it) => it.tags))],
-  })),
-  boardChanges: flattenChangelog(boards).map((c) => c.date),
-};
 ---
 
-<Base
-  title="최신호와 목차"
-  description="사람이 고르고, 에이전트가 읽고 엮는 독립 AI 매거진. 최신호의 모든 이야기를 한눈에 훑어보세요."
-  active="home"
-  home
->
-  {
-    issueFront && (
-      <Masthead issue={issueFront}>
-        <HomePulse data={pulse} />
-      </Masthead>
-    )
-  }
-
-  {
-    latest && (
-      <section class="issue-contents" id="contents" aria-labelledby="contents-title">
-        <header class="front-section-head" data-reveal>
-          <div class="front-section-heading">
-            <p class="front-label">CONTENTS · {issueNo(latest.data.number)}</p>
-            <h2 id="contents-title">이번 호의 모든 이야기</h2>
-          </div>
-          <p class="front-section-note">
-            다섯 건 전부입니다. 지금 손이 가야 하는 것부터 위에 두었습니다.
-          </p>
-        </header>
-
-        {/*
-          앞 지면은 차례가 아니라 차림표다. 여기서 매기는 번호와 /issues/1/ 의 번호가
-          어긋나는 일을 없애려고, 왼쪽 홈통은 번호 대신 부문 이름(릴리스·뉴스·레포)이 맡는다.
-          순서는 그대로 '행동 필요'가 먼저다 — 그 이유는 위 안내문에 적어 두었다.
-        */}
-        <ol class="issue-story-list" data-reveal>
-          {stories.map((item, index) => (
-            <li
-              class:list={['issue-story', { 'issue-story-lead': index === 0 }]}
-              data-issue-story={item.id}
-            >
-              <p class="issue-story-meta">
-                <span class="issue-story-source">{SOURCE_META[item.source].ko}</span>
-                <span class="issue-story-origin">{item.origin ?? 'DADES'}</span>
-              </p>
-              <div class="issue-story-body">
-                <h3><a href={`${latestHref}#${item.id}`}>{item.title}</a></h3>
-                <p class="issue-story-deck">{item.summary}</p>
-              </div>
-              <span
-                class:list={['issue-story-signal', { 'is-action': item.signal === 'action' }]}
-              >
-                {SIGNAL_META[item.signal ?? 'context'].ko}
-              </span>
-            </li>
+<Base title="발행" description="AI와 AI 보안, 한 가지 주제를 짧고 깊게 읽는 DADES의 발행 모음." active="home" home>
+  <section class="publication-gallery" aria-labelledby="gallery-title">
+    <header class="gallery-header">
+      <h1 id="gallery-title">발행 <span data-gallery-count aria-live="polite" aria-atomic="true" aria-label={`${issues.length}개 호`}>{issues.length}</span></h1>
+      <div class="gallery-toolbar" data-gallery-toolbar hidden>
+        <div class="gallery-filters" role="group" aria-label="발행 주제">
+          {topics.map(({ key, label }) => (
+            <button type="button" data-gallery-filter={key} aria-pressed={key === 'all'} aria-controls="issue-gallery">{label}</button>
           ))}
-        </ol>
-      </section>
-    )
-  }
-
-  <section class="front-ways" aria-labelledby="ways-title">
-    <header class="front-section-head" data-reveal>
-      <div class="front-section-heading">
-        <p class="front-label">ELSEWHERE</p>
-        <h2 id="ways-title">다른 지면으로</h2>
-      </div>
-      <p class="front-section-note">
-        {older.length > 0
-          ? '늘 열려 있는 네 지면이 먼저고, 지난 호는 그 아래에 모아 두었습니다.'
-          : '창간호가 아직 최신호입니다. 지난 호가 쌓이기 전까지는 늘 열려 있는 네 지면으로 이어가세요.'}
-      </p>
-    </header>
-
-    {/*
-      상시 지면 넷이 한 줄을 다 쓰고, 지난 호는 쌓였을 때만 그 아래에 붙는다.
-      한 줄짜리 문장이 반 폭을 비워 두던 자리는 위 안내문이 대신 받는다.
-      두 켜 모두 이름표 밑 실선과 줄 사이 실선이라는 같은 장치를 쓴다.
-    */}
-    <div class="front-ways-grid">
-      <nav class="front-routes" aria-label="상시 지면">
-        <p class="front-label">상시 지면</p>
-        <ol>
-          {routes.map((route) => (
-            <li>
-              <a href={route.to}>
-                <span class="front-route-label">{route.label}</span>
-                <span class="front-route-gloss">{route.gloss}</span>
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
-
-      {older.length > 0 && (
-        <div class="front-backissues">
-          <p class="front-label">지난 호</p>
-          <table class="issue-table">
-            <thead>
-              <tr>
-                <th scope="col"><span class="sr-only">호수</span></th>
-                <th scope="col">제목</th>
-                <th scope="col" class="col-count">아이템</th>
-                <th scope="col">발행일</th>
-              </tr>
-            </thead>
-            <tbody>
-              {older.map((issue) => (
-                <tr>
-                  <td class="col-no">{issueNo(issue.data.number)}</td>
-                  <td><a href={issueHref(issue.data.number)}>{issue.data.title}</a></td>
-                  <td class="col-count">{issue.data.items.length}</td>
-                  <td class="col-date">{fmtDate(issue.data.date)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
-      )}
+        <label class="gallery-search">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4 4" /></svg>
+          <span class="sr-only">발행 글 검색</span>
+          <input type="search" data-gallery-query placeholder="관심 있는 글 찾기" maxlength="160" autocomplete="off" aria-controls="issue-gallery" />
+        </label>
+      </div>
+    </header>
+    <ul class="issue-gallery" id="issue-gallery">
+      {issues.map((issue, index) => <IssueCard issue={issue} index={index} />)}
+    </ul>
+    <div class="gallery-empty" data-gallery-empty hidden>
+      <p>아직 일치하는 글이 없어요.</p>
+      <button type="button" data-gallery-reset>전체 발행 보기 <span aria-hidden="true">↗</span></button>
     </div>
   </section>
 </Base>
+
+<script>
+  const toolbar = document.querySelector<HTMLElement>('[data-gallery-toolbar]');
+  const query = document.querySelector<HTMLInputElement>('[data-gallery-query]');
+  const filters = [...document.querySelectorAll<HTMLButtonElement>('[data-gallery-filter]')];
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-issue-card]')];
+  const count = document.querySelector<HTMLElement>('[data-gallery-count]');
+  const empty = document.querySelector<HTMLElement>('[data-gallery-empty]');
+  let topic = 'all';
+
+  function render() {
+    const terms = (query?.value ?? '').trim().toLocaleLowerCase('ko').split(/\s+/).filter(Boolean);
+    const params = new URLSearchParams();
+    if (topic !== 'all') params.set('topic', topic);
+    if (query?.value.trim()) params.set('q', query.value.trim());
+    const search = params.size ? `?${params}` : '';
+    let visible = 0;
+    cards.forEach((card) => {
+      const matches = (topic === 'all' || card.dataset.topic === topic)
+        && terms.every((term) => (card.dataset.search ?? '').includes(term));
+      card.hidden = !matches;
+      if (matches) visible += 1;
+      const link = card.querySelector<HTMLAnchorElement>('[data-issue-link]');
+      if (link) link.search = search;
+    });
+    filters.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.galleryFilter === topic)));
+    if (count) { count.textContent = String(visible); count.setAttribute('aria-label', `${visible}개 호`); }
+    if (empty) empty.hidden = visible > 0;
+    history.replaceState(null, '', `${location.pathname}${search}${location.hash}`);
+  }
+
+  function restore() {
+    const params = new URLSearchParams(location.search);
+    const requested = params.get('topic');
+    topic = filters.some((button) => button.dataset.galleryFilter === requested) ? (requested ?? 'all') : 'all';
+    if (query) query.value = (params.get('q') ?? '').slice(0, 160);
+    render();
+  }
+  filters.forEach((button) => button.addEventListener('click', () => {
+    topic = button.dataset.galleryFilter ?? 'all';
+    render();
+  }));
+  query?.addEventListener('input', render);
+  document.querySelector('[data-gallery-reset]')?.addEventListener('click', () => {
+    topic = 'all';
+    if (query) query.value = '';
+    render();
+    filters[0]?.focus();
+  });
+  window.addEventListener('popstate', restore);
+  window.addEventListener('pageshow', restore);
+  cards.forEach((card) => {
+    const image = card.querySelector('img');
+    const hideBrokenImage = () => { image?.remove(); card.querySelector('a')?.classList.add('has-no-image'); };
+    image?.addEventListener('error', hideBrokenImage);
+    if (image?.complete && !image.naturalWidth) hideBrokenImage();
+  });
+  restore();
+  if (toolbar) toolbar.hidden = false;
+</script>

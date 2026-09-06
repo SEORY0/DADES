@@ -1,0 +1,47 @@
+{
+  "number": 2,
+  "title": "에이전트에게 맡길 일",
+  "date": "2026-09-07",
+  "period": "테마 읽기",
+  "intro": "에이전트 오케스트레이션과 도구 연결을 제품 운영 관점에서 짧게 읽습니다. 공식 자료 세 편을 엮은 예시 호입니다.",
+  "cover": {
+    "image": "issue-002.png",
+    "alt": "Anthropic의 MCP 발표 원문에 실린 도형 연결 일러스트",
+    "topic": "agents",
+    "fit": "cover",
+    "sourceUrl": "https://www.anthropic.com/news/model-context-protocol",
+    "credit": "Anthropic"
+  },
+  "items": [
+    {
+      "id": "i2-openai-agents-sdk",
+      "title": "Agents SDK: 루프를 맡길 때와 직접 잡을 때",
+      "url": "https://developers.openai.com/api/docs/guides/agents",
+      "source": "release",
+      "origin": "OpenAI",
+      "tags": ["agents", "orchestration", "tools"],
+      "summary": "OpenAI Agents SDK 문서는 에이전트를 계획, 도구 호출, 협업, 상태 유지가 필요한 애플리케이션으로 설명한다. 반복 도구 호출과 분기, 세션, tracing, guardrails, 승인 흐름을 SDK가 맡을지 아니면 Responses API로 애플리케이션이 직접 루프를 잡을지 나누어 고르게 한다.",
+      "note": "반복되는 제품 운영 작업은 SDK가 유리하고, 단발성 검색·요약은 직접 루프가 더 읽기 쉽다."
+    },
+    {
+      "id": "i2-google-adk",
+      "title": "Google ADK: 에이전트를 코드 단위로 조립하기",
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk",
+      "source": "tool",
+      "origin": "Google Cloud",
+      "tags": ["agents", "adk", "workflow"],
+      "summary": "Google의 Agent Development Kit은 에이전트와 도구에서 시작해 복잡한 멀티 에이전트 시스템으로 확장하는 오픈소스 개발 프레임워크다. 개인 비서부터 미션 크리티컬 업무 흐름까지 만들 수 있도록 빌드, 디버그, 배포 과정을 코드 중심으로 다룬다.",
+      "note": "장기 운영되는 AI 기능은 프롬프트 묶음보다 역할과 도구가 분리된 코드 구조가 오래 간다."
+    },
+    {
+      "id": "i2-mcp-intro",
+      "title": "MCP: 데이터 소스를 에이전트에게 연결하는 방식",
+      "url": "https://www.anthropic.com/news/model-context-protocol",
+      "source": "release",
+      "origin": "Anthropic",
+      "tags": ["mcp", "agents", "data"],
+      "summary": "Anthropic은 Model Context Protocol을 데이터 소스와 AI 도구 사이의 안전한 양방향 연결을 위한 공개 표준으로 소개했다. 개발자는 데이터를 MCP 서버로 노출하거나, MCP 클라이언트를 갖춘 AI 앱이 서버에 연결되도록 구성할 수 있다.",
+      "note": "제품이 외부 데이터를 읽거나 쓰기 시작하면 연결 표준과 권한 경계를 먼저 정해야 한다."
+    }
+  ]
+}

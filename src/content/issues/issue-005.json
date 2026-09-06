@@ -1,0 +1,47 @@
+{
+  "number": 5,
+  "title": "답변 품질 재는 법",
+  "date": "2026-09-07",
+  "period": "테마 읽기",
+  "intro": "AI 답변 품질을 하나의 점수보다 반복 가능한 평가 기준으로 다루는 읽기입니다. 공식 자료 세 편을 엮은 예시 호입니다.",
+  "cover": {
+    "image": "issue-005.webp",
+    "alt": "AILuminate Safety 평가 페이지의 공식 대표 이미지",
+    "topic": "ai",
+    "fit": "cover",
+    "sourceUrl": "https://mlcommons.org/ailuminate/safety/",
+    "credit": "MLCommons"
+  },
+  "items": [
+    {
+      "id": "i5-openai-evals",
+      "title": "OpenAI Evals: 내 워크플로에 맞춘 평가 만들기",
+      "url": "https://developers.openai.com/api/docs/guides/evals",
+      "source": "tool",
+      "origin": "OpenAI",
+      "tags": ["ai", "evals", "quality"],
+      "summary": "OpenAI의 evals 가이드는 대시보드나 API로 모델 출력을 평가하는 흐름을 설명한다. 현재 문서는 Evals 플랫폼이 2026년 10월 31일 읽기 전용으로 바뀌고 11월 30일 종료될 예정이라고 밝히므로, 새 시스템은 이 일정까지 감안해야 한다.",
+      "note": "평가를 제품에 붙일 때는 특정 플랫폼보다 평가 데이터셋과 채점 기준을 이식 가능하게 남기는 편이 안전하다."
+    },
+    {
+      "id": "i5-stanford-helm",
+      "title": "HELM: 정확도 밖의 지표까지 함께 보기",
+      "url": "https://crfm.stanford.edu/helm/",
+      "source": "read",
+      "origin": "Stanford CRFM",
+      "tags": ["ai", "evals", "benchmarks"],
+      "summary": "Stanford CRFM의 HELM은 언어 모델 투명성을 위한 살아 있는 벤치마크로, 넓은 범위의 시나리오와 여러 평가 지표를 함께 보려는 프로젝트다. 정확도만이 아니라 견고성, 편향, 독성, 효율성 같은 절충을 드러내는 데 초점이 있다.",
+      "note": "제품 답변 품질도 정확도, 최신성, 출처성, 응답 시간을 분리해 기록하면 개선 지점이 보인다."
+    },
+    {
+      "id": "i5-ailuminate-safety",
+      "title": "AILuminate: 안전성을 제품 선택 기준으로 만들기",
+      "url": "https://mlcommons.org/ailuminate/safety/",
+      "source": "read",
+      "origin": "MLCommons",
+      "tags": ["ai", "evals", "safety"],
+      "summary": "MLCommons AILuminate Safety는 일반 챗봇형 생성 AI 시스템의 안전성을 평가해 개발자, 구매자, 표준 기관이 참고할 수 있게 한다. 공개·비공개 프롬프트를 섞고, 위험 범주별 및 전체 안전 등급을 제공해 벤치마크 게임화를 줄이려 한다.",
+      "note": "AI 제품을 비교할 때는 성능 벤치마크와 함께 안전성 벤치마크를 같은 무게로 다루는 편이 유용하다."
+    }
+  ]
+}

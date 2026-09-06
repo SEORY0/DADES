@@ -28,7 +28,7 @@ const year = new Date().getFullYear();
           loading="lazy"
           decoding="async"
         />
-        <p class="foot-tagline">Do Agents Dream of Electric Sheep? — 사람이 고르고, 에이전트가 엮는 AI 주간지.</p>
+        <p class="foot-tagline">AI의 흐름과 보안의 기준.<br />새로운 기술을 읽고, 다음 판단의 근거를 모읍니다.</p>
       </div>
 
       <a class="foot-latest" href={latestIssueTo}>
@@ -45,16 +45,18 @@ const year = new Date().getFullYear();
         <a href={href('/about/')}>소개</a>
         <a href={href('/clippings/')}>스크랩북 <span data-clip-count /></a>
         <a href={href('/rss.xml')}>RSS</a>
+        <a href={href('/subscribe/')}>구독</a>
+        <a href={href('/partner/')}>광고·제휴</a>
         <a href="https://github.com/seory0/DADES" target="_blank" rel="noopener">GitHub</a>
       </nav>
 
       <div class="foot-meta">
         <div class="theme-row" role="group" aria-label="지면 색 고르기">
-          <button class="theme-swatch" data-set-theme="paper" aria-pressed="true" aria-label="종이색 테마" title="paper"><span>Paper</span></button>
-          <button class="theme-swatch" data-set-theme="white" aria-pressed="false" aria-label="흰색 테마" title="white"><span>White</span></button>
-          <button class="theme-swatch" data-set-theme="ink" aria-pressed="false" aria-label="먹색 테마" title="ink"><span>Ink</span></button>
+          <button class="theme-swatch" data-set-theme="paper" aria-pressed="true" aria-label="Paper 종이색 테마" title="paper"><span>Paper</span></button>
+          <button class="theme-swatch" data-set-theme="white" aria-pressed="false" aria-label="White 흰색 테마" title="white"><span>White</span></button>
+          <button class="theme-swatch" data-set-theme="ink" aria-pressed="false" aria-label="Ink 먹색 테마" title="ink"><span>Ink</span></button>
         </div>
-        <p>© {year} DADES. Edited by human, assembled with AI.</p>
+        <p>© {year} DADES. Independent AI & AI Security Magazine.</p>
         <p>
           Patterns generated with <a href="https://bookofshapes.com/" target="_blank" rel="noopener">Book of Shapes</a>
           by Nikolaj Sokolowski.

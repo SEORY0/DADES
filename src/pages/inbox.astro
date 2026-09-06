@@ -2,12 +2,12 @@
 import Base from '../layouts/Base.astro';
 ---
 
-<Base title="수집함" description="공유받은 링크를 다음 호 후보로 보내는 곳.">
+<Base title="자료 제보" description="DADES에 참고 자료와 정정 의견을 보내는 곳.">
   <header class="page-head">
-    <h1 class="page-title">수집함</h1>
+    <h1 class="page-title">자료 제보</h1>
     <p class="page-desc">
-      여기서 보낸 링크는 GitHub의 <code>inbox</code> 이슈로 쌓이고, 다음 호를 엮을 때
-      편집 후보가 됩니다.
+      참고할 자료나 정정할 내용을 남겨주세요. 링크와 메모는 GitHub의 <code>inbox</code>
+      이슈에 저장되며, 정기 발행과 별도로 참고합니다.
     </p>
   </header>
 
@@ -18,7 +18,7 @@ import Base from '../layouts/Base.astro';
       공유받은 내용에서 링크를 찾지 못했습니다 — 아래 메모만 보냅니다.
     </p>
 
-    <label class="inbox-label" for="inbox-memo">메모 (선택) — 에디터 노트에 반영됩니다</label>
+    <label class="inbox-label" for="inbox-memo">메모 (선택) — 참고할 내용이나 정정 의견</label>
     <textarea id="inbox-memo" data-inbox-memo rows="3"></textarea>
 
     <p class="inbox-actions">
@@ -53,7 +53,7 @@ import Base from '../layouts/Base.astro';
           rel="noopener">inbox 이슈</a
         >로 쌓입니다.
       </li>
-      <li><code>/curate</code>가 다음 호를 엮을 때 <code>inbox.md</code>와 함께 읽고, 지면에 실은 링크의 이슈를 닫습니다.</li>
+      <li>정기 발행은 공개된 출처를 기준으로 진행합니다. 제보한 자료는 별도의 참고 기록으로 남습니다.</li>
     </ul>
   </section>
 

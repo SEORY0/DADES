@@ -1,0 +1,88 @@
+name: Editorial Pipeline
+
+on:
+  schedule:
+    - cron: '20 23 * * 4'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish a validated issue JSON'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: editorial
+  cancel-in-progress: false
+
+jobs:
+  editorial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PUBLIC_NEWSLETTER_URL: ${{ vars.PUBLIC_NEWSLETTER_URL }}
+      PUBLIC_CONTACT_EMAIL: ${{ vars.PUBLIC_CONTACT_EMAIL }}
+      SHOULD_PUBLISH: ${{ (github.event_name == 'schedule' && vars.EDITORIAL_AUTOPUBLISH == 'true') || (github.event_name == 'workflow_dispatch' && inputs.publish) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ ((github.event_name == 'schedule' && vars.EDITORIAL_AUTOPUBLISH == 'true') || (github.event_name == 'workflow_dispatch' && inputs.publish)) && 'main' || github.ref }}
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Test editorial pipeline
+        run: npm run test:editorial
+      - name: Build current site
+        run: npm run build
+      - name: Run editorial pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ "$SHOULD_PUBLISH" = "true" ]; then
+            node scripts/editorial/cli.mjs --publish
+          else
+            node scripts/editorial/cli.mjs --collect-only
+          fi
+      - name: Build with new issue
+        if: env.SHOULD_PUBLISH == 'true'
+        run: npm run build
+      - name: Commit issue
+        if: env.SHOULD_PUBLISH == 'true'
+        run: |
+          mapfile -t new_issues < <(git ls-files --others --exclude-standard -- 'src/content/issues/issue-*.json')
+          if [ "${#new_issues[@]}" -eq 0 ]; then
+            echo "No new issue JSON to commit."
+            exit 0
+          fi
+          if [ "${#new_issues[@]}" -ne 1 ]; then
+            printf 'Expected exactly one new issue JSON, saw %s\n' "${#new_issues[@]}"
+            printf '%s\n' "${new_issues[@]}"
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "${new_issues[0]}"
+          git diff --cached --quiet && exit 0
+          git commit -m "Publish automated editorial issue"
+          git push
+          gh workflow run deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Preserve editorial diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: editorial-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .editorial/runs/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7

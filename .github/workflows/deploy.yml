@@ -27,6 +27,9 @@ jobs:
           enablement: true
       - name: Build with Astro
         uses: withastro/action@v3
+        env:
+          PUBLIC_NEWSLETTER_URL: ${{ vars.PUBLIC_NEWSLETTER_URL }}
+          PUBLIC_CONTACT_EMAIL: ${{ vars.PUBLIC_CONTACT_EMAIL }}
 
   deploy:
     needs: build

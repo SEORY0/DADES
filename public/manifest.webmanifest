@@ -1,7 +1,7 @@
 {
   "name": "DADES 매거진",
   "short_name": "DADES",
-  "description": "사람이 고르고 클로드가 엮는 AI 주간지. 공유 시트로 링크를 수집함에 보낼 수 있다.",
+  "description": "AI 기술과 AI 보안의 변화를 출처와 함께 읽는 독립 매거진.",
   "lang": "ko",
   "id": "/DADES/",
   "start_url": "/DADES/",

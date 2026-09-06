@@ -4,6 +4,14 @@
   "date": "2026-08-30",
   "period": "2026.08.25 – 08.30",
   "intro": "창간호. 폰 공유함으로 모인 다섯 건이며, 웹 에이전트 표준 소식과 LLM 크기 추정 글이 중심임.",
+  "cover": {
+    "image": "issue-001.png",
+    "alt": "공개 모델의 IKP 정확도와 파라미터 수를 비교한 원문 그래프",
+    "topic": "ai",
+    "fit": "contain",
+    "sourceUrl": "https://blog.trillionlabs.co/posts/estimating-closed-source-llm-parameters/",
+    "credit": "Trillion Labs"
+  },
   "items": [
     {
       "id": "i1-codex-r32",

@@ -1,0 +1,24 @@
+---
+import { Image } from 'astro:assets';
+import { issueHref, type Issue } from '../lib/mag';
+import { issueCover, issueTopic } from '../lib/covers';
+interface Props { issue: Issue; index: number; }
+const { issue, index } = Astro.props;
+const cover = issueCover(issue);
+const isRemote = typeof cover === 'string';
+const imageProps = {
+  alt: issue.data.cover?.alt ?? '',
+  loading: index < 3 ? 'eager' as const : 'lazy' as const,
+  decoding: 'async' as const,
+  fetchpriority: index === 0 ? 'high' as const : 'auto' as const,
+};
+const search = [issue.data.title, ...issue.data.items.flatMap((item) => [item.title, item.origin, item.summary, ...item.tags])].filter(Boolean).join(' ').toLocaleLowerCase('ko');
+---
+<li data-issue-card data-topic={issueTopic(issue)} data-search={search}>
+  <a class:list={['gallery-card', { 'is-diagram': issue.data.cover?.fit === 'contain', 'has-no-image': !cover }]} href={issueHref(issue.data.number)} data-issue-link>
+    {cover && (isRemote
+      ? <img src={cover} width="1200" height="800" {...imageProps} />
+      : <Image src={cover} widths={[480, 768, 1080]} sizes="(max-width: 599px) calc(100vw - 32px), (max-width: 1099px) calc((100vw - 64px) / 2), calc((100vw - 80px) / 3)" format="webp" quality={82} {...imageProps} />)}
+    <h2>{issue.data.title}</h2>
+  </a>
+</li>

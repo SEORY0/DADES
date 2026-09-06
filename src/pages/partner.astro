@@ -1,0 +1,111 @@
+---
+import Base from '../layouts/Base.astro';
+import '../styles/publication.css';
+import { publicationConfig, consultationMailto } from '../lib/publication';
+
+const consultationBody = [
+  '안녕하세요. DADES 파트너십 상담을 요청합니다.',
+  '',
+  '- 관심 제안:',
+  '- 소개할 제품/연구/행사:',
+  '- 원하는 시점:',
+  '- 참고 링크:',
+].join('\n');
+const mailtoHref = consultationMailto('DADES 파트너십 상담 문의', consultationBody);
+---
+
+<Base
+  title="파트너십"
+  description="DADES 매거진의 스폰서십, 스폰서드 딥리드, 리서치 브리프 파트너십 상담 안내."
+  layout="listing"
+>
+  <div class="publication-page">
+    <section class="publication-hero" aria-labelledby="partner-title">
+      <p class="publication-label">PARTNER</p>
+      <h1 id="partner-title">독자의 시간을 존중하는 협찬만 받습니다.</h1>
+      <p>
+        DADES는 AI와 AI 보안을 읽는 독자를 위해 출처, 맥락, 실무적 의미를 정리합니다.
+        파트너십은 상담 기반으로만 진행하며 가격, 물량, 노출 수는 공개적으로 약속하지 않습니다.
+      </p>
+    </section>
+
+    <section class="publication-section" aria-labelledby="offers-title">
+      <div class="publication-section-head">
+        <div>
+          <p class="publication-label">OFFERS</p>
+          <h2 id="offers-title">논의할 수 있는 세 가지 형식</h2>
+        </div>
+        <p>
+          모든 형식은 독자가 광고임을 알 수 있게 표시합니다. 편집 판단, 원문 링크, 비판적
+          맥락은 협찬 여부와 분리합니다.
+        </p>
+      </div>
+
+      <ul class="publication-grid">
+        <li class="publication-card">
+          <span>01</span>
+          <h3>뉴스레터 또는 이슈 스폰서</h3>
+          <p>
+            한 호 또는 발송 단위에 맞춘 짧은 협찬 고지입니다. 독자에게 필요한 제품, 도구,
+            행사, 보고서일 때만 검토합니다.
+          </p>
+        </li>
+        <li class="publication-card">
+          <span>02</span>
+          <h3>스폰서드 딥리드</h3>
+          <p>
+            후원을 받은 긴 읽을거리입니다. 제목과 지면에 협찬 표기를 두고, 주장과 근거를
+            독자가 확인할 수 있게 링크를 남깁니다.
+          </p>
+        </li>
+        <li class="publication-card">
+          <span>03</span>
+          <h3>리서치 브리프 파트너십</h3>
+          <p>
+            특정 주제의 자료, 릴리스, 보안 변화, 시장 신호를 짧은 브리프로 정리하는 협업입니다.
+            범위와 공개 가능성을 먼저 합의합니다.
+          </p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="publication-section" aria-labelledby="principles-title">
+      <div class="publication-section-head">
+        <div>
+          <p class="publication-label">BOUNDARY</p>
+          <h2 id="principles-title">편집 독립성과 표시 원칙</h2>
+        </div>
+        <p>
+          협찬은 구매한 의견이 아닙니다. DADES는 광고 표기를 숨기지 않고, 독자가 원문과
+          근거를 확인할 수 없는 주장은 싣지 않습니다.
+        </p>
+      </div>
+
+      <dl class="publication-lines">
+        <div class="publication-line">
+          <dt>광고 표시</dt>
+          <dd>협찬 지면과 협찬 링크는 독자가 구분할 수 있게 표시합니다.</dd>
+        </div>
+        <div class="publication-line">
+          <dt>편집 판단</dt>
+          <dd>주제 적합성, 근거, 독자 가치가 맞지 않으면 진행하지 않을 수 있습니다.</dd>
+        </div>
+        <div class="publication-line">
+          <dt>상담 방식</dt>
+          <dd>트래픽, 가격, 납기, 공개 범위는 문의 뒤에 실제 범위를 놓고 논의합니다.</dd>
+        </div>
+      </dl>
+
+      <div class="publication-actions">
+        <a class="publication-button" href={mailtoHref}>이메일로 상담 요청</a>
+        <a class="publication-button publication-button-secondary" href={`mailto:${publicationConfig.contactEmail}`}>
+          {publicationConfig.contactEmail}
+        </a>
+      </div>
+      <p class="publication-note">
+        상담은 메일로 시작합니다. 소개할 제품, 연구, 행사, 원하는 시점과 참고 링크를 함께
+        보내 주세요.
+      </p>
+    </section>
+  </div>
+</Base>

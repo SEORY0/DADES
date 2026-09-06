@@ -11,7 +11,7 @@ export async function GET(context: APIContext) {
 
   return rss({
     title: 'DADES 매거진',
-    description: '사람이 고르고 클로드가 엮는 AI 주간지 — Do Agents Dream of Electric Sheep?',
+    description: 'AI 기술과 AI 보안의 변화를 출처와 함께 읽는 독립 매거진, DADES.',
     site: new URL(href('/'), context.site).toString(),
     customData: '<language>ko</language>',
     items: issues.map((issue) => {

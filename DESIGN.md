@@ -810,3 +810,88 @@ and layout grammar only. Pattern exports are resolved through the
 base-path-aware `href()` helper, include intrinsic dimensions, load eagerly only
 above the fold, and use Korean descriptive alt text when they identify a story;
 decorative scene use remains empty-alt and/or `aria-hidden`.
+
+## 12. AI & AI Security Magazine — 2026-09-07
+
+This revision supersedes the home composition and promotional copy above. The
+existing navigation capsule, mobile dock, menu, theme controls, and their CSS are
+frozen. `SiteHeader.astro` and `glass-interactions.css` must remain byte-identical.
+Design Compass is a business/editorial reference, not a pixel-clone request: its
+category-led browsing, free-to-paid reading ladder and separate partnership path
+inform DADES; no logo, content, proprietary assets or subscription claims are copied.
+Official page content was read; the reference browser returned an anti-bot screen.
+DADES baseline: `/tmp/dades-magazine-qa/before-{desktop,mobile}.png`.
+
+### Audience and content jobs
+
+- AI builders need the relevant release, source and practical implication quickly.
+- Security practitioners need durable defensive concepts and dated evidence.
+- Sponsors need audience fit, deliverables and a clear enquiry channel.
+- Returning readers need saved items, searchable terms and a real subscription path.
+
+Sequence: compact publication identity → current issue and clear date → filterable
+complete issue contents → AI security reading desk → subscription → archive/utility
+links. A separate `/partner/` explains sponsorship and enquiry; `/subscribe/` links
+to a configured newsletter service or the working RSS feed. No empty email form,
+fabricated subscribers, client logos, success messages, live paid product or human
+byline. Advertising is labelled when it exists. AI operation is not a promotional
+claim; editorial identity describes coverage and sourcing.
+
+### Tokens and reusable components
+
+Existing paper/ink/cobalt, Pretendard, space-1..24, media radius and 90rem frame
+remain the source of truth. New home tokens:
+
+| Token | Value | Job |
+| --- | --- | --- |
+| `--front-label` | .6875rem | Small editorial metadata |
+| `--front-track` | .12em | Latin metadata tracking |
+| `--front-title` | clamp(2rem,4.1vw,4rem) | Publication positioning |
+| `--front-cover-title` | clamp(1.875rem,3.1vw,3rem) | Current issue title |
+| `--front-section-title` | clamp(1.5rem,2.4vw,2.25rem) | Section heading |
+| `--front-story-title` | clamp(1.125rem,1.7vw,1.5rem) | Story headline |
+| `--front-small` | .875rem | Deck/meta |
+| `--front-band` | clamp(2.5rem,5vw,4rem) | Section rhythm |
+| `--front-top` | 7.5rem | Space below unchanged desktop navigation |
+
+`Masthead` owns the identity and current-issue cover. `NewsletterSignup` is a
+conversion panel that links to a configured external newsletter page; absent
+configuration it truthfully offers RSS. `Story` remains a semantic row with source,
+headline, summary and dated signal. `SecurityDesk` uses three source-backed wiki
+entries and one explanatory rail. Commercial pages reuse the shared typography,
+colophon lines and cobalt links, with locally scoped styles only.
+
+Desktop uses 12 columns, 24px gaps, 40px gutters; tablet uses 24px gutters; mobile
+20px. Cover columns 7/5 collapse below 810px. Article rows collapse into source,
+headline/deck and metadata in reading order. Security desk is 3 columns desktop,
+1 mobile. No clipping of Korean headings or hover-only information. Filters and
+new CTAs have 44px targets; native focus-visible uses the existing 3px cobalt ring.
+All home content is visible without script; filtering is progressive enhancement.
+No additional decorative animation; existing chrome motion remains unchanged.
+All colors inherit themes except declared dark cover media, whose text is fixed
+white. Reduced motion and printing preserve content. No new dependencies.
+
+### Verification
+
+Capture and inspect 375/768/1280px; drive topic filters, their empty state, reset,
+RSS/newsletter links, partnership enquiry, mobile nav, keyboard focus, theme,
+archive search and clippings. Compare navigation geometry and source hashes with
+baseline. Record automation activation requirements separately from implemented
+capabilities. Existing pattern reuse/licensing limitations above still apply.
+
+## 13. 사진 중심 발행 갤러리 (2026-09-07, 최신 사용자 지시)
+
+이 절은 §12의 홈 구성에 우선한다. 사용자가 첨부한 Recent 포트폴리오의 이미지·제목 그리드를 DADES 발행 목록에 적용한다. 홈페이지의 긴 머리말, 최신호 요약 목록, AI 보안 데스크와 홍보 블록을 갤러리로 교체한다. 구독/제휴는 기존 독립 지면과 푸터에서 계속 접근한다.
+
+- 실제 발행 JSON 하나가 카드 하나. 최신 번호부터 나열. 사진과 흰 제목만 카드 내부에 표시하며 카드 전체가 실제 읽기 지면 링크다.
+- 외곽 여백 24px(모바일16px), 간격16px, 반경12px, 사진 비율1.28. 1100px부터3열,600–1099px2열,599px이하1열.
+- 제목은 Pretendard 18–24px, 두께520, line-height1.4, 한국어 단어 단위 줄바꿈. 검정 하단 scrim으로 사진 위 흰 글자를 읽을 수 있게 한다.
+- 상단은 발행 제목/결과수, 전체·AI·에이전트·AI보안 필터, 검색만 둔다. URL에 상태를 보존하고 읽기 지면의 '모든 발행'으로 복귀한다. JS없이는 전 호가 표시되고 작동하지 않는 거르개는 숨긴다.
+- 이미지는 실제 수록 원문의 대표 이미지·도표다. 도표는 contain으로 전체 내용과 라벨을 보존하며 이미지 아래 공간에 검정 제목을 둔다. 사진·대표 그림은 기존 하단 흰 제목을 유지한다. UI는 DOM/CSS로 구현한다. Astro Image가 WebP와 srcset을 생성하고 첫 줄 이후는 lazyload한다. 자동 발행 호는 원문의 OG/Twitter 이미지를 추출한다. 없으면 제목만 표시하며 생성 이미지나 무관한 사진을 재사용하지 않는다.
+- cover는 선택적 schema 필드. 기존 JSON의 본문은 보존하고 002–006호는 공식 자료를 엮은 예시 호임을 상세 소개에 표시한다. 원자료 발표일과 호 발행일을 혼동하지 않는다.
+- SiteHeader.astro 및 glass-interactions.css를 수정하지 않는다. 기존 고정 nav의 위치/모양/메뉴동작은 그대로며 최신 호 번호만 콘텐츠에 맞춰 갱신된다.
+- 모션은 hover 지원 환경에서 1.035배 사진 확대만. reduced-motion에서는 정지. 키보드 outline과 강제 색상 모드를 지원한다.
+
+이미지 원문 출처: docs/gallery-images.md. 내용 근거: docs/gallery-sources.md. 검증: docs/gallery-verification.md.
+
+최신 사용자 수정: 커버 이미지 생성 금지. 새 이미지 생성 도구를 사용하지 않고 공식 원문에 실린 이미지만 사용한다. 상세 페이지에 출처 링크를 제공한다.

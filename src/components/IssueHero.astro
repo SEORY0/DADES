@@ -1,5 +1,6 @@
 ---
-import { SIGNAL_META, fmtDate, issueNo, type Item } from '../lib/mag';
+import { SIGNAL_META, fmtDate, href, issueNo, type Item } from '../lib/mag';
+import { readingMinutes } from '../lib/editorial';
 
 /**
  * 호 머리 — 무슨 호인지, 언제 모았는지, 몇 건인지, 무엇이 행동을 요구하는지.
@@ -19,12 +20,14 @@ interface Props {
     noise: number;
   };
   firstActionId?: string;
+  coverCredit?: { credit?: string; sourceUrl?: string };
 }
 
-const { number, title, date, period, intro, items, signals, firstActionId } = Astro.props;
+const { number, title, date, period, intro, items, signals, firstActionId, coverCredit } = Astro.props;
 ---
 
 <header class="issue-head">
+  <a class="issue-back" href={href('/')} data-gallery-back><span aria-hidden="true">←</span> 모든 발행</a>
   <p class="ia-kicker">DADES WEEKLY · ISSUE {issueNo(number)}</p>
   <h1 class="issue-title">{title}</h1>
   {intro && <p class="issue-deck">{intro}</p>}
@@ -46,7 +49,13 @@ const { number, title, date, period, intro, items, signals, firstActionId } = As
       <dt>항목</dt>
       <dd>{items.length}건</dd>
     </div>
+    <div>
+      <dt>읽기</dt>
+      <dd>약 {readingMinutes(items)}분</dd>
+    </div>
   </dl>
+
+  {coverCredit?.sourceUrl && <p class="issue-cover-credit">표지 이미지 · <a href={coverCredit.sourceUrl} target="_blank" rel="noopener noreferrer">{coverCredit.credit ?? '원문'}<span class="sr-only"> 이미지 출처 (새 탭)</span></a></p>}
 
   <div class="signal-row issue-head-signals" role="group" aria-label="이번 호 신호">
     <div class="signal-bar" aria-hidden="true">

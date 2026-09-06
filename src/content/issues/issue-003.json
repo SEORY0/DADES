@@ -1,0 +1,47 @@
+{
+  "number": 3,
+  "title": "신뢰 경계가 먼저다",
+  "date": "2026-09-07",
+  "period": "테마 읽기",
+  "intro": "프롬프트보다 입력, 출력, 권한의 신뢰 경계를 먼저 보는 AI 보안 읽기입니다. 공식 자료 세 편을 엮은 예시 호입니다.",
+  "cover": {
+    "image": "issue-003.jpg",
+    "alt": "외부 웹페이지와 사용자 입력이 LLM에 전달되는 경로를 나타낸 MSRC 원문 도식",
+    "topic": "security",
+    "fit": "contain",
+    "sourceUrl": "https://www.microsoft.com/en-us/msrc/blog/2025/07/how-microsoft-defends-against-indirect-prompt-injection-attacks",
+    "credit": "Microsoft MSRC"
+  },
+  "items": [
+    {
+      "id": "i3-owasp-llm-top10",
+      "title": "OWASP LLM Top 10: 프롬프트 인젝션을 첫 위험으로 보기",
+      "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+      "source": "read",
+      "origin": "OWASP",
+      "tags": ["security", "prompt-injection", "risk"],
+      "summary": "OWASP Top 10 for LLM Applications는 프롬프트 인젝션을 LLM01로 두고, 조작된 입력이 무단 접근, 데이터 유출, 의사결정 훼손으로 이어질 수 있다고 정리한다. 이어서 출력 검증 부족, 민감정보 노출, 공급망, 과도한 권한 같은 항목을 함께 다루며 애플리케이션 전체 경계를 보게 한다.",
+      "note": "보안 점검은 프롬프트 문구보다 입력, 출력, 도구 권한, 로그의 경계를 먼저 세우는 쪽이 실용적이다."
+    },
+    {
+      "id": "i3-openai-prompt-boundary",
+      "title": "OpenAI: 조작을 막기보다 피해 범위를 줄이기",
+      "url": "https://openai.com/index/designing-agents-to-resist-prompt-injection/",
+      "source": "read",
+      "origin": "OpenAI",
+      "tags": ["security", "agents", "prompt-injection"],
+      "summary": "OpenAI는 실제 프롬프트 인젝션이 사회공학과 결합해 발전한다고 보고, 악성 입력을 완벽히 식별하는 접근만으로는 부족하다고 설명한다. 따라서 에이전트가 조작되더라도 민감 데이터 접근과 위험한 행동의 영향이 제한되도록 설계해야 한다고 말한다.",
+      "note": "AI 보안 제품을 고를 때는 탐지율보다 권한 축소와 승인 경로가 있는지부터 물어볼 만하다."
+    },
+    {
+      "id": "i3-msrc-indirect-injection",
+      "title": "Microsoft: 간접 프롬프트 인젝션 방어를 층으로 쌓기",
+      "url": "https://www.microsoft.com/en-us/msrc/blog/2025/07/how-microsoft-defends-against-indirect-prompt-injection-attacks",
+      "source": "read",
+      "origin": "Microsoft MSRC",
+      "tags": ["security", "prompt-injection", "defense"],
+      "summary": "Microsoft MSRC는 간접 프롬프트 인젝션이 외부 콘텐츠를 처리하는 LLM 시스템에서 널리 쓰이는 기법이라고 설명한다. 이 글은 단일 필터가 아니라 입력 처리, 권한 관리, 행위 제한, 모니터링을 겹치는 방어 전략으로 제시한다.",
+      "note": "웹·메일·문서까지 읽는 AI 제품이라면 외부 콘텐츠를 명령이 아닌 데이터로 취급하는 장치가 필요하다."
+    }
+  ]
+}

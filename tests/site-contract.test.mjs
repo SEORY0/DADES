@@ -1,5 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readdir, readFile } from 'node:fs/promises';
+
+const issueDirectory = new URL('../src/content/issues/', import.meta.url);
+const issueFiles = (await readdir(issueDirectory)).filter((name) => name.endsWith('.json'));
+const issues = (await Promise.all(issueFiles.map(async (name) => JSON.parse(await readFile(new URL(name, issueDirectory), 'utf8'))))).sort((a, b) => b.number - a.number);
 
 const origin = process.env.DADES_TEST_ORIGIN ?? 'http://127.0.0.1:4321';
 
@@ -9,23 +14,21 @@ async function readPage(pathname) {
   return response.text();
 }
 
-test('homepage exposes an issue-led magazine front with every current story', async () => {
-  // Given: the production-like static preview is serving the DADES homepage.
+test('homepage lists every published issue as an image and title link', async () => {
   const html = await readPage('/DADES/');
-
-  // When: a reader opens the redesigned magazine front.
-  const storyCount = (html.match(/data-issue-story=/g) ?? []).length;
-  const hasMobileMenu = html.includes('data-menu-toggle');
-
-  // Then: the publication, current cover, all five stories, and keyboard-addressable navigation exist.
-  assert.match(html, /data-magazine-nameplate/);
-  assert.match(html, /data-current-cover/);
-  assert.equal(storyCount, 5);
-  assert.equal(hasMobileMenu, true);
-  assert.match(html, /href="\/DADES\/issues\/1\/"/);
-  assert.match(html, /class="issue-story-deck"/);
-  // 구조만 보면 빈 껍데기도 통과한다 — 표지 기사 제목이 실제로 실렸는지 함께 본다.
-  assert.match(html, /WebMCP 챌린지와 블랙박스 LLM의 크기/);
+  assert.equal((html.match(/<li[^>]*data-issue-card/g) ?? []).length, issues.length);
+  assert.match(html, /data-gallery-query/);
+  assert.match(html, /data-gallery-empty/);
+  for (const issue of issues) {
+    assert.ok(html.includes(`href="/DADES/issues/${issue.number}/"`));
+    assert.ok(html.includes(issue.title));
+  }
+  const cards = [...html.matchAll(/<li[^>]*data-issue-card[\s\S]*?<\/li>/g)];
+  for (const [card] of cards) {
+    if (!card.includes('has-no-image')) assert.match(card, /<img[^>]+src=/);
+    assert.match(card, /<h2/);
+    assert.doesNotMatch(card, /<p[ >]/);
+  }
 });
 
 test('issue pages preserve all five curated entries and their clip controls', async () => {
@@ -123,8 +126,7 @@ test('status keeps the immersive scene system while the wiki index stays a searc
   assert.match(article, /data-copy-link/);
 });
 
-test('all editorial art is served from customized Book of Shapes SVG exports', async () => {
-  // Given: the redesign no longer ships its previous generated raster illustrations.
+test('gallery photographs and existing editorial SVG assets are served locally', async () => {
   const home = await readPage('/DADES/');
   const patternFiles = [
     'dades-flow-lines.svg',
@@ -141,10 +143,15 @@ test('all editorial art is served from customized Book of Shapes SVG exports', a
   );
   const oldRaster = await fetch(`${origin}/DADES/media/dades-hero.webp`);
 
-  // Then: every customized export is a real SVG, the old raster route is gone,
-  // and the current-issue cover points at the local pattern system.
   assert.equal(home.includes('/DADES/media/'), false);
-  assert.match(home, /\/DADES\/patterns\/dades-node-garden\.svg/);
+  const covers = [...home.matchAll(/<img[^>]+src="([^"]+)"/g)].map((match) => match[1]);
+  assert.ok(covers.length >= issues.filter((issue) => issue.cover).length);
+  for (const src of covers) {
+    assert.ok(src.startsWith('/DADES/'));
+    const response = await fetch(`${origin}${src}`);
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('content-type') ?? '', /image\//);
+  }
   assert.equal(oldRaster.status, 404);
   for (const response of responses) {
     assert.equal(response.status, 200);

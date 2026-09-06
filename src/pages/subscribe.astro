@@ -1,0 +1,79 @@
+---
+import Base from '../layouts/Base.astro';
+import NewsletterSignup from '../components/NewsletterSignup.astro';
+import '../styles/publication.css';
+import { href } from '../lib/mag';
+import { publicationConfig } from '../lib/publication';
+
+const rssUrl = new URL(href('/rss.xml'), Astro.site).toString();
+---
+
+<Base
+  title="구독 안내"
+  description="DADES 매거진을 RSS 또는 설정된 외부 뉴스레터 페이지로 구독하는 방법."
+  layout="listing"
+>
+  <div class="publication-page">
+    <section class="publication-hero" aria-labelledby="subscribe-title">
+      <p class="publication-label">SUBSCRIBE</p>
+      <h1 id="subscribe-title">다음 호도, 당신의 리더에서.</h1>
+      <p>
+        {publicationConfig.newsletterUrl
+          ? 'DADES는 주간 발행을 표준으로 삼습니다. RSS와 이메일로 새 호를 받아볼 수 있습니다.'
+          : 'DADES는 주간 발행을 표준으로 삼습니다. 지금 바로 쓸 수 있는 구독 경로는 RSS이고, 이메일 뉴스레터는 준비 중입니다.'}
+      </p>
+    </section>
+
+    <section class="publication-section" aria-labelledby="rss-title">
+      <div class="publication-section-head">
+        <div>
+          <p class="publication-label">RSS</p>
+          <h2 id="rss-title">가장 확실한 현재 구독 방식</h2>
+        </div>
+        <p>
+          RSS 리더에 DADES를 추가하세요. 새 호가 발행되면 Feedly, Inoreader,
+          NetNewsWire, Reeder 같은 리더 앱에서 한곳에 모아 읽을 수 있습니다.
+        </p>
+      </div>
+
+      <NewsletterSignup />
+    </section>
+
+    <section class="publication-section" aria-labelledby="email-title">
+      <div class="publication-section-head">
+        <div>
+          <p class="publication-label">EMAIL</p>
+          <h2 id="email-title">이메일 뉴스레터</h2>
+        </div>
+        <p>
+          {publicationConfig.newsletterUrl
+            ? '메일로 새 호를 받고 싶다면 연결된 구독 페이지에서 신청할 수 있습니다.'
+            : '이메일 뉴스레터는 준비 중입니다. 지금은 RSS로 새 발행을 따라갈 수 있습니다.'}
+        </p>
+      </div>
+
+      <dl class="publication-lines">
+        <div class="publication-line">
+          <dt>RSS 주소</dt>
+          <dd><a href={href('/rss.xml')}>{rssUrl}</a></dd>
+        </div>
+        <div class="publication-line">
+          <dt>이메일 구독</dt>
+          <dd>
+            {publicationConfig.newsletterUrl ? (
+              <a href={publicationConfig.newsletterUrl} target="_blank" rel="noopener">
+                외부 구독 페이지
+              </a>
+            ) : (
+              '준비 중'
+            )}
+          </dd>
+        </div>
+        <div class="publication-line">
+          <dt>발행 기준</dt>
+          <dd>주간 발행을 표준으로 삼고, 출처와 링크가 확인된 항목만 싣습니다.</dd>
+        </div>
+      </dl>
+    </section>
+  </div>
+</Base>

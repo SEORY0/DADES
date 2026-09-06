@@ -16,3 +16,9 @@ artifacts/qa/baseline/
 artifacts/qa/after/
 artifacts/qa/after-fixes/
 artifacts/qa/final/
+
+# Local editorial run artifacts and credentials
+.editorial/
+.env
+.env.local
+.env.*.local

@@ -6,7 +6,14 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build && pagefind --site dist",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "test": "node --test tests/editorial.test.mjs tests/editorial-cover.test.mjs",
+    "test:site": "node --test tests/site-contract.test.mjs",
+    "editorial:dry-run": "node scripts/editorial/cli.mjs --collect-only",
+    "editorial:draft": "node scripts/editorial/cli.mjs",
+    "editorial:publish": "node scripts/editorial/cli.mjs --publish",
+    "test:editorial": "node --test tests/editorial.test.mjs tests/editorial-cover.test.mjs",
+    "test:editorial:smoke": "node --test tests/editorial-smoke.test.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",

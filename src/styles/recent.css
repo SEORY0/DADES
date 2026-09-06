@@ -880,95 +880,12 @@ kbd {
     padding-bottom: var(--space-16);
   }
 
-  .site-head {
-    inset: auto 0 calc(var(--space-4) + env(safe-area-inset-bottom));
-  }
-
-  .nav-shell {
-    width: min(calc(100% - (2 * var(--space-5))), 21.875rem);
-    max-width: none;
-    min-height: 3.25rem;
-  }
-
-  .brand {
-    width: 4.5rem;
-    height: 2.75rem;
-  }
-
-  .brand-mark {
-    height: 2.15rem;
-  }
-
+  /* 모바일 내비의 치수·재질·모션은 glass-interactions.css의 Recent 계측본이 전부
+     맡는다. 예전 드롭업 패널 규칙이 여기 남아 있었는데, 닫힌 상태에 opacity:0을
+     걸어 하단 독의 유리판을 통째로 지워 버렸다 — 독이 투명해지면서 본문이 워드마크와
+     햄버거를 뚫고 인쇄됐다. 링크 열만 여기서 숨기고 나머지는 넘긴다. */
   .site-nav {
     display: none;
-  }
-
-  .menu-toggle {
-    min-height: 2.75rem;
-    display: inline-flex;
-  }
-
-  .nav-cta {
-    min-height: 2.75rem;
-    margin-left: auto;
-    padding-inline: var(--space-4);
-    font-size: var(--type-label);
-  }
-
-  .mobile-menu {
-    position: fixed;
-    inset: auto 50% calc(4.75rem + env(safe-area-inset-bottom));
-    width: min(calc(100% - (2 * var(--space-5))), 21.875rem);
-    padding: var(--space-3);
-    display: block;
-    border: 1px solid var(--glass-rim);
-    border-radius: var(--radius-menu);
-    background: var(--glass-fill);
-    box-shadow: var(--glass-shadow);
-    backdrop-filter: blur(1.125rem) saturate(140%);
-    -webkit-backdrop-filter: blur(1.125rem) saturate(140%);
-    opacity: 0;
-    pointer-events: none;
-    transform: translate(-50%, 0.75rem);
-    transition: opacity var(--motion-standard) var(--ease-standard),
-      transform var(--motion-standard) var(--ease-out);
-  }
-
-  .menu-open .mobile-menu {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translate(-50%, 0);
-  }
-
-  .mobile-menu nav {
-    display: grid;
-  }
-
-  .mobile-menu nav a {
-    min-height: 3.125rem;
-    padding-inline: var(--space-4);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid color-mix(in srgb, var(--rule-default) 70%, transparent);
-    color: var(--text-primary);
-    text-decoration: none;
-  }
-
-  .mobile-menu nav a[aria-current='page'] {
-    color: var(--accent-strong);
-  }
-
-  .mobile-menu-meta {
-    font-family: var(--font-utility);
-    font-size: var(--type-label);
-    color: var(--text-secondary);
-  }
-
-  .mobile-menu-note {
-    margin: var(--space-4) var(--space-4) var(--space-2);
-    font-size: var(--type-small);
-    color: var(--text-secondary);
   }
 
   .entry {

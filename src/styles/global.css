@@ -4,13 +4,13 @@
    ============================================================ */
 
 :root {
-  /* paper (기본 테마) */
-  --paper: #f7f7f2;
+  /* white (기본 테마) */
+  --paper: #ffffff;
   --ink: #202122;
   --ink-soft: #3f3d38;
   --muted: #59564d;
-  --rule: #c9c7bb;
-  --rule-soft: #e4e2d7;
+  --rule: #d4d2c8;
+  --rule-soft: #eceae2;
   --link: #0645ad;
   --link-soft: rgba(6, 69, 173, 0.4);
   --wash: rgba(6, 69, 173, 0.06);
@@ -31,12 +31,6 @@
   --measure: 660px;
 
   color-scheme: light;
-}
-
-[data-theme='white'] {
-  --paper: #ffffff;
-  --rule: #d4d2c8;
-  --rule-soft: #eceae2;
 }
 
 [data-theme='ink'] {
@@ -230,7 +224,6 @@ button {
   position: relative;
 }
 
-.theme-swatch[data-set-theme='paper'] { background: #f7f7f2; }
 .theme-swatch[data-set-theme='white'] { background: #ffffff; }
 .theme-swatch[data-set-theme='ink'] { background: #1a1917; }
 
@@ -780,4 +773,3 @@ code {
   padding-left: 14px;
   margin-left: -16px;
 }
-

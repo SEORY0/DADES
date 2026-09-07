@@ -2,20 +2,20 @@
    translated into DADES-owned type, color, imagery, and editorial components. */
 
 :root {
-  --surface-canvas: #f2f1ec;
-  --surface-raised: #fbfaf6;
-  --surface-soft: #e5e5df;
+  --surface-canvas: #ffffff;
+  --surface-raised: #f7f8fa;
+  --surface-soft: #eef0f2;
   --surface-inverse: #121416;
   --text-primary: #17191b;
-  --text-secondary: #585d63;
+  --text-secondary: #555b61;
   --text-inverse: #ffffff;
-  --rule-default: #c8c9c5;
-  --rule-soft: #deded8;
+  --rule-default: #d6d9dc;
+  --rule-soft: #e9ebed;
   --accent-primary: #315de8;
   --accent-strong: #183ebf;
-  --accent-wash: #dfe7ff;
+  --accent-wash: #e6ecff;
   /* Recent에서 계측한 산성 연두 — 내비 CTA 전용 강조색이다.
-     지면의 코발트와 역할이 다르므로 세 테마에서 값을 바꾸지 않는다. */
+     지면의 코발트와 역할이 다르므로 두 테마에서 값을 바꾸지 않는다. */
   --accent-acid: #bef263;
   --accent-acid-press: #a1ea27;
   --chrome-ink: #191919;
@@ -37,7 +37,7 @@
   --footer-control-text: rgba(255, 255, 255, 0.68);
   --footer-rule: rgba(255, 255, 255, 0.22);
   --footer-accent: #9ab0ff;
-  /* 푸터 띠의 위 끝선. 종이·흰 지면에서는 띠 자체가 16:1대로 갈리므로 선을 놓지 않고,
+  /* 푸터 띠의 위 끝선. 흰 지면에서는 띠 자체가 16:1대로 갈리므로 선을 놓지 않고,
      먹색 지면에서만 값을 준다([data-theme='ink'] 참조). */
   --footer-keyline: transparent;
   --forced-media-scrim: rgba(0, 0, 0, 0.72);
@@ -107,17 +107,6 @@
   --fs-small: var(--type-small);
   --fs-title: var(--type-h3);
   --measure: var(--reading-max);
-}
-
-[data-theme='white'] {
-  --surface-canvas: #ffffff;
-  --surface-raised: #f7f8fa;
-  --surface-soft: #eef0f2;
-  --text-primary: #17191b;
-  --text-secondary: #555b61;
-  --rule-default: #d6d9dc;
-  --rule-soft: #e9ebed;
-  --accent-wash: #e6ecff;
 }
 
 [data-theme='ink'] {

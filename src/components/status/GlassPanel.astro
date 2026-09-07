@@ -1,0 +1,5 @@
+---
+interface Props { readonly class?: string; readonly label?: string; }
+const { class: className, label } = Astro.props;
+---
+<section class:list={['glass-panel', className]} aria-label={label}><slot /></section>

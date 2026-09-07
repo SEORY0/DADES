@@ -46,7 +46,7 @@ const nav = [
 ---
 
 <!doctype html>
-<html lang="ko" data-theme="paper">
+<html lang="ko" data-theme="white">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -75,7 +75,7 @@ const nav = [
     <link rel="icon" type="image/png" href={href('/brand/dades-icon-192.png')} />
     <link rel="manifest" href={href('/manifest.webmanifest')} />
     <link rel="apple-touch-icon" href={href('/brand/dades-apple-touch.png')} />
-    <meta name="theme-color" content="#f2f1ec" />
+    <meta name="theme-color" content="#ffffff" />
     <!-- 조판은 Pretendard 한 벌뿐. 위계는 굵기·크기·자간·대소문자·색으로만 세운다. -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link
@@ -85,12 +85,17 @@ const nav = [
     <script is:inline>
       (() => {
         document.documentElement.classList.add('has-reveal-js');
+        let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'ink' : 'white';
         try {
-          let t = localStorage.getItem('dades:theme');
-          if (t !== 'paper' && t !== 'white' && t !== 'ink') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'ink' : 'paper';
-          document.documentElement.setAttribute('data-theme', t);
-          document.querySelector('meta[name="theme-color"]')?.setAttribute('content', { paper: '#f2f1ec', white: '#ffffff', ink: '#111315' }[t]);
-        } catch {}
+          const saved = localStorage.getItem('dades:theme');
+          if (saved === 'white' || saved === 'ink') theme = saved;
+          else if (saved === 'paper') {
+            theme = 'white';
+            localStorage.setItem('dades:theme', theme);
+          }
+        } catch { /* 저장소를 쓸 수 없어도 선택한 테마는 이번 지면에 적용한다. */ }
+        document.documentElement.setAttribute('data-theme', theme);
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', { white: '#ffffff', ink: '#111315' }[theme]);
       })();
     </script>
   </head>
@@ -176,11 +181,12 @@ const nav = [
       }
 
       // ---------- 테마 스위처 ----------
+      type Theme = 'white' | 'ink';
       const THEME_KEY = 'dades:theme';
       const swatches = document.querySelectorAll<HTMLButtonElement>('.theme-swatch');
-      const THEME_BAR: Record<string, string> = { paper: '#f2f1ec', white: '#ffffff', ink: '#111315' };
+      const THEME_BAR: Record<Theme, string> = { white: '#ffffff', ink: '#111315' };
 
-      function applyTheme(theme: string) {
+      function applyTheme(theme: Theme) {
         document.documentElement.setAttribute('data-theme', theme);
         document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_BAR[theme]);
         swatches.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setTheme === theme)));
@@ -189,9 +195,9 @@ const nav = [
         } catch {}
       }
 
-      swatches.forEach((b) => b.addEventListener('click', () => applyTheme(b.dataset.setTheme ?? 'paper')));
+      swatches.forEach((b) => b.addEventListener('click', () => applyTheme(b.dataset.setTheme === 'ink' ? 'ink' : 'white')));
       // 초기 상태를 버튼에 반영
-      const current = document.documentElement.getAttribute('data-theme') ?? 'paper';
+      const current = document.documentElement.getAttribute('data-theme') ?? 'white';
       swatches.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setTheme === current)));
 
       // ---------- 클리핑 ----------

@@ -11,7 +11,7 @@ npm ci
 npm run dev                    # http://localhost:4321/DADES/
 npm run build                  # 콘텐츠 스키마 검증 + 정적 빌드 + Pagefind
 npm run preview -- --port 4173 # http://localhost:4173/DADES/
-npm test                       # 네트워크 없이 편집 파이프라인 검증
+npm test                       # 편집·모델 데이터 파이프라인 검증
 DADES_TEST_ORIGIN=http://localhost:4173 npm run test:site
 npm run test:editorial:smoke    # 실제 공개 피드 수집 확인 (네트워크 필요)
 ```
@@ -67,3 +67,16 @@ GitHub Pages에서 구독 링크를 사용하려면 `PUBLIC_NEWSLETTER_URL` repo
 ## 배포
 
 `main`에 push하면 기존 GitHub Pages workflow가 빌드·배포합니다. 자동 편집 bot의 push는 다른 workflow를 자동으로 실행하지 않으므로, 편집 workflow가 `deploy.yml`을 명시적으로 호출합니다. 작업 브랜치 push와 운영 배포는 구분합니다. `main` 반영 시 운영 배포 workflow가 실행됩니다.
+
+## AI 모델 상태판
+
+`/DADES/status/`에서 성능·출력 단가·생성 속도·주간 토큰 사용량을 비교합니다. 최대3개 모델의 입력/출력 토큰 비용을 같은 양으로 계산할 수 있습니다. 홈페이지와 nav는 유지했습니다.
+
+- White·Ink 두 테마를 지원합니다. 저장된 Paper 설정은 White로 이전합니다.
+- 선두 모델의 실제 개발사 아이콘을 nav와 동일한 유리판 뒤에 배치합니다. 선두가 바뀌면 이미지도 갱신하며 모르는 모델에는 임의의 아이콘을 붙이지 않습니다. [이미지 출처](docs/status-images.md).
+- 공개 OpenRouter 카탈로그·AA 전달 지수·공개 주간 순위의 실제 스냅샷을 사용합니다. 결측값과 이전 관측은 구분합니다.
+- `npm run status:refresh`: 원문을 새로 수집하여 `public/data/model-board.json`을 원자적으로 교체합니다.
+- `npm run test:status`: 수집·단위·모델 식별·p50·실패 보존 테스트.
+- 페이지는60초마다 같은 출처 JSON의 새 버전을 확인합니다. 원문 수집은 `model-board.yml`이 main에 반영된 뒤30분 간격으로 요청하며, Actions/Pages 지연이 있을 수 있습니다.
+- 현 스냅샷의 속도는 공개 제공처가 값을 주지 않아 미제공입니다. 임의의 속도·과거 추세는 생성하지 않습니다.
+- [리더보드 조사와 설계](docs/status-research.md) · [데이터 운영](docs/status-data.md) · [검증](docs/status-verification.md).

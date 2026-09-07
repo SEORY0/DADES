@@ -1,150 +1,69 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import '../styles/immersive-pages.css';
-import { STATUS_META, flattenChangelog, fmtDate, issueHref, issueNo, sortBoards } from '../lib/mag';
-
-const boards = sortBoards(await getCollection('boards'));
-const rows = boards.flatMap((b) => b.data.rows);
-const updated = boards.map((b) => b.data.updated).sort().at(-1) ?? '';
-const count = (s: string) => rows.filter((r) => r.status === s).length;
-const changelog = flattenChangelog(boards);
-
-/** 세로로 비교되는 수는 전부 두 자리로 맞춘다 — tabular-nums와 짝. */
-const pad2 = (n: number) => String(n).padStart(2, '0');
-
-/** 머리의 집계가 그대로 표의 색 범례를 겸한다. 그래서 별도 legend를 두지 않는다. */
-const tally = [
-  { label: '기준일', value: fmtDate(updated), status: null, zero: false },
-  { label: '항목', value: pad2(rows.length), status: null, zero: rows.length === 0 },
-  { label: '안정', value: pad2(count('stable')), status: 'stable', zero: count('stable') === 0 },
-  { label: '주시', value: pad2(count('watch')), status: 'watch', zero: count('watch') === 0 },
-  { label: '변경', value: pad2(count('changed')), status: 'changed', zero: count('changed') === 0 },
-];
+import GlassPanel from '../components/status/GlassPanel.astro';
+import BoardCharts from '../components/status/BoardCharts.astro';
+import ModelRow from '../components/status/ModelRow.astro';
+import raw from '../../public/data/model-board.json';
+import { boardSchema, metrics, metricKeys, ranked, metricValue, modelName, observedAt, sourceCopy, sourceForMetric } from '../lib/model-board';
+import { href } from '../lib/mag';
+import { modelArtwork } from '../lib/model-artwork';
+import '../styles/model-board.css';
+const board = boardSchema.parse(raw);
+const leaders = ranked(board.models, 'intelligence');
+const providers = [...new Set(board.models.map((model) => model.provider))].sort();
 ---
-
-<Base
-  title="상태판"
-  description="뉴스가 아니라 현재 상태. 지금 뭘 쓰면 되는지에 대한 에디터의 답과 변경 이력."
-  active="status"
-  layout="immersive"
->
-  <!-- 1. 상태판 머리 — 표를 읽기 전에 '바뀐 게 있나'부터 답한다. -->
-  <section
-    class="status-section status-masthead"
-    data-status-scene
-    data-immersive-hero
-    aria-labelledby="status-masthead-title"
-  >
-    <div class="status-shell">
-      <div class="status-masthead-copy">
-        <p class="immersive-label">STATUS BOARD</p>
-        <h1 id="status-masthead-title">뉴스가 아니라, 지금의 답</h1>
-        <p class="status-deck">
-          뉴스는 흘러가고 여기엔 현재 답만 남습니다. 이 판이 지난번과 같다면
-          그 주의 소식은 몰라도 됩니다.
-        </p>
-      </div>
-      <dl class="status-tally" aria-label="상태 집계">
-        {
-          tally.map((item) => (
-            <div class="status-tally-item" data-zero={item.zero ? 'true' : undefined}>
-              <dt data-status={item.status}>
-                {item.status && <span class="status-dot" aria-hidden="true" />}
-                {item.label}
-              </dt>
-              <dd>{item.value}</dd>
-            </div>
-          ))
-        }
-      </dl>
-    </div>
-  </section>
-
-  <!-- 2. 보드 — 두 판이 같은 컬럼 트랙을 써서 세로로 비교된다. -->
-  <section class="status-section status-boards" aria-labelledby="status-boards-title">
-    <div class="status-shell">
-      <h2 id="status-boards-title" class="sr-only">현재 상태 보드</h2>
-      <div class="status-table" role="table" aria-labelledby="status-boards-title" aria-colcount="4">
-        <div role="rowgroup">
-          <div class="status-row status-row-head" role="row">
-            <span role="columnheader">영역</span>
-            <span role="columnheader">현재 답</span>
-            <span role="columnheader">상태</span>
-            <span role="columnheader">기준일</span>
+<Base title="AI 모델 상태판" description="AI 모델 성능, 토큰 가격, 생성 속도와 실제 사용량을 출처와 함께 비교하는 DADES 상태판." active="status" layout="immersive">
+  <div class="model-board" data-model-board data-feed={href('/data/model-board.json')}>
+    <header class="board-heading">
+      <div><h1>AI 상태판</h1></div>
+      <div class="board-update"><span class="update-state" data-freshness>관측값</span><p><time datetime={board.fetchedAt} data-board-time>{observedAt(board)}</time> KST 확인</p><button type="button" class="glass-button refresh-button" data-refresh data-js-only hidden><span aria-hidden="true">↻</span> 새로 확인</button></div>
+    </header>
+    <p class="board-feedback" data-board-feedback role="status" aria-live="polite"></p>
+    <div class="board-highlights" aria-label="지표별 선두 모델">
+      {metricKeys.map((metric) => {
+        const leader = ranked(board.models, metric)[0];
+        const artwork = modelArtwork(leader);
+        return <a class="highlight-card" href="#leaderboard" data-metric-shortcut={metric} data-leader-model={leader?.id}>
+          <img class="highlight-art" src={artwork ?? undefined} alt="" width="180" height="180" decoding="async" hidden={!artwork} data-leader-art={metric} />
+          <div class="glass-panel highlight-glass">
+          <div class="highlight-label"><span>{metrics[metric].title}</span><span aria-hidden="true">↗</span></div>
+          <div class="highlight-value"><strong data-leader-value={metric}>{leader ? metricValue(leader, metric) : '—'}</strong><span>{metrics[metric].unit}</span></div>
+          <p data-leader-name={metric}>{leader ? modelName(leader) : '관측 데이터 대기'}</p><small class="metric-date" data-metric-date={metric}>{sourceForMetric(board, metric)}</small>
           </div>
-        </div>
-        {
-          boards.map((board) => (
-            <div class="status-group" role="rowgroup">
-              <div class="status-group-head" role="row">
-                <div class="status-group-cell" role="cell" aria-colspan="3">
-                  <h3 class="status-group-title" id={`${board.data.slug}-title`}>{board.data.title}</h3>
-                  <p class="status-group-question">{board.data.question}</p>
-                </div>
-                {/* 점검일은 아래 기준일 열과 같은 트랙(4열)에 세운다 — 같은 날짜가 두 자리에 찍히면 안 된다. */}
-                <time class="status-group-updated" role="cell" datetime={board.data.updated}>
-                  점검 {fmtDate(board.data.updated)}
-                </time>
-              </div>
-              {board.data.rows.map((row) => (
-                <div class="status-row" role="row" id={`${board.data.slug}-${row.id}`}>
-                  <span class="status-area" role="cell">{row.area}</span>
-                  <span class="status-pick" role="cell">
-                    {row.url ? (
-                      <a href={row.url} target="_blank" rel="noopener">
-                        {row.pick}
-                        <span class="status-ext" aria-hidden="true">↗</span>
-                      </a>
-                    ) : (
-                      <strong>{row.pick}</strong>
-                    )}
-                    {row.note && <span class="status-note">{row.note}</span>}
-                  </span>
-                  <span class="status-state" role="cell" data-status={row.status}>
-                    <span class="status-dot" aria-hidden="true" />
-                    {STATUS_META[row.status].ko}
-                  </span>
-                  <span class="status-since" role="cell">
-                    <time datetime={row.since}>{fmtDate(row.since)}</time>
-                  </span>
-                </div>
-              ))}
-            </div>
-          ))
-        }
-      </div>
+        </a>;
+      })}
     </div>
-  </section>
+    <BoardCharts board={board} />
+    <GlassPanel class="leaderboard-panel" label="모델 리더보드">
+      <div class="panel-heading" id="leaderboard"><div><h2>리더보드</h2></div><a class="source-link" href="#board-method">지표 읽는 법 ↗</a></div>
 
-  <!-- 3. 변경 이력 — '지난번 이후 뭐가 바뀌었나'의 근거.
-       열은 위 상태표와 같은 트랙을 쓴다: 영역 · 내용 · 출처 · 날짜. -->
-  <section class="status-section status-changelog" aria-labelledby="status-changelog-title">
-    <div class="status-shell">
-      <div class="status-changelog-head">
-        <h2 id="status-changelog-title">변경 이력</h2>
-        <span class="status-changelog-count">{pad2(changelog.length)}건</span>
+      <div class="board-toolbar" data-js-only hidden>
+        <div class="metric-switch" role="group" aria-label="순위 기준">{metricKeys.map((metric) => <button type="button" data-metric={metric} aria-pressed={metric === 'intelligence'}>{metrics[metric].label}</button>)}</div>
+        <div class="board-search"><label><span class="sr-only">모델 검색</span><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m15 15 5 5" stroke="currentColor" stroke-width="1.6"/></svg><input type="search" placeholder="모델 이름 검색" maxlength="100" data-model-query /></label><label><span class="sr-only">모델 개발사</span><select data-model-provider><option value="all">모든 개발사</option>{providers.map((provider) => <option value={provider}>{provider}</option>)}</select></label></div>
       </div>
-      {
-        changelog.length === 0 ? (
-          <p class="status-empty">아직 기록된 변경이 없습니다.</p>
-        ) : (
-          <ol class="status-changelog-list">
-            {changelog.map((entry) => (
-              <li class="status-changelog-item">
-                <span class="status-changelog-board">{entry.board}</span>
-                <p class="status-changelog-text">{entry.text}</p>
-                {entry.issue != null && (
-                  <a class="status-changelog-ref" href={issueHref(entry.issue)}>
-                    {issueNo(entry.issue)}
-                  </a>
-                )}
-                <time datetime={entry.date}>{fmtDate(entry.date)}</time>
-              </li>
-            ))}
-          </ol>
-        )
-      }
-    </div>
-  </section>
+      <div class="ranking-context"><p data-ranking-count>성능 측정값이 있는 {leaders.length}개 모델 · 내림차순</p></div>
+      <div class="board-table-scroll" tabindex="0" role="region" aria-label="모델 비교 표, 작은 화면에서는 가로로 스크롤">
+        <table class="board-table"><caption class="sr-only">모델별 성능 지수, 입력과 출력 토큰 단가, 생성 속도, 주간 사용량, 컨텍스트 크기</caption><thead><tr><th scope="col">순위</th><th scope="col">모델 <span data-js-only hidden>· 최대 3개 비교</span></th><th scope="col" data-column="intelligence" aria-sort="descending">성능 <small>AA 지수</small></th><th scope="col">입력 <small>$/1M</small></th><th scope="col" data-column="outputPrice">출력 <small>$/1M</small></th><th scope="col" data-column="speed">속도 <small>tok/s</small></th><th scope="col" data-column="tokens7d">사용량 <small>주간 tokens</small></th><th scope="col">컨텍스트 <small>tokens</small></th></tr></thead><tbody data-model-rows>{leaders.slice(0, 20).map((model, index) => <ModelRow model={model} rank={index + 1} metric="intelligence" max={leaders[0]?.intelligence ?? 1} />)}</tbody></table>
+      </div>
+      <div class="board-empty" data-ranking-empty hidden><h3>일치하는 모델이 없습니다</h3><p>검색어 또는 개발사를 바꿔 보세요.</p><button type="button" class="glass-button" data-reset>조건 초기화</button></div>
+      <div class="table-bottom"><p>측정값이 있는 모델만 표시</p><button type="button" class="glass-button" data-more data-js-only hidden>20개 더 보기 <span aria-hidden="true">↓</span></button></div>
+    </GlassPanel>
+    <GlassPanel class="comparison-panel" label="선택 모델 비교와 토큰 비용 계산">
+      <div class="panel-heading"><div><h2 id="model-comparison">모델 비교</h2></div><span class="selection-count" data-selection-count>0 / 3</span></div>
+      <p class="board-caption" data-compare-hint>표에서 최대 3개 선택</p>
+      <div class="budget-inputs" data-js-only hidden><label>입력 토큰 <span><input type="number" min="0" max="100" step="0.1" value="1" data-budget="input" /> 백만</span></label><label>출력 토큰 <span><input type="number" min="0" max="100" step="0.1" value="1" data-budget="output" /> 백만</span></label><p>기본 단가 기준 · 추가 과금 별도</p></div>
+      <div class="model-comparison" data-comparison></div>
+      <noscript><p class="board-caption">비교 및 비용 계산은 JavaScript가 필요합니다. 위 표의 입력·출력 단가는 그대로 확인할 수 있습니다.</p></noscript>
+    </GlassPanel>
+    <GlassPanel class="method-panel" label="데이터 출처와 읽는 법">
+      <details class="source-details" id="board-method"><summary>데이터 기준과 출처 <span aria-hidden="true">+</span></summary>
+        <div class="method-grid"><div><h3>성능 ≠ 선호도 ≠ 사용량</h3><p>AA 성능 지수는 벤치마크 결과입니다. 사람의 선호도를 측정하는 Arena 점수, 실제 사용량과 같은 척도가 아닙니다. 개발사·추론 설정에 따라 결과도 달라집니다.</p></div><div><h3>속도는 제공 경로에 따라</h3><p>OpenRouter 속도는 최근 30분의 제공 경로 관측값입니다. 측정값이 없을 때 순위나 지연 시간을 추정하지 않습니다.</p></div><div><h3>실시간의 범위를 분명하게</h3><p>공개 카탈로그와 관측 스냅샷을 확인합니다. 사용량은 공개 주간 집계, 성능은 출처가 제공하는 최신 결과입니다. 화면은 60초마다 새 파일을 확인하며 수집 시각은 따로 표시합니다.</p></div></div>
+        <ul data-board-sources>{board.sources.map((source) => <li><a href={source.url} target="_blank" rel="noopener noreferrer">{source.label} ↗</a><span>{source.status === 'ok' ? '확인' : '미제공'} · {source.observedAt ? new Date(source.observedAt).toISOString().replace('T', ' ').slice(0, 16) + ' UTC' : '관측 시각 없음'}</span><p>{sourceCopy(source)}</p></li>)}</ul>
+      </details>
+      <p class="board-caption">성능: <a href="https://artificialanalysis.ai/" target="_blank" rel="noopener noreferrer">Artificial Analysis</a> via <a href="https://openrouter.ai/benchmarks" target="_blank" rel="noopener noreferrer">OpenRouter</a>. 가격·사용량: <a href="https://openrouter.ai/" target="_blank" rel="noopener noreferrer">OpenRouter</a>.</p>
+    </GlassPanel>
+    <a class="compare-dock" data-compare-dock href="#model-comparison" hidden>선택한 모델 비교 <span data-dock-count>0 / 3</span><span aria-hidden="true">↓</span></a>
+    <script type="application/json" id="model-board-data" set:html={JSON.stringify(board).replaceAll('<', '\\u003c')} />
+  </div>
+  <script>import '../lib/model-board-client';</script>
 </Base>

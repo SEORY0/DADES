@@ -1,0 +1,16 @@
+---
+import { amount, compact, dollars, modelName, metrics, type Model, type Metric } from '../../lib/model-board';
+interface Props { readonly model: Model; readonly rank: number; readonly metric: Metric; readonly max: number; }
+const { model, rank, metric, max } = Astro.props;
+const value = model[metric];
+---
+<tr data-model-row={model.id}>
+  <td class="board-rank">{rank}</td>
+  <th scope="row"><div class="model-identity"><label class="compare-check" data-js-only hidden><input type="checkbox" data-compare={model.id} aria-label={`${modelName(model)} 비교`} /><span class="sr-only">비교</span></label><div><a href={model.url} target="_blank" rel="noopener noreferrer">{modelName(model)}<span class="sr-only"> 원문, 새 탭</span></a><small>{model.provider}</small></div></div></th>
+  <td class:list={['numeric', { 'metric-active': metric === 'intelligence' }]}><span>{amount(model.intelligence)}</span>{metric === 'intelligence' && <i class="cell-bar" style={`--bar:${max ? (value ?? 0) / max * 100 : 0}%`} />}</td>
+  <td class="numeric">{dollars(model.inputPrice)}</td>
+  <td class:list={['numeric', { 'metric-active': metric === 'outputPrice' }]}>{dollars(model.outputPrice)}</td>
+  <td class:list={['numeric', { 'metric-active': metric === 'speed' }]}>{amount(model.speed)}{model.speedProvider && <small>{model.speedProvider}</small>}</td>
+  <td class:list={['numeric', { 'metric-active': metric === 'tokens7d' }]}>{compact(model.tokens7d)}</td>
+  <td class="numeric">{compact(model.context)}</td>
+</tr>

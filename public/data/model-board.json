@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "fetchedAt": "2026-09-07T13:40:37.542Z",
+  "fetchedAt": "2026-09-07T18:42:18.996Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
-      "observedAt": "2026-09-07T13:40:37.542Z",
+      "observedAt": "2026-09-07T18:42:18.996Z",
       "status": "ok",
-      "note": "430 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
+      "note": "428 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
     {
       "id": "artificial-analysis",
       "label": "Artificial Analysis via OpenRouter",
       "url": "https://openrouter.ai/api/v1/models",
-      "observedAt": "2026-09-07T13:40:37.542Z",
+      "observedAt": "2026-09-07T18:42:18.996Z",
       "status": "ok",
       "note": "Artificial Analysis intelligence, coding, and agentic indices as forwarded by OpenRouter. Original scales, not percentages or a DADES aggregate. Missing evaluations remain null."
     },
@@ -1464,8 +1464,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-pro-0813",
       "context": 1048576,
-      "inputPrice": 1.0494,
-      "outputPrice": 3.1482,
+      "inputPrice": 0.66,
+      "outputPrice": 1.9800000000000002,
       "intelligence": 42.1,
       "coding": 68.8,
       "agentic": 42.5,
@@ -2971,24 +2971,6 @@
       "dailyTokens": []
     },
     {
-      "id": "minimax/minimax-m2.7:free",
-      "name": "MiniMax: MiniMax M2.7 (free)",
-      "provider": "MiniMax",
-      "url": "https://openrouter.ai/minimax/minimax-m2.7:free",
-      "context": 196608,
-      "inputPrice": 0,
-      "outputPrice": 0,
-      "intelligence": null,
-      "coding": 52.6,
-      "agentic": null,
-      "speed": null,
-      "latency": null,
-      "speedProvider": null,
-      "tokens7d": null,
-      "previousTokens7d": null,
-      "dailyTokens": []
-    },
-    {
       "id": "minimax/minimax-m3",
       "name": "MiniMax: MiniMax M3",
       "provider": "MiniMax",
@@ -3021,24 +3003,6 @@
       "latency": null,
       "speedProvider": null,
       "tokens7d": null,
-      "previousTokens7d": null,
-      "dailyTokens": []
-    },
-    {
-      "id": "minimax/minimax-m3:free",
-      "name": "MiniMax: MiniMax M3 (free)",
-      "provider": "MiniMax",
-      "url": "https://openrouter.ai/minimax/minimax-m3:free",
-      "context": 1048576,
-      "inputPrice": 0,
-      "outputPrice": 0,
-      "intelligence": 35.7,
-      "coding": 58.6,
-      "agentic": 31,
-      "speed": null,
-      "latency": null,
-      "speedProvider": null,
-      "tokens7d": 5016395567383,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -7062,8 +7026,8 @@
       "provider": "Tencent",
       "url": "https://openrouter.ai/tencent/hy3",
       "context": 262144,
-      "inputPrice": 0.13199999999999998,
-      "outputPrice": 0.5279999999999999,
+      "inputPrice": 0.0825,
+      "outputPrice": 0.33,
       "intelligence": null,
       "coding": null,
       "agentic": null,

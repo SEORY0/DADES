@@ -1,0 +1,54 @@
+name: Refresh model board
+
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: model-board-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install existing dependencies
+        run: npm ci
+      - name: Test status pipeline
+        run: node --test tests/status-data.test.mjs
+      - name: Refresh public snapshot
+        run: node scripts/status/cli.mjs
+      - name: Build with refreshed snapshot
+        run: npm run build
+        env:
+          PUBLIC_NEWSLETTER_URL: ${{ vars.PUBLIC_NEWSLETTER_URL }}
+          PUBLIC_CONTACT_EMAIL: ${{ vars.PUBLIC_CONTACT_EMAIL }}
+      - name: Commit snapshot and request Pages deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add -- public/data/model-board.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh model board data"
+          git push origin HEAD:main
+          gh workflow run deploy.yml --ref main

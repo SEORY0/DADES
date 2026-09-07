@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "fetchedAt": "2026-09-07T18:42:18.996Z",
+  "fetchedAt": "2026-09-07T21:58:43.293Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
-      "observedAt": "2026-09-07T18:42:18.996Z",
+      "observedAt": "2026-09-07T21:58:43.293Z",
       "status": "ok",
       "note": "428 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -14,7 +14,7 @@
       "id": "artificial-analysis",
       "label": "Artificial Analysis via OpenRouter",
       "url": "https://openrouter.ai/api/v1/models",
-      "observedAt": "2026-09-07T18:42:18.996Z",
+      "observedAt": "2026-09-07T21:58:43.293Z",
       "status": "ok",
       "note": "Artificial Analysis intelligence, coding, and agentic indices as forwarded by OpenRouter. Original scales, not percentages or a DADES aggregate. Missing evaluations remain null."
     },
@@ -168,8 +168,8 @@
       "provider": "Moonshot AI",
       "url": "https://openrouter.ai/~moonshotai/kimi-latest",
       "context": 1048576,
-      "inputPrice": 2.5500000000000003,
-      "outputPrice": 12.75,
+      "inputPrice": 2.5,
+      "outputPrice": 14,
       "intelligence": null,
       "coding": null,
       "agentic": null,

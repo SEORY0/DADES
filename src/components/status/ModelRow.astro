@@ -15,5 +15,5 @@ const cell = (key: Metric) => ['numeric', { 'metric-active': metric === key, emp
   <td class:list={cell('speed')}><span>{metricValue(model, 'speed')}</span>{model.speedProvider && <small>{model.speedProvider}</small>}</td>
   <td class:list={cell('cost')} title={`입력 ${dollars(model.inputPrice)} · 출력 ${dollars(model.outputPrice)}`}><span>{metricValue(model, 'cost')}</span></td>
   <td class:list={cell('tokens7d')}><span>{metricValue(model, 'tokens7d')}</span></td>
-  <td class:list={['numeric', 'axis-value', { 'metric-active': isAxis(metric) }]}><span>{isAxis(metric) ? metricValue(model, metric) : ''}</span></td>
+  <td class:list={['numeric', 'axis-value', { 'metric-active': isAxis(metric), empty: isAxis(metric) && metricValue(model, metric) === EMPTY }]}><span>{isAxis(metric) ? metricValue(model, metric) : ''}</span></td>
 </tr>

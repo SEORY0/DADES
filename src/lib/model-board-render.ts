@@ -39,7 +39,7 @@ export function modelRow(model: CanonicalModel, index: number, state: { metric: 
   const checkbox = element('input');
   checkbox.type = 'checkbox'; checkbox.dataset.compare = model.id; checkbox.checked = state.selected.has(model.id);
   checkbox.setAttribute('aria-label', `${modelName(model)} 비교`);
-  label.append(checkbox);
+  label.append(checkbox, element('span', '비교', 'sr-only'));
   const name = element('div');
   const link = element('a', modelName(model));
   link.href = model.url; link.target = '_blank'; link.rel = 'noopener noreferrer';

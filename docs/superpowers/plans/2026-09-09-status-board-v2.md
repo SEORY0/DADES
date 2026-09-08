@@ -59,7 +59,7 @@ Spec: `docs/superpowers/specs/2026-09-09-status-board-v2-design.md`.
 - Produces: `findObject(value, predicate, depth?)` — 깊이 우선으로 `predicate(obj)`가 참인 첫 비배열 객체. 없으면 null.
 - Produces: `findInRecords(records, predicate)` — 모든 레코드에 `findObject`를 적용해 첫 결과.
 
-- [ ] **Step 1: 픽스처가 이미 있는지 확인**
+- [x] **Step 1: 픽스처가 이미 있는지 확인**
 
 Run: `ls -la tests/fixtures/status/`
 Expected: `tbench-4.0.html`(약 27KB), `openrouter-claude-opus-5.html`(약 9.7KB). 없으면 `/tmp/tb.html`, `/tmp/orpage.html`은 이미 사라졌을 수 있으므로 아래로 다시 만든다.
@@ -106,7 +106,7 @@ EOF
 
 주의: 다시 만들면 값이 오늘 관측값으로 바뀌므로 Task 2·3의 기대값(58.18, 32605 등)을 실제 값으로 고쳐야 한다. 이미 있는 픽스처를 쓰는 것이 우선이다.
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 `tests/status-data.test.mjs` 맨 위 import 아래에 추가:
 
@@ -126,12 +126,12 @@ test('flight parser joins split push chunks into JSON records and skips transpor
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `node --test tests/status-data.test.mjs 2>&1 | tail -5`
 Expected: import 단계에서 `Cannot find module '.../scripts/status/flight.mjs'` 오류.
 
-- [ ] **Step 4: `scripts/status/flight.mjs` 작성**
+- [x] **Step 4: `scripts/status/flight.mjs` 작성**
 
 ```js
 export function flightRecords(html) {
@@ -174,7 +174,7 @@ export function findInRecords(records, predicate) {
 }
 ```
 
-- [ ] **Step 5: `rankings.mjs`가 공용 파서를 쓰게 수정**
+- [x] **Step 5: `rankings.mjs`가 공용 파서를 쓰게 수정**
 
 `scripts/status/rankings.mjs`에서 `function publishedRecords(html) { ... }` 전체(약 20줄)를 삭제하고, 파일 맨 위 import를 아래로 바꾼다.
 
@@ -185,12 +185,12 @@ import { flightRecords } from './flight.mjs';
 
 `parseRankings` 첫 줄 `const records = publishedRecords(html);`를 `const records = flightRecords(html);`로 바꾼다.
 
-- [ ] **Step 6: 테스트 통과 확인**
+- [x] **Step 6: 테스트 통과 확인**
 
 Run: `node --test tests/status-data.test.mjs 2>&1 | tail -8`
 Expected: `# pass 45`, `# fail 0`.
 
-- [ ] **Step 7: 커밋**
+- [x] **Step 7: 커밋**
 
 ```bash
 git add scripts/status/flight.mjs scripts/status/rankings.mjs tests/status-data.test.mjs tests/fixtures/status/
@@ -213,7 +213,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - Produces: `TERMINAL_BENCH_URL`, `nameKey(value): string`, `parseTerminalBench(html) → { title, url, updatedAt, rows }`, `matchTerminalBench(leaderboard, models, aliases?) → { title, url, updatedAt, rows(with modelId), byId: Map<id, {accuracy, ci95, agent, effort, date}>, mapped }`.
 - Row 형: `{ rank, model, modelUrl, agent, agentOrg, modelOrg, effort, accuracy, ci95, date, trials, modelId }`.
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `tests/status-data.test.mjs` import 구역에 추가:
 
@@ -282,12 +282,12 @@ test('terminal-bench matching falls back to aliases for ambiguous labels and ign
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `node --test tests/status-data.test.mjs 2>&1 | tail -5`
 Expected: `Cannot find module '.../terminal-bench.mjs'`.
 
-- [ ] **Step 3: `catalog.mjs`에 `isCanonicalId` 추가**
+- [x] **Step 3: `catalog.mjs`에 `isCanonicalId` 추가**
 
 `scripts/status/catalog.mjs`의 `export function numberOrNull` 바로 위에 추가:
 
@@ -295,7 +295,7 @@ Expected: `Cannot find module '.../terminal-bench.mjs'`.
 export const isCanonicalId = (id) => !id.startsWith('~') && !id.includes(':');
 ```
 
-- [ ] **Step 4: `scripts/status/terminal-bench.mjs` 작성**
+- [x] **Step 4: `scripts/status/terminal-bench.mjs` 작성**
 
 ```js
 import { isCanonicalId, numberOrNull } from './catalog.mjs';
@@ -373,12 +373,12 @@ export function matchTerminalBench(leaderboard, models, aliases = {}) {
 }
 ```
 
-- [ ] **Step 5: 테스트 통과 확인**
+- [x] **Step 5: 테스트 통과 확인**
 
 Run: `node --test tests/status-data.test.mjs 2>&1 | tail -8`
 Expected: `# pass 49`, `# fail 0`.
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add scripts/status/terminal-bench.mjs scripts/status/catalog.mjs tests/status-data.test.mjs
@@ -401,7 +401,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - Produces: `parseModelPage(html, modelId) → { speed, latency, speedProvider, speedRequests, speedWindow }` (후보 없으면 전부 null; 통계 쿼리가 없거나 변형/모델이 다르면 throw).
 - `parseCatalog` 결과 모델에 `terminalBench: null, speedRequests: null, speedWindow: null`이 추가된다.
 
-- [ ] **Step 1: 문서화 API 테스트 삭제**
+- [x] **Step 1: 문서화 API 테스트 삭제**
 
 `tests/status-data.test.mjs`에서 아래 5개 테스트를 통째로 지운다.
 
@@ -413,7 +413,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 
 맨 위 import를 `import { numberOrNull, parseCatalog } from '../scripts/status/catalog.mjs';`로 바꾼다.
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 import 구역에 추가:
 
@@ -489,12 +489,12 @@ test('performance sample prefers leading intelligence and usage models and skips
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `node --test tests/status-data.test.mjs 2>&1 | tail -5`
 Expected: `Cannot find module '.../performance.mjs'`.
 
-- [ ] **Step 4: `catalog.mjs`에 v2 필드 추가**
+- [x] **Step 4: `catalog.mjs`에 v2 필드 추가**
 
 `scripts/status/catalog.mjs`의 `parseCatalog` 반환 객체에서 `speedProvider: null,` 다음 줄에 아래 세 줄을 추가한다. (`endpointRequests`·`parseEndpoint` 삭제는 `refresh.mjs`가 아직 import하므로 Task 4에서 한다.)
 
@@ -504,7 +504,7 @@ Expected: `Cannot find module '.../performance.mjs'`.
       terminalBench: null,
 ```
 
-- [ ] **Step 5: `scripts/status/performance.mjs` 작성**
+- [x] **Step 5: `scripts/status/performance.mjs` 작성**
 
 ```js
 import { isCanonicalId, numberOrNull } from './catalog.mjs';
@@ -546,12 +546,12 @@ export function parseModelPage(html, modelId) {
 }
 ```
 
-- [ ] **Step 6: 테스트 통과 확인**
+- [x] **Step 6: 테스트 통과 확인**
 
 Run: `node --test tests/status-data.test.mjs 2>&1 | tail -8`
 Expected: `# pass 50`, `# fail 0`.
 
-- [ ] **Step 7: 커밋**
+- [x] **Step 7: 커밋**
 
 ```bash
 git add scripts/status/performance.mjs scripts/status/catalog.mjs tests/status-data.test.mjs
@@ -576,7 +576,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - Produces: `SCHEMA_VERSION = 2`, `fetchSource(url, transport?)`(`https://openrouter.ai/api/`는 JSON, 그 외는 HTML 문자열), `upgradeSnapshot(snapshot)`(v1→v2, 그 외 throw), `refreshSnapshot({ previous, transport, now, aliases })` → `{ schemaVersion: 2, fetchedAt, sources[5], terminalBench, models }`.
 - 출처 id 순서: `openrouter-catalog`, `artificial-analysis`, `terminal-bench`, `openrouter-performance`, `openrouter-usage`.
 
-- [ ] **Step 1: 기존 테스트를 v2에 맞게 고친다**
+- [x] **Step 1: 기존 테스트를 v2에 맞게 고친다**
 
 `tests/status-data.test.mjs`의 refresh import를 `import { fetchSource, refreshSnapshot, upgradeSnapshot } from '../scripts/status/refresh.mjs';`로 바꾼다.
 
@@ -628,7 +628,7 @@ test('one failed model page retains the entire earlier measurement batch even af
 });
 ```
 
-- [ ] **Step 2: 새 테스트 추가 (파일 끝)**
+- [x] **Step 2: 새 테스트 추가 (파일 끝)**
 
 ```js
 test('a retry recovers a flaky model page and publishes the fresh provider observation', async () => {
@@ -692,12 +692,12 @@ test('source adapter returns HTML for page sources and rejects redirects to anot
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `node --test tests/status-data.test.mjs 2>&1 | grep -E "^# (pass|fail)"`
 Expected: `# fail` ≥ 5 (upgradeSnapshot 미정의, 출처 5개 기대, 모델 페이지 URL 등).
 
-- [ ] **Step 4: `scripts/status/refresh.mjs` 전체 교체**
+- [x] **Step 4: `scripts/status/refresh.mjs` 전체 교체**
 
 ```js
 import { CATALOG_URL, parseCatalog } from './catalog.mjs';
@@ -836,11 +836,11 @@ export async function refreshSnapshot({ previous = null, transport = fetch, now 
 }
 ```
 
-- [ ] **Step 5: `catalog.mjs`에서 `endpointRequests`·`parseEndpoint` 삭제**
+- [x] **Step 5: `catalog.mjs`에서 `endpointRequests`·`parseEndpoint` 삭제**
 
 `scripts/status/catalog.mjs`의 `export function endpointRequests(payload, selectedModels) { ... }`와 `export function parseEndpoint(payload, request) { ... }` 두 함수를 통째로 지운다. 파일 끝은 `parseCatalog`의 닫는 중괄호가 된다.
 
-- [ ] **Step 6: `scripts/status/cli.mjs` 전체 교체**
+- [x] **Step 6: `scripts/status/cli.mjs` 전체 교체**
 
 ```js
 #!/usr/bin/env node
@@ -893,7 +893,7 @@ main().catch((error) => {
 });
 ```
 
-- [ ] **Step 7: 별칭 파일 생성**
+- [x] **Step 7: 별칭 파일 생성**
 
 `config/status.aliases.json`:
 
@@ -903,12 +903,12 @@ main().catch((error) => {
 }
 ```
 
-- [ ] **Step 8: 테스트 통과 확인**
+- [x] **Step 8: 테스트 통과 확인**
 
 Run: `node --test tests/status-data.test.mjs 2>&1 | grep -E "^# (pass|fail)"`
 Expected: `# pass 55`, `# fail 0`.
 
-- [ ] **Step 9: 커밋**
+- [x] **Step 9: 커밋**
 
 ```bash
 git add scripts/status/refresh.mjs scripts/status/cli.mjs scripts/status/catalog.mjs config/status.aliases.json tests/status-data.test.mjs
@@ -930,14 +930,14 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - Consumes: Task 4 `cli.mjs`.
 - Produces: 이후 UI 작업이 빌드에 쓰는 v2 스냅샷. `terminalBench.rows`가 18행 안팎, 매핑 18/18, `measuredSpeed` ≥ 20이어야 한다.
 
-- [ ] **Step 1: 갱신 실행**
+- [x] **Step 1: 갱신 실행**
 
 Run: `node scripts/status/cli.mjs 2>&1 | tee /tmp/status-refresh.log | head -60`
 Expected: 다섯 출처 모두 `"status": "ok"`. `terminal-bench` note가 `18/18 published`(오늘 리더보드 기준; 행 수는 바뀔 수 있다). `measuredSpeed`가 20 이상. `openrouter-performance` note가 `N/32 sampled models publish provider p50`.
 
 미매핑이 있으면(`k/n published`에서 k < n): `node -e 'const b=require("./public/data/model-board.json");for(const r of b.terminalBench.rows) if(!r.modelId) console.log(r.model,"|",r.modelOrg)'`로 라벨을 보고, OpenRouter ID를 `config/status.aliases.json`의 `terminalBench`에 `"라벨": "author/slug"`로 추가한 뒤 갱신을 다시 실행한다.
 
-- [ ] **Step 2: 스냅샷 검증**
+- [x] **Step 2: 스냅샷 검증**
 
 ```bash
 node -e '
@@ -950,12 +950,12 @@ for (const m of canon.filter((m) => m.speed !== null).sort((a, b) => b.speed - a
 ```
 Expected: `schema 2`, `with terminalBench` ≥ 10, `with speed` ≥ 20, 상위 속도 목록에 제공사명·요청 수·창 길이가 모두 채워짐.
 
-- [ ] **Step 3: 단위 테스트 재확인**
+- [x] **Step 3: 단위 테스트 재확인**
 
 Run: `npm test 2>&1 | grep -E "^# (pass|fail)"`
 Expected: `# pass 55`(status) + 기존 editorial 테스트 수, `# fail 0`.
 
-- [ ] **Step 4: `docs/status-data.md` 갱신**
+- [x] **Step 4: `docs/status-data.md` 갱신**
 
 Scope 표에서 `speed`·`latency` 행을 아래로 바꾸고 세 행을 추가한다.
 
@@ -992,7 +992,7 @@ Schema 절 첫 문장을 아래로 교체:
 The JSON has `schemaVersion: 2`, `fetchedAt`, `sources`, `terminalBench`, and `models`. `terminalBench` is `{ title, url, updatedAt, rows }` or null; each row is `{ rank, model, modelUrl, agent, agentOrg, modelOrg, effort, accuracy, ci95, date, trials, modelId }`. A version 1 file is upgraded in memory on the next refresh by adding null `terminalBench`, `speedRequests`, and `speedWindow` fields.
 ```
 
-- [ ] **Step 5: `docs/status-research.md` 갱신**
+- [x] **Step 5: `docs/status-research.md` 갱신**
 
 참고 표 아래에 절을 추가한다.
 
@@ -1015,7 +1015,7 @@ The JSON has `schemaVersion: 2`, `fetchedAt`, `sources`, `terminalBench`, and `m
 5. 속도는 OpenRouter 공개 모델 페이지의 제공사별 p50 중 요청 수가 가장 많은 표준 경로 하나를 쓰고, 제공사명·요청 수·창 길이를 함께 저장한다. 관측이 없는 모델은 0이 아니라 비워 둔다.
 ```
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add public/data/model-board.json config/status.aliases.json docs/status-data.md docs/status-research.md
@@ -1046,7 +1046,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
   - `strengthMap(models): Map<id, ('종합'|'코딩'|'에이전트'|'빠름'|'가성비')[]>`
   - `axisMaxima(models): { intelligence, coding, agentic }`, `fingerprint(model, maxima): [{ axis, value, ratio }]`
 
-- [ ] **Step 1: 실패하는 테스트 작성 — `tests/model-board-rules.test.mjs`**
+- [x] **Step 1: 실패하는 테스트 작성 — `tests/model-board-rules.test.mjs`**
 
 ```js
 import test from 'node:test';
@@ -1116,12 +1116,12 @@ test('fingerprints scale each axis to the fleet maximum and mark missing axes in
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `node --test tests/model-board-rules.test.mjs 2>&1 | tail -3`
 Expected: `Cannot find module '.../src/lib/model-board-rules.mjs'`.
 
-- [ ] **Step 3: `src/lib/model-board-rules.mjs` 작성**
+- [x] **Step 3: `src/lib/model-board-rules.mjs` 작성**
 
 ```js
 // Pure ranking and labelling rules for the status board. No DOM, no zod; shared by Astro, the browser, and Node tests.
@@ -1211,7 +1211,7 @@ export function fingerprint(model, maxima) {
 }
 ```
 
-- [ ] **Step 4: `src/lib/model-board-rules.d.mts` 작성**
+- [x] **Step 4: `src/lib/model-board-rules.d.mts` 작성**
 
 ```ts
 import type { Model } from './model-board';
@@ -1242,17 +1242,17 @@ export function axisMaxima(models: readonly Model[]): Record<Axis, number>;
 export function fingerprint(model: Model, maxima: Record<Axis, number>): FingerprintBar[];
 ```
 
-- [ ] **Step 5: `package.json`의 test 스크립트에 추가**
+- [x] **Step 5: `package.json`의 test 스크립트에 추가**
 
 `"test": "node --test tests/editorial.test.mjs tests/editorial-cover.test.mjs tests/status-data.test.mjs tests/model-board-rules.test.mjs",`
 `"test:status": "node --test tests/status-data.test.mjs tests/model-board-rules.test.mjs"`
 
-- [ ] **Step 6: 테스트 통과 확인**
+- [x] **Step 6: 테스트 통과 확인**
 
 Run: `node --test tests/model-board-rules.test.mjs 2>&1 | grep -E "^# (pass|fail)"`
 Expected: `# pass 6`, `# fail 0`.
 
-- [ ] **Step 7: 커밋**
+- [x] **Step 7: 커밋**
 
 ```bash
 git add src/lib/model-board-rules.mjs src/lib/model-board-rules.d.mts tests/model-board-rules.test.mjs package.json
@@ -1273,7 +1273,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - Produces (다른 TS/Astro 파일이 import하는 이름): `boardSchema`, `ModelBoard`, `Model`, `TerminalBenchRow`, `Metric`, `Axis`, `Strength`, `CanonicalModel`, `Variant`, `metrics`, `metricKeys`, `axisKeys`, `cardMetrics`, `isMetric`, `isAxis`, `modelName`, `EMPTY`, `amount`, `dollars`, `compact`, `percent`, `metricValue`(문자열), `metricNumber`(숫자), `ranked`, `canonicalModels`, `variantChip`, `valueSet`, `valuePick`, `strengthMap`, `axisMaxima`, `fingerprint`, `estimate`, `tokenChange`, `observedAt`, `scatter(models, axis?)`, `providerTone`, `sourceCopy`, `sourceForMetric`, `leaderNote`, `valueNote`, `terminalRows`, `terminalUpdated`.
 - 이 태스크 뒤 기존 `.astro`·클라이언트 TS는 여전히 컴파일된다(`tsc`). 화면 변경은 Task 8·9.
 
-- [ ] **Step 1: 파일 전체 교체 — `src/lib/model-board.ts`**
+- [x] **Step 1: 파일 전체 교체 — `src/lib/model-board.ts`**
 
 ```ts
 import { z } from 'astro/zod';
@@ -1415,7 +1415,7 @@ export function terminalUpdated(board: ModelBoard) {
 }
 ```
 
-- [ ] **Step 2: 타입 검사와 빌드**
+- [x] **Step 2: 타입 검사와 빌드**
 
 Run: `npx tsc --noEmit -p tsconfig.json; echo "tsc exit $?"`
 Expected: `tsc exit 0`. 오류가 `model-board-client.ts`의 `metricKeys`(카드 4개 순회) 등 기존 호출부에서 나면 그 파일은 Task 9에서 교체되므로, 오류 메시지가 `model-board.ts`·`model-board-rules.d.mts` 내부가 아닌 경우에만 진행한다.
@@ -1423,7 +1423,7 @@ Expected: `tsc exit 0`. 오류가 `model-board-client.ts`의 `metricKeys`(카드
 Run: `npm run build 2>&1 | tail -3`
 Expected: `Complete!` 포함(pagefind 색인까지). 스냅샷이 v2가 아니면 zod가 `schemaVersion` 오류를 내니 Task 5가 먼저 끝나야 한다.
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add src/lib/model-board.ts
@@ -1445,7 +1445,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - Consumes: Task 7의 모든 export.
 - Produces: 브라우저 렌더(Task 9)가 똑같이 만들어야 하는 DOM 구조. 훅: `[data-metric-shortcut]`, `[data-value-card]`, `[data-leader-value=…]`, `[data-leader-name=…]`, `[data-leader-note=…]`, `[data-leader-art=…]`, `[data-axis-head]`, `[data-column]`, `[data-axis-title]`, `[data-frontier]`, `[data-terminal-rows]`, `[data-terminal-empty]`, `[data-terminal-link]`, `.fingerprint > .fp-bar`, `.strength-pill`, `.variant-chip`, `.axis-value`.
 
-- [ ] **Step 1: `src/components/status/Fingerprint.astro`**
+- [x] **Step 1: `src/components/status/Fingerprint.astro`**
 
 ```astro
 ---
@@ -1458,7 +1458,7 @@ const summary = bars.map((bar) => `${metrics[bar.axis].label} ${amount(bar.value
 <span class="fingerprint" role="img" aria-label={summary} title={summary}>{bars.map((bar) => <i class:list={['fp-bar', { 'fp-active': bar.axis === metric, 'fp-missing': bar.ratio === null }]} style={`--fp:${Math.round((bar.ratio ?? 0) * 100)}%`} />)}</span>
 ```
 
-- [ ] **Step 2: `src/components/status/ModelRow.astro` 전체 교체**
+- [x] **Step 2: `src/components/status/ModelRow.astro` 전체 교체**
 
 ```astro
 ---
@@ -1482,7 +1482,7 @@ const cell = (key: Metric) => ['numeric', { 'metric-active': metric === key, emp
 </tr>
 ```
 
-- [ ] **Step 3: `src/components/status/TerminalBenchPanel.astro`**
+- [x] **Step 3: `src/components/status/TerminalBenchPanel.astro`**
 
 ```astro
 ---
@@ -1505,7 +1505,7 @@ const updated = terminalUpdated(board);
 </GlassPanel>
 ```
 
-- [ ] **Step 4: `src/components/status/BoardCharts.astro` 전체 교체**
+- [x] **Step 4: `src/components/status/BoardCharts.astro` 전체 교체**
 
 ```astro
 ---
@@ -1551,7 +1551,7 @@ const scoreTicks = [0, .25, .5, .75, 1].map((part) => chart.maxScore * part);
 </div>
 ```
 
-- [ ] **Step 5: `src/pages/status.astro` 전체 교체**
+- [x] **Step 5: `src/pages/status.astro` 전체 교체**
 
 ```astro
 ---
@@ -1639,7 +1639,7 @@ const providers = [...new Set(canonical.map((model) => model.provider))].sort();
 </Base>
 ```
 
-- [ ] **Step 6: `src/styles/model-board.css` 수정**
+- [x] **Step 6: `src/styles/model-board.css` 수정**
 
 아래 여섯 군데를 바꾼다. 나머지는 그대로.
 
@@ -1709,7 +1709,7 @@ const providers = [...new Set(canonical.map((model) => model.provider))].sort();
   .variant-chip { display:none; }
 ```
 
-- [ ] **Step 7: 빌드와 눈 확인**
+- [x] **Step 7: 빌드와 눈 확인**
 
 Run: `npm run build 2>&1 | tail -3`
 Expected: 오류 없이 `Complete!`.
@@ -1717,7 +1717,7 @@ Expected: 오류 없이 `Complete!`.
 Run: `grep -c 'class="fp-bar' dist/status/index.html; grep -o 'data-terminal-rows' dist/status/index.html | head -1; grep -o 'data-value-card' dist/status/index.html | head -1`
 Expected: `60`(20행 × 3막대) 이상, `data-terminal-rows`, `data-value-card`.
 
-- [ ] **Step 8: 커밋**
+- [x] **Step 8: 커밋**
 
 ```bash
 git add src/components/status src/pages/status.astro src/styles/model-board.css
@@ -1739,7 +1739,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - Consumes: Task 7 export, Task 8 DOM 훅.
 - Produces: `modelRow(model, index, { metric, maxima, strengths, selected })`, `fingerprintNode(model, maxima, metric)`, `comparisonCard(model, budget)`, `updateCharts(root, board, models, axis)`.
 
-- [ ] **Step 1: `src/lib/model-board-render.ts` 전체 교체**
+- [x] **Step 1: `src/lib/model-board-render.ts` 전체 교체**
 
 ```ts
 import { amount, compact, dollars, EMPTY, estimate, fingerprint, isAxis, metricValue, metrics, modelName, percent, variantChip, type Axis, type CanonicalModel, type Metric, type Model, type Strength } from './model-board';
@@ -1830,7 +1830,7 @@ export function comparisonCard(model: Model, budget: { input: number; output: nu
 }
 ```
 
-- [ ] **Step 2: `src/lib/model-board-charts.ts` 전체 교체**
+- [x] **Step 2: `src/lib/model-board-charts.ts` 전체 교체**
 
 ```ts
 import { amount, compact, dollars, estimate, metrics, modelName, providerTone, ranked, scatter, terminalRows, terminalUpdated, type Axis, type CanonicalModel, type Model, type ModelBoard } from './model-board';
@@ -1905,7 +1905,7 @@ export function updateCharts(root: HTMLElement, board: ModelBoard, models: reado
 }
 ```
 
-- [ ] **Step 3: `src/lib/model-board-client.ts` 전체 교체**
+- [x] **Step 3: `src/lib/model-board-client.ts` 전체 교체**
 
 ```ts
 import { axisMaxima, boardSchema, canonicalModels, cardMetrics, EMPTY, isAxis, isMetric, leaderNote, metrics, metricValue, modelName, observedAt, ranked, sourceCopy, strengthMap, valueNote, valuePick, type Axis, type CanonicalModel, type Metric, type Strength } from './model-board';
@@ -2126,7 +2126,7 @@ const root = document.querySelector<HTMLElement>('[data-model-board]');
 if (root) mount(root);
 ```
 
-- [ ] **Step 4: 타입 검사와 빌드**
+- [x] **Step 4: 타입 검사와 빌드**
 
 Run: `npx tsc --noEmit -p tsconfig.json; echo "tsc exit $?"`
 Expected: `tsc exit 0`. `modelArtwork(id ? { id } : undefined)`에서 `Pick<Model,'id'>` 타입 오류가 나면 `src/lib/model-artwork.ts`의 시그니처가 `model?: Pick<Model, 'id'>`인지 확인한다(현재 그렇다).
@@ -2134,7 +2134,7 @@ Expected: `tsc exit 0`. `modelArtwork(id ? { id } : undefined)`에서 `Pick<Mode
 Run: `npm run build 2>&1 | tail -3`
 Expected: `Complete!`.
 
-- [ ] **Step 5: 브라우저 동작 확인**
+- [x] **Step 5: 브라우저 동작 확인**
 
 ```bash
 npx astro preview --port 4321 > /tmp/preview.log 2>&1 &
@@ -2166,7 +2166,7 @@ kill %1
 ```
 Expected: `before: 20`, `active: 20`(코딩 막대 20개 강조), `axisHead: "coding:descending"`, `axisTitle: "코딩 · AA 지수 ↑"`, `firstCost`가 `$0`류의 최저 비용, `speedSort: "descending"`, `compareRows`에 `Terminal-Bench 4.0`·`속도 관측 요청 수` 포함, `errors: []`.
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add src/lib/model-board-render.ts src/lib/model-board-charts.ts src/lib/model-board-client.ts
@@ -2182,7 +2182,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 **Files:**
 - Modify: `tests/site-contract.test.mjs` (status 절)
 
-- [ ] **Step 1: 테스트 수정**
+- [x] **Step 1: 테스트 수정**
 
 `status exposes sourced model comparisons…` 테스트에서 `for (const metric of ['intelligence', 'outputPrice', 'speed', 'tokens7d'])`를 아래로 바꾸고 세 줄을 덧붙인다.
 
@@ -2197,7 +2197,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 
 `assert.ok(snapshot.models.length > 0);` 다음 줄에 `assert.equal(snapshot.schemaVersion, 2);` 추가.
 
-- [ ] **Step 2: 전체 검증**
+- [x] **Step 2: 전체 검증**
 
 ```bash
 npm test 2>&1 | grep -E "^# (pass|fail)"
@@ -2210,7 +2210,7 @@ kill %1
 ```
 Expected: 단위 `# fail 0`(status 55 + rules 6 + editorial), `tsc-ok`, 빌드 `Complete!`, 사이트 계약 `# fail 0`.
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add tests/site-contract.test.mjs
@@ -2228,7 +2228,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - Modify: `.gitignore` (`artifacts/qa/status-v2/` 추가)
 - 브랜치 `qa/status-v2-shots`(스크린샷 전용, 워크트리로 생성)
 
-- [ ] **Step 1: 캡처 스크립트 작성 — `artifacts/qa/status-v2-capture.cjs`**
+- [x] **Step 1: 캡처 스크립트 작성 — `artifacts/qa/status-v2-capture.cjs`**
 
 ```js
 const path = require('node:path');
@@ -2268,7 +2268,7 @@ const jobs = [
 
 `.gitignore`의 `artifacts/qa/final/` 줄 아래에 `artifacts/qa/status-v2/`를 추가한다.
 
-- [ ] **Step 2: 캡처 실행**
+- [x] **Step 2: 캡처 실행**
 
 ```bash
 npm run build 2>&1 | tail -1
@@ -2280,7 +2280,7 @@ ls -la artifacts/qa/status-v2/
 ```
 Expected: PNG 5장. 각 파일을 `Read`로 열어 확인할 것: 상단 5칸(속도 카드에 제공사명), 2행 세 패널(산점도 점선 전선, Terminal-Bench 상위 6, 사용량), 리더보드에 지문·강점 필·TB %·속도·비용·사용량, 390에서는 순위·모델·지문·종합값 네 열과 2열 카드. `-coding` 캡처에서는 두 번째 막대만 진하고 축 머리글이 `코딩 · AA 지수 ↑`. 어긋나면 CSS/컴포넌트를 고치고 Task 8·9 커밋에 이어 별도 커밋으로 남긴다.
 
-- [ ] **Step 3: 스크린샷 브랜치 푸시**
+- [x] **Step 3: 스크린샷 브랜치 푸시**
 
 ```bash
 git worktree add /tmp/status-v2-shots --detach
@@ -2289,7 +2289,7 @@ git worktree remove --force /tmp/status-v2-shots
 ```
 Expected: `origin/qa/status-v2-shots`에 `shots/*.png` 5장. URL 형식 `https://raw.githubusercontent.com/SEORY0/DADES/qa/status-v2-shots/shots/status-ink-1440.png`.
 
-- [ ] **Step 4: 스크립트·gitignore 커밋과 푸시**
+- [x] **Step 4: 스크립트·gitignore 커밋과 푸시**
 
 ```bash
 git add artifacts/qa/status-v2-capture.cjs .gitignore
@@ -2299,7 +2299,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 git push -u origin improve/status-board-v2
 ```
 
-- [ ] **Step 5: PR 생성**
+- [x] **Step 5: PR 생성**
 
 ```bash
 GIT_CONFIG_NOSYSTEM=1 gh pr create --base main --head improve/status-board-v2 --title "상태판 v2 — 능력 축 카드·지문형 리더보드·Terminal-Bench 4.0·실시간 속도" --body "$(cat <<'BODY'
@@ -2346,7 +2346,7 @@ BODY
 ```
 Expected: PR URL 출력. 본문의 이미지가 렌더되는지 `gh pr view --web` 대신 URL을 브라우저로 열어 확인한다.
 
-- [ ] **Step 6: 계획 체크박스 마무리**
+- [x] **Step 6: 계획 체크박스 마무리**
 
 이 문서의 모든 `- [ ]`를 `- [x]`로 바꾸고 커밋한다.
 

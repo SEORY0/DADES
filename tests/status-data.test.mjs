@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { endpointRequests, numberOrNull, parseCatalog, parseEndpoint } from '../scripts/status/catalog.mjs';
 import { fetchSource, refreshSnapshot } from '../scripts/status/refresh.mjs';
 import { parseRankings } from '../scripts/status/rankings.mjs';
+import { findInRecords, flightRecords } from '../scripts/status/flight.mjs';
 
 const catalogRow = (overrides = {}) => ({
   id: 'example/model', name: 'Example: Model', canonical_slug: 'example/model-20260101',
@@ -10,6 +11,18 @@ const catalogRow = (overrides = {}) => ({
   pricing: { prompt: '0.0000025', completion: '0' },
   benchmarks: { artificial_analysis: { intelligence_index: 123.4, coding_index: 57, agentic_index: null } },
   links: { details: '/api/v1/models/example/model-20260101/endpoints' }, ...overrides,
+});
+
+function flightHtml(stream, splitAt = 7) {
+  return [stream.slice(0, splitAt), stream.slice(splitAt)].map((chunk) => `<script>self.__next_f.push(${JSON.stringify([1, chunk])})</script>`).join('<script>self.__next_f.push([0])</script>');
+}
+
+test('flight parser joins split push chunks into JSON records and skips transport lines', () => {
+  const records = flightRecords(flightHtml('1:"$Sreact.fragment"\na:{"state":{"queries":[{"queryKey":["x"],"state":{"data":[1,2]}}]}}\nb:I[123,[]]\n'));
+  assert.deepEqual([...records.keys()], ['a']);
+  assert.deepEqual(findInRecords(records, (value) => Array.isArray(value.queryKey)).state.data, [1, 2]);
+  assert.equal(findInRecords(records, (value) => value.missing === true), null);
+  assert.throws(() => flightRecords(null), /not HTML/);
 });
 
 test('catalog preserves published benchmark scale and converts token prices to USD per million', () => {

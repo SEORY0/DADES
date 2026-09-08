@@ -187,7 +187,6 @@
   .board-heading h1 { font-size:44px; }
   .board-update { justify-content:flex-start; gap:8px 12px; font-size:13px; }
   .glass-panel,.compare-model { border-radius:var(--chrome-mobile-r); }
-  .board-charts { grid-template-columns:1fr; }
   .model-comparison,.method-grid { grid-template-columns:1fr; }
   .panel-heading,#model-comparison { scroll-margin-top:20px; }
   .compare-dock { right:20px; bottom:calc(90px + env(safe-area-inset-bottom)); font-size:15px; padding:12px 20px; border-radius:var(--chrome-mobile-r); }

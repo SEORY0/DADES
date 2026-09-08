@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "fetchedAt": "2026-09-08T05:09:49.136Z",
+  "fetchedAt": "2026-09-08T10:03:51.635Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
-      "observedAt": "2026-09-08T05:09:49.136Z",
+      "observedAt": "2026-09-08T10:03:51.635Z",
       "status": "ok",
       "note": "428 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -14,7 +14,7 @@
       "id": "artificial-analysis",
       "label": "Artificial Analysis via OpenRouter",
       "url": "https://openrouter.ai/api/v1/models",
-      "observedAt": "2026-09-08T05:09:49.136Z",
+      "observedAt": "2026-09-08T10:03:51.635Z",
       "status": "ok",
       "note": "Artificial Analysis intelligence, coding, and agentic indices as forwarded by OpenRouter. Original scales, not percentages or a DADES aggregate. Missing evaluations remain null."
     },
@@ -1428,8 +1428,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-flash-vision-exp",
       "context": 1048576,
-      "inputPrice": 0.22,
-      "outputPrice": 0.66,
+      "inputPrice": 0.44,
+      "outputPrice": 1.32,
       "intelligence": null,
       "coding": null,
       "agentic": null,

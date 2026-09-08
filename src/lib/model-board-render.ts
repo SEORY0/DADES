@@ -1,4 +1,4 @@
-import { amount, compact, dollars, estimate, metricValue, metrics, modelName, type Metric, type Model } from './model-board';
+import { amount, compact, dollars, EMPTY, estimate, fingerprint, isAxis, metricValue, metrics, modelName, percent, variantChip, type Axis, type CanonicalModel, type Metric, type Model, type Strength } from './model-board';
 
 export function element<K extends keyof HTMLElementTagNameMap>(tag: K, text = '', className = '') {
   const node = document.createElement(tag);
@@ -6,7 +6,29 @@ export function element<K extends keyof HTMLElementTagNameMap>(tag: K, text = ''
   node.className = className;
   return node;
 }
-export function modelRow(model: Model, index: number, state: { metric: Metric; max: number; selected: ReadonlySet<string> }) {
+
+export function fingerprintNode(model: Model, maxima: Record<Axis, number>, metric: Metric) {
+  const bars = fingerprint(model, maxima);
+  const summary = bars.map((bar) => `${metrics[bar.axis].label} ${amount(bar.value)}`).join(' · ');
+  const node = element('span', '', 'fingerprint');
+  node.setAttribute('role', 'img');
+  node.setAttribute('aria-label', summary);
+  node.title = summary;
+  for (const bar of bars) {
+    const item = element('i', '', `fp-bar${bar.axis === metric ? ' fp-active' : ''}${bar.ratio === null ? ' fp-missing' : ''}`);
+    item.style.setProperty('--fp', `${Math.round((bar.ratio ?? 0) * 100)}%`);
+    node.append(item);
+  }
+  return node;
+}
+
+function numericCell(text: string, active: boolean, extra = '') {
+  const cell = element('td', '', `numeric${extra ? ` ${extra}` : ''}${active ? ' metric-active' : ''}${text === EMPTY ? ' empty' : ''}`);
+  cell.append(element('span', text));
+  return cell;
+}
+
+export function modelRow(model: CanonicalModel, index: number, state: { metric: Metric; maxima: Record<Axis, number>; strengths: readonly Strength[]; selected: ReadonlySet<string> }) {
   const row = element('tr');
   row.dataset.modelRow = model.id;
   row.append(element('td', String(index + 1), 'board-rank'));
@@ -22,22 +44,25 @@ export function modelRow(model: Model, index: number, state: { metric: Metric; m
   const link = element('a', modelName(model));
   link.href = model.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
   link.append(element('span', ' 원문, 새 탭', 'sr-only'));
-  name.append(link, element('small', model.provider)); identity.append(label, name); heading.append(identity); row.append(heading);
-  const values = [amount(model.intelligence), dollars(model.inputPrice), dollars(model.outputPrice), amount(model.speed), compact(model.tokens7d), compact(model.context)];
-  const keys = ['intelligence', 'inputPrice', 'outputPrice', 'speed', 'tokens7d', 'context'];
-  values.forEach((value, column) => {
-    const active = keys[column] === state.metric;
-    const cell = element('td', '', `numeric${active ? ' metric-active' : ''}`);
-    cell.append(element('span', value));
-    if (keys[column] === 'speed' && model.speedProvider) cell.append(element('small', model.speedProvider));
-    if (active && !metrics[state.metric].ascending) {
-      const bar = element('i', '', 'cell-bar');
-      bar.style.setProperty('--bar', `${state.max ? (model[state.metric] ?? 0) / state.max * 100 : 0}%`); cell.append(bar);
-    }
-    row.append(cell);
-  });
+  const provider = element('small', model.provider);
+  for (const variant of model.variants) provider.append(element('span', variantChip(model, variant), 'variant-chip'));
+  name.append(link, provider); identity.append(label, name); heading.append(identity); row.append(heading);
+  const fingerprintCell = element('td', '', 'fingerprint-cell');
+  fingerprintCell.append(fingerprintNode(model, state.maxima, state.metric));
+  const strengthCell = element('td', '', 'strength-cell');
+  for (const strength of state.strengths) strengthCell.append(element('span', strength, 'strength-pill'));
+  const tb = model.terminalBench;
+  const terminal = numericCell(metricValue(model, 'terminalBench'), state.metric === 'terminalBench');
+  if (tb) terminal.title = `±${amount(tb.ci95)} · ${tb.agent}${tb.effort ? ` · ${tb.effort}` : ''} · ${tb.date}`;
+  const speed = numericCell(metricValue(model, 'speed'), state.metric === 'speed');
+  if (model.speedProvider) speed.append(element('small', model.speedProvider));
+  const cost = numericCell(metricValue(model, 'cost'), state.metric === 'cost');
+  cost.title = `입력 ${dollars(model.inputPrice)} · 출력 ${dollars(model.outputPrice)}`;
+  const axisCell = numericCell(isAxis(state.metric) ? metricValue(model, state.metric) : '', isAxis(state.metric), 'axis-value');
+  row.append(fingerprintCell, strengthCell, terminal, speed, cost, numericCell(metricValue(model, 'tokens7d'), state.metric === 'tokens7d'), axisCell);
   return row;
 }
+
 export function comparisonCard(model: Model, budget: { input: number; output: number }) {
   const card = element('article', '', 'compare-model');
   const header = element('header');
@@ -45,11 +70,15 @@ export function comparisonCard(model: Model, budget: { input: number; output: nu
   remove.type = 'button'; remove.dataset.remove = model.id; remove.setAttribute('aria-label', `${modelName(model)} 비교에서 빼기`);
   header.append(element('h3', modelName(model)), remove);
   const list = element('dl');
-  const values = [
+  const tb = model.terminalBench;
+  const values: [string, string][] = [
     ['예상 토큰 비용', dollars(estimate(model, budget.input, budget.output))],
-    ['성능 · AA 지수', amount(model.intelligence)], ['코딩 · AA 지수', amount(model.coding)],
+    ['종합 · AA 지수', amount(model.intelligence)], ['코딩 · AA 지수', amount(model.coding)], ['에이전트 · AA 지수', amount(model.agentic)],
+    ['Terminal-Bench 4.0', tb ? `${percent(tb.accuracy)} · ${tb.agent}` : EMPTY],
     ['입력 / 100만 토큰', dollars(model.inputPrice)], ['출력 / 100만 토큰', dollars(model.outputPrice)],
-    ['생성 속도 · tok/s', amount(model.speed)], ['첫 토큰 지연 · 초', amount(model.latency)], ['주간 사용량', compact(model.tokens7d)], ['컨텍스트 · tokens', compact(model.context)],
+    ['생성 속도 · tok/s', model.speedProvider ? `${amount(model.speed, 0)} · ${model.speedProvider}` : amount(model.speed, 0)],
+    ['첫 토큰 지연 · 초', amount(model.latency)], ['속도 관측 요청 수', compact(model.speedRequests)],
+    ['주간 사용량', compact(model.tokens7d)], ['컨텍스트 · tokens', compact(model.context)],
   ];
   for (const [label, value] of values) list.append(element('dt', label), element('dd', value, label === '예상 토큰 비용' ? 'estimated-cost' : ''));
   card.append(header, list);

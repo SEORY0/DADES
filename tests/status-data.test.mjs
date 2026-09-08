@@ -1,9 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { endpointRequests, numberOrNull, parseCatalog, parseEndpoint } from '../scripts/status/catalog.mjs';
 import { fetchSource, refreshSnapshot } from '../scripts/status/refresh.mjs';
 import { parseRankings } from '../scripts/status/rankings.mjs';
 import { findInRecords, flightRecords } from '../scripts/status/flight.mjs';
+import { matchTerminalBench, parseTerminalBench } from '../scripts/status/terminal-bench.mjs';
+
+const tbenchHtml = await readFile(new URL('./fixtures/status/tbench-4.0.html', import.meta.url), 'utf8');
+
+function terminalBenchHtml({ name = '4-0-0', title = 'Terminal-Bench 4.0', rows = [] } = {}) {
+  const record = ['$', '$L1e', null, { state: { queries: [{ queryKey: ['leaderboard'], state: { data: { leaderboard: { title, name, updated_at: '2026-09-03T21:34:07.080891+00:00' }, rows } } }] } }];
+  return `<script>self.__next_f.push(${JSON.stringify([1, `1d:${JSON.stringify(record)}\n`])})</script>`;
+}
+const tbRow = (overrides = {}) => ({
+  rank: 1,
+  metadata: { date: '2026-09-03', model_display: { label: 'Example Model', url: 'https://example.com/model' }, agent_display: { label: 'Example Agent', url: 'https://example.com/agent' }, agent_org: { label: 'Example' }, model_org: { label: 'Example' }, reasoning_effort: 'high' },
+  metrics: { accuracy: 42.5, accuracy_ci95_half_width: 3, n_trials: 330 },
+  ...overrides,
+});
+const tbMeta = (overrides) => ({ ...tbRow().metadata, ...overrides });
 
 const catalogRow = (overrides = {}) => ({
   id: 'example/model', name: 'Example: Model', canonical_slug: 'example/model-20260101',
@@ -224,4 +240,46 @@ test('one failed performance endpoint retains the entire earlier measurement bat
   const result = await refreshSnapshot({ previous, transport });
   assert.deepEqual(result.models.map((model) => model.speed), [55, 66]);
   assert.equal(result.sources.find((source) => source.id === 'openrouter-performance').observedAt, previous.fetchedAt);
+});
+
+test('terminal-bench parser reads the published 4.0 leaderboard rows with their agent and confidence interval', () => {
+  const board = parseTerminalBench(tbenchHtml);
+  assert.equal(board.title, 'Terminal-Bench 4.0');
+  assert.equal(board.url, 'https://www.tbench.ai/leaderboard/terminal-bench/4.0');
+  assert.equal(board.updatedAt, '2026-09-03T21:34:07.080Z');
+  assert.equal(board.rows.length, 18);
+  assert.deepEqual(board.rows[0], { rank: 1, model: 'GPT-6 Astra', modelUrl: 'https://developers.openai.com/api/docs/models/gpt-6-astra', agent: 'Codex', agentOrg: 'OpenAI', modelOrg: 'OpenAI', effort: 'max', accuracy: 58.18, ci95: 2.79, date: '2026-09-03', trials: 330, modelId: null });
+});
+
+test('terminal-bench parser rejects another leaderboard version, empty rows, incomplete rows, and pages without data', () => {
+  assert.throws(() => parseTerminalBench(terminalBenchHtml({ name: '2-1-0', rows: [tbRow()] })), /Unexpected Terminal-Bench leaderboard/);
+  assert.throws(() => parseTerminalBench(terminalBenchHtml({ rows: [] })), /no rows/);
+  assert.throws(() => parseTerminalBench(terminalBenchHtml({ rows: [tbRow({ metrics: { accuracy: null } })] })), /incomplete/);
+  assert.throws(() => parseTerminalBench('<html></html>'), /unavailable/);
+});
+
+test('terminal-bench matching uses exact or suffix name matches inside the model organisation namespace and keeps the best row', () => {
+  const models = [
+    { id: 'anthropic/claude-opus-5', name: 'Anthropic: Claude Opus 5' }, { id: 'anthropic/claude-opus-5:batch', name: 'Anthropic: Claude Opus 5 (batch)' },
+    { id: 'openai/gpt-6-astra', name: 'OpenAI: GPT-6 Astra' }, { id: 'other/opus-5', name: 'Other: Opus 5' },
+  ];
+  const board = parseTerminalBench(terminalBenchHtml({ rows: [
+    tbRow({ rank: 1, metadata: tbMeta({ model_display: { label: 'Opus 5' }, model_org: { label: 'Anthropic' }, reasoning_effort: 'max' }), metrics: { accuracy: 51.8, accuracy_ci95_half_width: 3.4 } }),
+    tbRow({ rank: 2, metadata: tbMeta({ model_display: { label: 'Opus 5' }, model_org: { label: 'Anthropic' }, reasoning_effort: 'high' }), metrics: { accuracy: 60, accuracy_ci95_half_width: 3 } }),
+    tbRow({ rank: 3, metadata: tbMeta({ model_display: { label: 'GPT-6 Astra' }, model_org: { label: 'OpenAI' } }), metrics: { accuracy: 58.2 } }),
+    tbRow({ rank: 4, metadata: tbMeta({ model_display: { label: 'Mystery' }, model_org: { label: 'Nobody' } }), metrics: { accuracy: 10 } }),
+  ] }));
+  const matched = matchTerminalBench(board, models);
+  assert.deepEqual(matched.rows.map((row) => row.modelId), ['anthropic/claude-opus-5', 'anthropic/claude-opus-5', 'openai/gpt-6-astra', null]);
+  assert.deepEqual(matched.byId.get('anthropic/claude-opus-5'), { accuracy: 60, ci95: 3, agent: 'Example Agent', effort: 'high', date: '2026-09-03' });
+  assert.equal(matched.mapped, 3);
+  assert.equal(matched.updatedAt, board.updatedAt);
+});
+
+test('terminal-bench matching falls back to aliases for ambiguous labels and ignores alias targets missing from the catalog', () => {
+  const models = [{ id: 'google/gemini-3.8-flash', name: 'Google: Gemini 3.8 Flash' }, { id: 'google/gemini-3.7-flash', name: 'Google: Gemini 3.7 Flash' }];
+  const board = parseTerminalBench(terminalBenchHtml({ rows: [tbRow({ metadata: tbMeta({ model_display: { label: 'Flash' }, model_org: { label: 'Google' } }) })] }));
+  assert.equal(matchTerminalBench(board, models).rows[0].modelId, null);
+  assert.equal(matchTerminalBench(board, models, { Flash: 'google/gemini-3.8-flash' }).rows[0].modelId, 'google/gemini-3.8-flash');
+  assert.equal(matchTerminalBench(board, models, { Flash: 'google/missing' }).rows[0].modelId, null);
 });

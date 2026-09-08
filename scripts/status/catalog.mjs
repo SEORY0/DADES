@@ -9,6 +9,8 @@ const PROVIDER_LABELS = new Map(Object.entries({
   upstage: 'Upstage', poolside: 'Poolside', inception: 'Inception', stepfun: 'StepFun',
 }));
 
+export const isCanonicalId = (id) => !id.startsWith('~') && !id.includes(':');
+
 export function numberOrNull(value) {
   if (typeof value !== 'number' && (typeof value !== 'string' || !/^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(value))) return null;
   const number = Number(value);

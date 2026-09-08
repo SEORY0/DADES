@@ -1,13 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { endpointRequests, numberOrNull, parseCatalog, parseEndpoint } from '../scripts/status/catalog.mjs';
+import { numberOrNull, parseCatalog } from '../scripts/status/catalog.mjs';
 import { fetchSource, refreshSnapshot } from '../scripts/status/refresh.mjs';
 import { parseRankings } from '../scripts/status/rankings.mjs';
 import { findInRecords, flightRecords } from '../scripts/status/flight.mjs';
 import { matchTerminalBench, parseTerminalBench } from '../scripts/status/terminal-bench.mjs';
+import { parseModelPage, performanceSample } from '../scripts/status/performance.mjs';
 
+const openRouterHtml = await readFile(new URL('./fixtures/status/openrouter-claude-opus-5.html', import.meta.url), 'utf8');
 const tbenchHtml = await readFile(new URL('./fixtures/status/tbench-4.0.html', import.meta.url), 'utf8');
+
+function modelPageHtml(modelId, endpoints, variant = 'standard') {
+  const query = { queryKey: ['model-page', 'providerTableEndpointStats', { permaslug: `${modelId}-20260101`, variant, perfWorkload: 'text_generation', latencyMetric: 'latency' }], state: { data: endpoints } };
+  const record = ['$', '$L1e', null, { state: { mutations: [], queries: [query] } }];
+  return `<script>self.__next_f.push(${JSON.stringify([1, `1d:${JSON.stringify(record)}\n`])})</script>`;
+}
+const endpoint = (overrides = {}) => ({
+  provider_display_name: 'Example Cloud', provider_slug: 'example', variant: 'standard', model_variant_slug: 'example/model',
+  is_free: false, is_deranked: false, is_disabled: false, is_hidden: false, is_byok_only: false,
+  stats: { p50_throughput: 55, p50_latency: 1200, throughput_request_count: 100, window_minutes: 30 }, ...overrides,
+});
+const stats = (overrides) => ({ p50_throughput: 55, p50_latency: 1200, throughput_request_count: 100, window_minutes: 30, ...overrides });
 
 function terminalBenchHtml({ name = '4-0-0', title = 'Terminal-Bench 4.0', rows = [] } = {}) {
   const record = ['$', '$L1e', null, { state: { queries: [{ queryKey: ['leaderboard'], state: { data: { leaderboard: { title, name, updated_at: '2026-09-03T21:34:07.080891+00:00' }, rows } } }] } }];
@@ -79,48 +93,6 @@ test('catalog rejects duplicate identities and an empty text catalog', () => {
 test('catalog refuses a truncated upstream page instead of dropping existing models', () => {
   assert.throws(() => parseCatalog({ data: [catalogRow()], total_count: 2 }), /incomplete/);
   assert.throws(() => parseCatalog({ data: [catalogRow()], links: { next: '/api/v1/models?page=2' } }), /incomplete/);
-});
-
-test('performance requests only follow published matching HTTPS details links', () => {
-  const good = catalogRow();
-  const foreign = catalogRow({ id: 'example/foreign', links: { details: 'https://other.example/api/v1/models/example/model-20260101/endpoints' } });
-  const wrong = catalogRow({ id: 'example/wrong', links: { details: '/api/v1/models/example/different/endpoints' } });
-  const payload = { data: [good, foreign, wrong] };
-  assert.deepEqual(endpointRequests(payload, parseCatalog(payload)), [{ id: good.id, canonical: good.canonical_slug, url: 'https://openrouter.ai/api/v1/models/example/model-20260101/endpoints' }]);
-});
-
-test('performance uses speed and latency from one named endpoint without mixing providers', () => {
-  const request = { id: 'example/model', canonical: 'example/model-20260101' };
-  const data = { id: request.canonical, endpoints: [
-    { model_id: request.canonical, provider_name: 'Zulu', throughput_last_30m: { p50: 900 }, latency_last_30m: { p50: 0.2 } },
-    { model_id: request.canonical, provider_name: 'Alpha', throughput_last_30m: { p50: 31 }, latency_last_30m: { p50: 4 } },
-  ] };
-  assert.deepEqual(parseEndpoint({ data }, request), { speed: 31, latency: 4, speedProvider: 'Alpha' });
-});
-
-test('performance reads the documented p50 percentile from both endpoint metrics', () => {
-  const request = { id: 'openai/gpt-4', canonical: 'openai/gpt-4' };
-  const data = { id: request.id, endpoints: [{
-    model_id: request.id, provider_name: 'OpenAI', tag: 'openai',
-    throughput_last_30m: { p50: 45.2, p75: 38.5, p90: 28.3, p99: 15.1 },
-    latency_last_30m: { p50: 0.25, p75: 0.35, p90: 0.48, p99: 0.85 },
-  }] };
-  assert.deepEqual(parseEndpoint({ data }, request), { speed: 45.2, latency: 0.25, speedProvider: 'OpenAI (openai)' });
-});
-
-test('performance leaves a missing p50 unknown instead of substituting another percentile', () => {
-  const request = { id: 'example/model', canonical: 'example/model' };
-  const data = { id: request.id, endpoints: [{
-    model_id: request.id, provider_name: 'Example',
-    throughput_last_30m: { p75: 38.5 }, latency_last_30m: { p50: 0.25 },
-  }] };
-  assert.deepEqual(parseEndpoint({ data }, request), { speed: null, latency: null, speedProvider: null });
-});
-
-test('performance rejects model mismatch and treats missing throughput as unavailable', () => {
-  const request = { id: 'example/model', canonical: 'example/model-20260101' };
-  assert.throws(() => parseEndpoint({ data: { id: 'other/model', endpoints: [] } }, request), /mismatch/);
-  assert.deepEqual(parseEndpoint({ data: { id: request.id, endpoints: [{ model_id: request.id, provider_name: 'Alpha', throughput_last_30m: null, latency_last_30m: { p50: 0.2 } }] } }, request), { speed: null, latency: null, speedProvider: null });
 });
 
 function previousSnapshot() {
@@ -282,4 +254,54 @@ test('terminal-bench matching falls back to aliases for ambiguous labels and ign
   assert.equal(matchTerminalBench(board, models).rows[0].modelId, null);
   assert.equal(matchTerminalBench(board, models, { Flash: 'google/gemini-3.8-flash' }).rows[0].modelId, 'google/gemini-3.8-flash');
   assert.equal(matchTerminalBench(board, models, { Flash: 'google/missing' }).rows[0].modelId, null);
+});
+
+test('catalog initialises the v2 observation fields as unknown', () => {
+  const [model] = parseCatalog({ data: [catalogRow()] });
+  assert.deepEqual([model.terminalBench, model.speedRequests, model.speedWindow], [null, null, null]);
+});
+
+test('model page performance picks the standard endpoint with the most requests and converts latency to seconds', () => {
+  assert.deepEqual(parseModelPage(openRouterHtml, 'anthropic/claude-opus-5'), { speed: 51, latency: 5.129, speedProvider: 'Claude Platform on AWS', speedRequests: 32605, speedWindow: 30 });
+});
+
+test('model page performance skips free, deranked, disabled, hidden, BYOK, quiet, and unmeasured endpoints', () => {
+  const html = modelPageHtml('example/model', [
+    endpoint({ provider_slug: 'free', is_free: true, stats: stats({ p50_throughput: 900, throughput_request_count: 9000 }) }),
+    endpoint({ provider_slug: 'deranked', is_deranked: true, stats: stats({ p50_throughput: 900, throughput_request_count: 9000 }) }),
+    endpoint({ provider_slug: 'disabled', is_disabled: true, stats: stats({ throughput_request_count: 9000 }) }),
+    endpoint({ provider_slug: 'hidden', is_hidden: true, stats: stats({ throughput_request_count: 9000 }) }),
+    endpoint({ provider_slug: 'byok', is_byok_only: true, stats: stats({ throughput_request_count: 9000 }) }),
+    endpoint({ provider_slug: 'quiet', stats: stats({ p50_throughput: 900, throughput_request_count: 0 }) }),
+    endpoint({ provider_slug: 'silent', stats: null }),
+    endpoint({ provider_slug: 'busy', provider_display_name: 'Busy Cloud', stats: stats({ p50_throughput: 40, p50_latency: null, throughput_request_count: 500 }) }),
+    endpoint(),
+  ]);
+  assert.deepEqual(parseModelPage(html, 'example/model'), { speed: 40, latency: null, speedProvider: 'Busy Cloud', speedRequests: 500, speedWindow: 30 });
+});
+
+test('model page performance breaks request ties by throughput then provider slug and returns nulls without candidates', () => {
+  const tie = modelPageHtml('example/model', [
+    endpoint({ provider_slug: 'b', provider_display_name: 'B', stats: stats({ p50_throughput: 70 }) }),
+    endpoint({ provider_slug: 'a', provider_display_name: 'A', stats: stats({ p50_throughput: 70 }) }),
+    endpoint({ provider_slug: 'c', provider_display_name: 'C', stats: stats({ p50_throughput: 60 }) }),
+  ]);
+  assert.equal(parseModelPage(tie, 'example/model').speedProvider, 'A');
+  assert.deepEqual(parseModelPage(modelPageHtml('example/model', []), 'example/model'), { speed: null, latency: null, speedProvider: null, speedRequests: null, speedWindow: null });
+});
+
+test('model page performance rejects pages without statistics, other variants, and other models', () => {
+  assert.throws(() => parseModelPage('<html></html>', 'example/model'), /no endpoint statistics/);
+  assert.throws(() => parseModelPage(modelPageHtml('example/model', [endpoint()], 'free'), 'example/model'), /variant/);
+  assert.throws(() => parseModelPage(modelPageHtml('example/model', [endpoint({ model_variant_slug: 'other/model' })]), 'example/model'), /do not belong/);
+});
+
+test('performance sample prefers leading intelligence and usage models and skips variants', () => {
+  const models = [...Array(40)].map((_, index) => ({ id: `example/model-${index}`, intelligence: index, tokens7d: 40 - index }));
+  models.push({ id: 'example/model-39:batch', intelligence: 99, tokens7d: 99 }, { id: '~example/alias', intelligence: 99, tokens7d: 99 });
+  const sample = performanceSample(models);
+  assert.equal(sample.length, 32);
+  assert.ok(sample.every((model) => !model.id.includes(':') && !model.id.startsWith('~')));
+  assert.ok(sample.slice(0, 16).every((model) => model.intelligence >= 24));
+  assert.ok(sample.slice(16).every((model) => model.tokens7d >= 25));
 });

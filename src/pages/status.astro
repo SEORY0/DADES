@@ -4,36 +4,49 @@ import GlassPanel from '../components/status/GlassPanel.astro';
 import BoardCharts from '../components/status/BoardCharts.astro';
 import ModelRow from '../components/status/ModelRow.astro';
 import raw from '../../public/data/model-board.json';
-import { boardSchema, metrics, metricKeys, ranked, metricValue, modelName, observedAt, sourceCopy, sourceForMetric } from '../lib/model-board';
+import { axisMaxima, boardSchema, canonicalModels, cardMetrics, EMPTY, leaderNote, metricKeys, metricValue, metrics, modelName, observedAt, ranked, sourceCopy, strengthMap, valueNote, valuePick } from '../lib/model-board';
 import { href } from '../lib/mag';
 import { modelArtwork } from '../lib/model-artwork';
 import '../styles/model-board.css';
 const board = boardSchema.parse(raw);
-const leaders = ranked(board.models, 'intelligence');
-const providers = [...new Set(board.models.map((model) => model.provider))].sort();
+const canonical = canonicalModels(board.models);
+const leaders = ranked(canonical, 'intelligence');
+const maxima = axisMaxima(canonical);
+const strengths = strengthMap(canonical);
+const pick = valuePick(canonical);
+const pickArt = modelArtwork(pick ?? undefined);
+const providers = [...new Set(canonical.map((model) => model.provider))].sort();
 ---
-<Base title="AI 모델 상태판" description="AI 모델 성능, 토큰 가격, 생성 속도와 실제 사용량을 출처와 함께 비교하는 DADES 상태판." active="status" layout="immersive">
+<Base title="AI 모델 상태판" description="AI 모델의 종합·코딩·에이전트 지수, Terminal-Bench 4.0, 생성 속도, 토큰 비용과 실제 사용량을 출처와 함께 비교하는 DADES 상태판." active="status" layout="immersive">
   <div class="model-board" data-model-board data-feed={href('/data/model-board.json')}>
     <header class="board-heading">
       <div><h1>AI 상태판</h1></div>
       <div class="board-update"><span class="update-state" data-freshness>관측값</span><p><time datetime={board.fetchedAt} data-board-time>{observedAt(board)}</time> KST 확인</p><button type="button" class="glass-button refresh-button" data-refresh data-js-only hidden><span aria-hidden="true">↻</span> 새로 확인</button></div>
     </header>
     <p class="board-feedback" data-board-feedback role="status" aria-live="polite"></p>
-    <div class="board-highlights" aria-label="지표별 선두 모델">
-      {metricKeys.map((metric) => {
-        const leader = ranked(board.models, metric)[0];
+    <div class="board-highlights" aria-label="축별 선두 모델">
+      {cardMetrics.map((metric) => {
+        const leader = ranked(canonical, metric)[0];
         const artwork = modelArtwork(leader);
-        return <a class="highlight-card" href="#leaderboard" data-metric-shortcut={metric} data-leader-model={leader?.id}>
+        return <a class="highlight-card" href="#leaderboard" data-metric-shortcut={metric} data-leader-model={leader?.id} hidden={metric === 'speed' && !leader}>
           <img class="highlight-art" src={artwork ?? undefined} alt="" width="180" height="180" decoding="async" hidden={!artwork} data-leader-art={metric} />
           <div class="glass-panel highlight-glass">
           <div class="highlight-label"><span>{metrics[metric].title}</span><span aria-hidden="true">↗</span></div>
-          <div class="highlight-value"><strong data-leader-value={metric}>{leader ? metricValue(leader, metric) : '—'}</strong><span>{metrics[metric].unit}</span></div>
-          <p data-leader-name={metric}>{leader ? modelName(leader) : '관측 데이터 대기'}</p><small class="metric-date" data-metric-date={metric}>{sourceForMetric(board, metric)}</small>
+          <div class="highlight-value"><strong data-leader-value={metric}>{leader ? metricValue(leader, metric) : EMPTY}</strong><span>{metrics[metric].unit}</span></div>
+          <p data-leader-name={metric}>{leader ? modelName(leader) : '관측 대기'}</p><small class="metric-date" data-leader-note={metric}>{leaderNote(board, leader, metric)}</small>
           </div>
         </a>;
       })}
+      <a class="highlight-card" href="#value-chart" data-value-card data-leader-model={pick?.id} hidden={!pick}>
+        <img class="highlight-art" src={pickArt ?? undefined} alt="" width="180" height="180" decoding="async" hidden={!pickArt} data-leader-art="value" />
+        <div class="glass-panel highlight-glass">
+        <div class="highlight-label"><span>{metrics.cost.title}</span><span aria-hidden="true">↘</span></div>
+        <div class="highlight-value"><strong data-leader-value="value">{pick ? metricValue(pick, 'cost') : EMPTY}</strong><span>{metrics.cost.unit}</span></div>
+        <p data-leader-name="value">{pick ? modelName(pick) : '관측 대기'}</p><small class="metric-date" data-leader-note="value">{pick ? valueNote(canonical, pick) : ''}</small>
+        </div>
+      </a>
     </div>
-    <BoardCharts board={board} />
+    <BoardCharts board={board} models={canonical} />
     <GlassPanel class="leaderboard-panel" label="모델 리더보드">
       <div class="panel-heading" id="leaderboard"><div><h2>리더보드</h2></div><a class="source-link" href="#board-method">지표 읽는 법 ↗</a></div>
 
@@ -41,26 +54,27 @@ const providers = [...new Set(board.models.map((model) => model.provider))].sort
         <div class="metric-switch" role="group" aria-label="순위 기준">{metricKeys.map((metric) => <button type="button" data-metric={metric} aria-pressed={metric === 'intelligence'}>{metrics[metric].label}</button>)}</div>
         <div class="board-search"><label><span class="sr-only">모델 검색</span><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m15 15 5 5" stroke="currentColor" stroke-width="1.6"/></svg><input type="search" placeholder="모델 이름 검색" maxlength="100" data-model-query /></label><label><span class="sr-only">모델 개발사</span><select data-model-provider><option value="all">모든 개발사</option>{providers.map((provider) => <option value={provider}>{provider}</option>)}</select></label></div>
       </div>
-      <div class="ranking-context"><p data-ranking-count>성능 측정값이 있는 {leaders.length}개 모델 · 내림차순</p></div>
+      <div class="ranking-context"><p data-ranking-count>종합 · {leaders.length}개 · 높은 순</p></div>
       <div class="board-table-scroll" tabindex="0" role="region" aria-label="모델 비교 표, 작은 화면에서는 가로로 스크롤">
-        <table class="board-table"><caption class="sr-only">모델별 성능 지수, 입력과 출력 토큰 단가, 생성 속도, 주간 사용량, 컨텍스트 크기</caption><thead><tr><th scope="col">순위</th><th scope="col">모델 <span data-js-only hidden>· 최대 3개 비교</span></th><th scope="col" data-column="intelligence" aria-sort="descending">성능 <small>AA 지수</small></th><th scope="col">입력 <small>$/1M</small></th><th scope="col" data-column="outputPrice">출력 <small>$/1M</small></th><th scope="col" data-column="speed">속도 <small>tok/s</small></th><th scope="col" data-column="tokens7d">사용량 <small>주간 tokens</small></th><th scope="col">컨텍스트 <small>tokens</small></th></tr></thead><tbody data-model-rows>{leaders.slice(0, 20).map((model, index) => <ModelRow model={model} rank={index + 1} metric="intelligence" max={leaders[0]?.intelligence ?? 1} />)}</tbody></table>
+        <table class="board-table"><caption class="sr-only">모델별 종합·코딩·에이전트 지수 지문, 강점, Terminal-Bench 4.0 정확도, 생성 속도, 1M+1M 토큰 비용, 주간 사용량</caption><thead><tr><th scope="col">순위</th><th scope="col">모델 <span data-js-only hidden>· 최대 3개 비교</span></th><th scope="col" class="fingerprint-head">종합 · 코딩 · 에이전트</th><th scope="col" class="strength-head">강점</th><th scope="col" data-column="terminalBench">TB 4.0 <small>%</small></th><th scope="col" data-column="speed">속도 <small>tok/s</small></th><th scope="col" data-column="cost">비용 <small>$ / 1M+1M</small></th><th scope="col" data-column="tokens7d">사용량 <small>주간 tokens</small></th><th scope="col" class="axis-value" data-column="intelligence" data-axis-head aria-sort="descending">종합 <small>AA</small></th></tr></thead><tbody data-model-rows>{leaders.slice(0, 20).map((model, index) => <ModelRow model={model} rank={index + 1} metric="intelligence" maxima={maxima} strengths={strengths.get(model.id) ?? []} />)}</tbody></table>
       </div>
       <div class="board-empty" data-ranking-empty hidden><h3>일치하는 모델이 없습니다</h3><p>검색어 또는 개발사를 바꿔 보세요.</p><button type="button" class="glass-button" data-reset>조건 초기화</button></div>
-      <div class="table-bottom"><p>측정값이 있는 모델만 표시</p><button type="button" class="glass-button" data-more data-js-only hidden>20개 더 보기 <span aria-hidden="true">↓</span></button></div>
+      <div class="table-bottom"><p>측정값이 있는 정식 모델만 표시</p><button type="button" class="glass-button" data-more data-js-only hidden>20개 더 보기 <span aria-hidden="true">↓</span></button></div>
     </GlassPanel>
     <GlassPanel class="comparison-panel" label="선택 모델 비교와 토큰 비용 계산">
       <div class="panel-heading"><div><h2 id="model-comparison">모델 비교</h2></div><span class="selection-count" data-selection-count>0 / 3</span></div>
       <p class="board-caption" data-compare-hint>표에서 최대 3개 선택</p>
       <div class="budget-inputs" data-js-only hidden><label>입력 토큰 <span><input type="number" min="0" max="100" step="0.1" value="1" data-budget="input" /> 백만</span></label><label>출력 토큰 <span><input type="number" min="0" max="100" step="0.1" value="1" data-budget="output" /> 백만</span></label><p>기본 단가 기준 · 추가 과금 별도</p></div>
       <div class="model-comparison" data-comparison></div>
-      <noscript><p class="board-caption">비교 및 비용 계산은 JavaScript가 필요합니다. 위 표의 입력·출력 단가는 그대로 확인할 수 있습니다.</p></noscript>
+      <noscript><p class="board-caption">비교 및 비용 계산은 JavaScript가 필요합니다. 위 표의 값은 그대로 확인할 수 있습니다.</p></noscript>
     </GlassPanel>
     <GlassPanel class="method-panel" label="데이터 출처와 읽는 법">
       <details class="source-details" id="board-method"><summary>데이터 기준과 출처 <span aria-hidden="true">+</span></summary>
-        <div class="method-grid"><div><h3>성능 ≠ 선호도 ≠ 사용량</h3><p>AA 성능 지수는 벤치마크 결과입니다. 사람의 선호도를 측정하는 Arena 점수, 실제 사용량과 같은 척도가 아닙니다. 개발사·추론 설정에 따라 결과도 달라집니다.</p></div><div><h3>속도는 제공 경로에 따라</h3><p>OpenRouter 속도는 최근 30분의 제공 경로 관측값입니다. 측정값이 없을 때 순위나 지연 시간을 추정하지 않습니다.</p></div><div><h3>실시간의 범위를 분명하게</h3><p>공개 카탈로그와 관측 스냅샷을 확인합니다. 사용량은 공개 주간 집계, 성능은 출처가 제공하는 최신 결과입니다. 화면은 60초마다 새 파일을 확인하며 수집 시각은 따로 표시합니다.</p></div></div>
+        <div class="method-grid"><div><h3>세 지수는 합치지 않습니다</h3><p>종합·코딩·에이전트는 Artificial Analysis 지수를 OpenRouter가 전달한 값입니다. 원래 척도 그대로 쓰고 하나의 점수로 합치지 않습니다. 확인 시각은 벤치마크 실행일과 다릅니다.</p></div><div><h3>Terminal-Bench는 조합의 기록입니다</h3><p>tbench.ai 공식 4.0 리더보드의 에이전트+모델 조합 결과입니다. 표의 모델 값은 그중 최고 정확도 하나이며, 어떤 에이전트였는지는 셀 설명과 옆 패널에 있습니다. SWE-bench Verified는 독립 출처(공식 리더보드 2026-02, Epoch AI 2026-06)가 최신 모델을 다루지 않아 싣지 않습니다.</p></div><div><h3>속도는 트래픽 최다 제공사 기준</h3><p>OpenRouter 모델 페이지가 공개한 제공사별 p50 출력 속도입니다. 최근 창에서 요청이 가장 많았던 표준 경로 하나를 고르고, 창 길이와 요청 수를 비교 패널에 함께 둡니다. 관측이 없으면 0이 아니라 비워 둡니다.</p></div></div>
+        <ul class="rule-list"><li>강점 라벨: 종합·코딩·에이전트는 해당 지수 상위 3위, 빠름은 속도 상위 3위.</li><li>가성비: 더 싸면서 종합이 높은 모델이 없는 모델 중 종합 지수가 선두의 80% 이상인 것. 카드는 그중 최저 비용.</li><li>batch·free 변형은 정식 모델 행에 접고 칩으로만 표시합니다. 값은 정식 경로 기준입니다.</li></ul>
         <ul data-board-sources>{board.sources.map((source) => <li><a href={source.url} target="_blank" rel="noopener noreferrer">{source.label} ↗</a><span>{source.status === 'ok' ? '확인' : '미제공'} · {source.observedAt ? new Date(source.observedAt).toISOString().replace('T', ' ').slice(0, 16) + ' UTC' : '관측 시각 없음'}</span><p>{sourceCopy(source)}</p></li>)}</ul>
       </details>
-      <p class="board-caption">성능: <a href="https://artificialanalysis.ai/" target="_blank" rel="noopener noreferrer">Artificial Analysis</a> via <a href="https://openrouter.ai/benchmarks" target="_blank" rel="noopener noreferrer">OpenRouter</a>. 가격·사용량: <a href="https://openrouter.ai/" target="_blank" rel="noopener noreferrer">OpenRouter</a>.</p>
+      <p class="board-caption">지수: <a href="https://artificialanalysis.ai/" target="_blank" rel="noopener noreferrer">Artificial Analysis</a> via <a href="https://openrouter.ai/benchmarks" target="_blank" rel="noopener noreferrer">OpenRouter</a>. Terminal-Bench: <a href="https://www.tbench.ai/" target="_blank" rel="noopener noreferrer">Stanford / Harbor / Laude Institute</a>. 가격·속도·사용량: <a href="https://openrouter.ai/" target="_blank" rel="noopener noreferrer">OpenRouter</a>.</p>
     </GlassPanel>
     <a class="compare-dock" data-compare-dock href="#model-comparison" hidden>선택한 모델 비교 <span data-dock-count>0 / 3</span><span aria-hidden="true">↓</span></a>
     <script type="application/json" id="model-board-data" set:html={JSON.stringify(board).replaceAll('<', '\\u003c')} />

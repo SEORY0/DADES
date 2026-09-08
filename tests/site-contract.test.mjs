@@ -154,13 +154,17 @@ test('status exposes sourced model comparisons while wiki remains a searchable f
   assert.match(status, /data-model-board/);
   assert.match(status, /data-model-row=/);
   assert.match(status, /data-board-sources/);
-  for (const metric of ['intelligence', 'outputPrice', 'speed', 'tokens7d']) {
+  for (const metric of ['intelligence', 'terminalBench', 'speed', 'cost', 'tokens7d']) {
     assert.ok(status.includes('data-column="' + metric + '"'));
   }
+  assert.match(status, /data-terminal-rows/);
+  assert.match(status, /data-value-card/);
+  assert.match(status, /class="fingerprint"/);
   const serialized = status.match(/<script[^>]*id="model-board-data"[^>]*>([\s\S]*?)<\/script>/)?.[1];
   assert.ok(serialized);
   const snapshot = JSON.parse(serialized);
   assert.ok(snapshot.models.length > 0);
+  assert.equal(snapshot.schemaVersion, 2);
   assert.ok(snapshot.sources.every((source) => source.url.startsWith('https://')));
 
   // 그리고 위키 첫 지면은 이야기 카드 더미가 아니라 찾아보기 지면이다 —

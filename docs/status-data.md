@@ -40,11 +40,12 @@ Run from the repository with Node 22:
 ```sh
 node scripts/status/cli.mjs
 node --test tests/status-data.test.mjs
+node --test tests/model-board-rules.test.mjs
 ```
 
-Terminal-Bench label aliases live in config/status.aliases.json; the refresh reads it when present.
+Terminal-Bench label aliases live in `config/status.aliases.json` as `{"terminalBench": {"<leaderboard label>": "<openrouter id>"}}`; the refresh reads it when present.
 
-No new packages or API credentials are required. The script fetches catalog and rankings independently, then samples performance. It atomically replaces the JSON only after assembling a usable snapshot. If the first catalog request fails and no prior snapshot exists, it exits unsuccessfully and writes nothing.
+No new packages or API credentials are required. The script fetches the catalog, the usage rankings, and the Terminal-Bench leaderboard in parallel, then samples model pages for performance. It atomically replaces the JSON only after assembling a usable snapshot. If the first catalog request fails and no prior snapshot exists, it exits unsuccessfully and writes nothing.
 
 `fetchedAt` records the refresh attempt time. Each source has its own `status`, `observedAt`, and explanation. A failed source retains its last successful field values and its earlier source timestamp. Other sources may still update. A missing optional observation is represented by null, never zero. An unavailable performance batch is retained as a whole so that a mixture of old and new measurements does not acquire one misleading fresh timestamp. Failed benchmark collection similarly preserves earlier indices. An existing snapshot with an unreadable or unsupported format is not overwritten.
 

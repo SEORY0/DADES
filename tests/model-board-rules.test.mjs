@@ -34,10 +34,10 @@ test('ranking sorts cost ascending, everything else descending, and drops models
 
 test('canonical folding keeps the base model as the row and lists alias, batch, and free variants as chips', () => {
   const folded = canonicalModels([model('x/base', { outputPrice: 10 }), model('x/base:batch', { outputPrice: 5 }), model('x/base:free', { inputPrice: 0, outputPrice: 0 }), model('~x/base'), model('y/only:free', { outputPrice: 0 })]);
-  assert.deepEqual(folded.map((m) => m.id), ['x/base', 'y/only:free']);
+  assert.deepEqual(folded.map((m) => m.id), ['x/base']);
+  assert.equal(folded.length, 1);
   assert.deepEqual(folded[0].variants.map((v) => v.kind), ['alias', 'batch', 'free']);
   assert.deepEqual(folded[0].variants.map((v) => variantChip(folded[0], v)), ['alias', 'batch −50%', 'free']);
-  assert.deepEqual(folded[1].variants, []);
 });
 
 test('the Pareto frontier keeps models nothing beats on both score and cost, and value picks the cheapest strong one', () => {

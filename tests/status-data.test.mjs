@@ -303,7 +303,7 @@ test('model page performance breaks request ties by throughput then provider slu
 
 test('model page performance rejects pages without statistics, other variants, and other models', () => {
   assert.throws(() => parseModelPage('<html></html>', 'example/model'), /no endpoint statistics/);
-  assert.throws(() => parseModelPage(modelPageHtml('example/model', [endpoint()], 'free'), 'example/model'), /variant/);
+  assert.throws(() => parseModelPage(modelPageHtml('example/model', [endpoint()], 'free'), 'example/model'), /no endpoint statistics/);
   assert.throws(() => parseModelPage(modelPageHtml('example/model', [endpoint({ model_variant_slug: 'other/model' })]), 'example/model'), /do not belong/);
 });
 

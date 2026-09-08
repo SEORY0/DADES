@@ -12,7 +12,7 @@ export function performanceSample(models, limit = 32) {
 }
 
 export function parseModelPage(html, modelId) {
-  const query = findInRecords(flightRecords(html), (value) => Array.isArray(value.queryKey) && value.queryKey[0] === 'model-page' && value.queryKey[1] === 'providerTableEndpointStats');
+  const query = findInRecords(flightRecords(html), (value) => Array.isArray(value.queryKey) && value.queryKey[0] === 'model-page' && value.queryKey[1] === 'providerTableEndpointStats' && value.queryKey[2]?.variant === 'standard');
   if (!query) throw new Error(`Model page for ${modelId} has no endpoint statistics.`);
   const variant = query.queryKey[2]?.variant;
   if (variant !== 'standard') throw new Error(`Model page for ${modelId} reports the ${variant ?? 'unknown'} variant.`);

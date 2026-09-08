@@ -1,5 +1,5 @@
 import { z } from 'astro/zod';
-import { AXES, METRICS, rankBy, valueSet, metricValue as metricNumber, type Axis, type Metric } from './model-board-rules.mjs';
+import { ASCENDING, AXES, METRICS, rankBy, valueSet, metricValue as metricNumber, type Axis, type Metric } from './model-board-rules.mjs';
 
 export type { Axis, CanonicalModel, Metric, Strength, Variant } from './model-board-rules.mjs';
 export { axisMaxima, canonicalModels, fingerprint, metricValue as metricNumber, paretoFrontier, rankBy as ranked, strengthMap, valuePick, valueSet, variantChip } from './model-board-rules.mjs';
@@ -36,13 +36,13 @@ export type Model = ModelBoard['models'][number];
 export type TerminalBenchRow = NonNullable<ModelBoard['terminalBench']>['rows'][number];
 
 export const metrics: Record<Metric, { label: string; unit: string; title: string; ascending: boolean }> = {
-  intelligence: { label: '종합', unit: 'AA', title: '종합 1위', ascending: false },
-  coding: { label: '코딩', unit: 'AA', title: '코딩 1위', ascending: false },
-  agentic: { label: '에이전트', unit: 'AA', title: '에이전트 1위', ascending: false },
-  terminalBench: { label: 'TB 4.0', unit: '%', title: 'Terminal-Bench 1위', ascending: false },
-  speed: { label: '속도', unit: 'tok/s', title: '속도 1위', ascending: false },
-  cost: { label: '비용', unit: '$ / 1M+1M', title: '가성비', ascending: true },
-  tokens7d: { label: '사용량', unit: 'tokens', title: '사용량 1위', ascending: false },
+  intelligence: { label: '종합', unit: 'AA', title: '종합 1위', ascending: ASCENDING.has('intelligence') },
+  coding: { label: '코딩', unit: 'AA', title: '코딩 1위', ascending: ASCENDING.has('coding') },
+  agentic: { label: '에이전트', unit: 'AA', title: '에이전트 1위', ascending: ASCENDING.has('agentic') },
+  terminalBench: { label: 'TB 4.0', unit: '%', title: 'Terminal-Bench 1위', ascending: ASCENDING.has('terminalBench') },
+  speed: { label: '속도', unit: 'tok/s', title: '속도 1위', ascending: ASCENDING.has('speed') },
+  cost: { label: '비용', unit: '$ / 1M+1M', title: '가성비', ascending: ASCENDING.has('cost') },
+  tokens7d: { label: '사용량', unit: 'tokens', title: '사용량 1위', ascending: ASCENDING.has('tokens7d') },
 };
 export const metricKeys: readonly Metric[] = METRICS;
 export const axisKeys: readonly Axis[] = AXES;

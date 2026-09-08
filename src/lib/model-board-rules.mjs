@@ -29,12 +29,13 @@ export function canonicalModels(models) {
     if (!groups.has(base)) groups.set(base, []);
     groups.get(base).push(model);
   }
-  return [...groups].map(([base, group]) => {
+  return [...groups].flatMap(([base, group]) => {
     const primary = group.find((model) => model.id === base) ?? [...group].sort((a, b) => a.id.length - b.id.length || a.id.localeCompare(b.id))[0];
+    if (!isCanonicalId(primary.id)) return [];
     const variants = group.filter((model) => model !== primary)
       .map((model) => ({ id: model.id, kind: model.id.includes(':') ? model.id.slice(model.id.indexOf(':') + 1) : 'alias', inputPrice: model.inputPrice, outputPrice: model.outputPrice }))
       .sort((a, b) => a.kind.localeCompare(b.kind));
-    return { ...primary, variants };
+    return [{ ...primary, variants }];
   }).sort((a, b) => a.id.localeCompare(b.id));
 }
 

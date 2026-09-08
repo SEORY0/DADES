@@ -16,6 +16,7 @@ artifacts/qa/baseline/
 artifacts/qa/after/
 artifacts/qa/after-fixes/
 artifacts/qa/final/
+artifacts/qa/status-v2/
 
 # Local editorial run artifacts and credentials
 .editorial/

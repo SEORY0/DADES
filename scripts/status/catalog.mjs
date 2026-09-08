@@ -58,34 +58,3 @@ export function parseCatalog(payload) {
   if (models.length === 0) throw new Error('Catalog contains no text-output models.');
   return models.sort((a, b) => a.id.localeCompare(b.id));
 }
-
-export function endpointRequests(payload, selectedModels) {
-  const rows = new Map(payload.data.map((row) => [row.id, row]));
-  return selectedModels.flatMap((model) => {
-    const row = rows.get(model.id);
-    const canonical = row?.canonical_slug;
-    const details = row?.links?.details;
-    if (typeof canonical !== 'string' || typeof details !== 'string') return [];
-    const url = new URL(details, CATALOG_URL);
-    if (url.origin !== 'https://openrouter.ai' || url.pathname !== `/api/v1/models/${canonical}/endpoints` || url.search || url.hash) return [];
-    return [{ id: model.id, canonical, url: url.href }];
-  });
-}
-
-export function parseEndpoint(payload, request) {
-  const data = payload?.data;
-  if (!data || (data.id !== request.id && data.id !== request.canonical) || !Array.isArray(data.endpoints)) {
-    throw new Error(`Endpoint identity mismatch for ${request.id}.`);
-  }
-  const candidates = data.endpoints.flatMap((endpoint) => {
-    if (endpoint.model_id !== data.id) return [];
-    const speed = numberOrNull(endpoint.throughput_last_30m?.p50);
-    const latency = numberOrNull(endpoint.latency_last_30m?.p50);
-    const provider = endpoint.provider_name;
-    if (typeof provider !== 'string' || !provider.trim() || speed === null) return [];
-    const tag = typeof endpoint.tag === 'string' && endpoint.tag ? ` (${endpoint.tag})` : '';
-    return [{ speed, latency, speedProvider: `${provider.trim()}${tag}` }];
-  });
-  candidates.sort((a, b) => a.speedProvider.localeCompare(b.speedProvider) || b.speed - a.speed);
-  return candidates[0] ?? { speed: null, latency: null, speedProvider: null };
-}

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { numberOrNull, parseCatalog } from '../scripts/status/catalog.mjs';
-import { fetchSource, refreshSnapshot } from '../scripts/status/refresh.mjs';
+import { fetchSource, refreshSnapshot, upgradeSnapshot } from '../scripts/status/refresh.mjs';
 import { parseRankings } from '../scripts/status/rankings.mjs';
 import { findInRecords, flightRecords } from '../scripts/status/flight.mjs';
 import { matchTerminalBench, parseTerminalBench } from '../scripts/status/terminal-bench.mjs';
@@ -98,9 +98,14 @@ test('catalog refuses a truncated upstream page instead of dropping existing mod
 function previousSnapshot() {
   const observedAt = '2026-09-01T00:00:00.000Z';
   return {
-    schemaVersion: 1, fetchedAt: observedAt,
-    sources: ['openrouter-catalog', 'artificial-analysis', 'openrouter-performance', 'openrouter-usage'].map((id) => ({ id, label: id, url: 'https://openrouter.ai/rankings', status: 'ok', observedAt, note: '' })),
-    models: parseCatalog({ data: [catalogRow()] }).map((model) => ({ ...model, intelligence: 40, speed: 55, latency: 1.2, speedProvider: 'Example Cloud', tokens7d: 1000, previousTokens7d: 800, dailyTokens: [{ date: '2026-08-31', tokens: 1000 }] })),
+    schemaVersion: 2, fetchedAt: observedAt,
+    sources: ['openrouter-catalog', 'artificial-analysis', 'terminal-bench', 'openrouter-performance', 'openrouter-usage'].map((id) => ({ id, label: id, url: 'https://openrouter.ai/rankings', status: 'ok', observedAt, note: '' })),
+    terminalBench: { title: 'Terminal-Bench 4.0', url: 'https://www.tbench.ai/leaderboard/terminal-bench/4.0', updatedAt: observedAt, rows: [] },
+    models: parseCatalog({ data: [catalogRow()] }).map((model) => ({
+      ...model, intelligence: 40, speed: 55, latency: 1.2, speedProvider: 'Example Cloud', speedRequests: 12, speedWindow: 30,
+      terminalBench: { accuracy: 50, ci95: 2, agent: 'Example Agent', effort: 'high', date: '2026-09-01' },
+      tokens7d: 1000, previousTokens7d: 800, dailyTokens: [{ date: '2026-08-31', tokens: 1000 }],
+    })),
   };
 }
 
@@ -111,19 +116,21 @@ test('a partial outage refreshes catalog values while retaining failed sources a
     : new Response('Unavailable', { status: 503 });
   const result = await refreshSnapshot({ previous, transport, now: new Date('2026-09-07T00:00:00.000Z') });
   assert.deepEqual([result.models[0].inputPrice, result.models[0].outputPrice, result.models[0].intelligence], [4, 8, 123.4]);
-  for (const field of ['tokens7d', 'previousTokens7d', 'dailyTokens', 'speed', 'latency', 'speedProvider']) assert.deepEqual(result.models[0][field], previous.models[0][field]);
-  for (const id of ['openrouter-performance', 'openrouter-usage']) {
+  for (const field of ['tokens7d', 'previousTokens7d', 'dailyTokens', 'speed', 'latency', 'speedProvider', 'speedRequests', 'speedWindow', 'terminalBench']) assert.deepEqual(result.models[0][field], previous.models[0][field]);
+  for (const id of ['terminal-bench', 'openrouter-performance', 'openrouter-usage']) {
     const source = result.sources.find((entry) => entry.id === id);
     assert.equal(source.status, 'unavailable');
     assert.equal(source.observedAt, previous.fetchedAt);
   }
   assert.equal(result.sources.find((entry) => entry.id === 'openrouter-catalog').observedAt, result.fetchedAt);
+  assert.deepEqual(result.terminalBench, previous.terminalBench);
 });
 
 test('a complete upstream outage keeps the full last successful dataset', async () => {
   const previous = previousSnapshot();
   const result = await refreshSnapshot({ previous, transport: async () => new Response('', { status: 502 }), now: new Date('2026-09-07T00:00:00.000Z') });
   assert.deepEqual(result.models, previous.models);
+  assert.deepEqual(result.terminalBench, previous.terminalBench);
   assert.ok(result.sources.every((source) => source.status === 'unavailable' && source.observedAt === previous.fetchedAt));
   assert.equal(result.fetchedAt, '2026-09-07T00:00:00.000Z');
 });
@@ -191,25 +198,29 @@ test('a usable usage source refreshes independently when performance has no obse
   const transport = async (url) => {
     if (url === 'https://openrouter.ai/rankings') return new Response(rankingsHtml());
     if (url === 'https://openrouter.ai/api/v1/models') return new Response(JSON.stringify({ data: [catalogRow()] }));
-    return new Response(JSON.stringify({ data: { id: 'example/model', endpoints: [] } }));
+    return new Response(modelPageHtml('example/model', []));
   };
   const result = await refreshSnapshot({ transport });
   assert.equal(result.models[0].tokens7d, 1000);
   assert.equal(result.models[0].speed, null);
   assert.equal(result.sources.find((source) => source.id === 'openrouter-usage').status, 'ok');
   assert.equal(result.sources.find((source) => source.id === 'openrouter-performance').status, 'unavailable');
+  assert.equal(result.sources.find((source) => source.id === 'terminal-bench').status, 'unavailable');
 });
 
-test('one failed performance endpoint retains the entire earlier measurement batch', async () => {
+test('one failed model page retains the entire earlier measurement batch even after a retry', async () => {
   const previous = previousSnapshot();
-  const second = catalogRow({ id: 'example/second', canonical_slug: 'example/second-20260101', links: { details: '/api/v1/models/example/second-20260101/endpoints' } });
-  previous.models.push({ ...parseCatalog({ data: [second] })[0], speed: 66, latency: 2, speedProvider: 'Second Cloud' });
+  const second = catalogRow({ id: 'example/second', canonical_slug: 'example/second-20260101' });
+  previous.models.push({ ...parseCatalog({ data: [second] })[0], speed: 66, latency: 2, speedProvider: 'Second Cloud', speedRequests: 5, speedWindow: 30 });
+  let secondCalls = 0;
   const transport = async (url) => {
     if (url === 'https://openrouter.ai/api/v1/models') return new Response(JSON.stringify({ data: [catalogRow(), second] }));
-    if (url.endsWith('/example/model-20260101/endpoints')) return new Response(JSON.stringify({ data: { id: 'example/model', endpoints: [{ model_id: 'example/model', provider_name: 'New Cloud', throughput_last_30m: { p50: 999 }, latency_last_30m: { p50: 0.1 } }] } }));
+    if (url === 'https://openrouter.ai/example/model') return new Response(modelPageHtml('example/model', [endpoint({ stats: stats({ p50_throughput: 999 }) })]));
+    if (url === 'https://openrouter.ai/example/second') secondCalls += 1;
     return new Response('', { status: 503 });
   };
   const result = await refreshSnapshot({ previous, transport });
+  assert.equal(secondCalls, 2);
   assert.deepEqual(result.models.map((model) => model.speed), [55, 66]);
   assert.equal(result.sources.find((source) => source.id === 'openrouter-performance').observedAt, previous.fetchedAt);
 });
@@ -304,4 +315,64 @@ test('performance sample prefers leading intelligence and usage models and skips
   assert.ok(sample.every((model) => !model.id.includes(':') && !model.id.startsWith('~')));
   assert.ok(sample.slice(0, 16).every((model) => model.intelligence >= 24));
   assert.ok(sample.slice(16).every((model) => model.tokens7d >= 25));
+});
+
+test('a retry recovers a flaky model page and publishes the fresh provider observation', async () => {
+  let calls = 0;
+  const transport = async (url) => {
+    if (url === 'https://openrouter.ai/api/v1/models') return new Response(JSON.stringify({ data: [catalogRow()] }));
+    if (url === 'https://openrouter.ai/example/model') {
+      calls += 1;
+      return calls === 1 ? new Response('', { status: 503 }) : new Response(modelPageHtml('example/model', [endpoint()]));
+    }
+    return new Response('', { status: 503 });
+  };
+  const result = await refreshSnapshot({ transport });
+  const model = result.models[0];
+  assert.deepEqual([model.speed, model.latency, model.speedProvider, model.speedRequests, model.speedWindow], [55, 1.2, 'Example Cloud', 100, 30]);
+  assert.equal(result.sources.find((source) => source.id === 'openrouter-performance').status, 'ok');
+});
+
+test('a refreshed Terminal-Bench leaderboard attaches best rows to catalog models and reports the mapping count', async () => {
+  const transport = async (url) => {
+    if (url === 'https://openrouter.ai/api/v1/models') return new Response(JSON.stringify({ data: [catalogRow()] }));
+    if (url === 'https://www.tbench.ai/leaderboard/terminal-bench/4.0') return new Response(terminalBenchHtml({ rows: [
+      tbRow({ metadata: tbMeta({ model_display: { label: 'Model' } }) }),
+      tbRow({ rank: 2, metadata: tbMeta({ model_display: { label: 'Unknown' } }), metrics: { accuracy: 5 } }),
+    ] }));
+    return new Response('', { status: 503 });
+  };
+  const result = await refreshSnapshot({ transport });
+  assert.deepEqual(result.models[0].terminalBench, { accuracy: 42.5, ci95: 3, agent: 'Example Agent', effort: 'high', date: '2026-09-03' });
+  assert.deepEqual(result.terminalBench.rows.map((row) => row.modelId), ['example/model', null]);
+  const source = result.sources.find((entry) => entry.id === 'terminal-bench');
+  assert.equal(source.status, 'ok');
+  assert.equal(source.observedAt, '2026-09-03T21:34:07.080Z');
+  assert.match(source.note, /1\/2 published/);
+});
+
+test('aliases resolve Terminal-Bench labels the name matcher cannot', async () => {
+  const transport = async (url) => {
+    if (url === 'https://openrouter.ai/api/v1/models') return new Response(JSON.stringify({ data: [catalogRow()] }));
+    if (url === 'https://www.tbench.ai/leaderboard/terminal-bench/4.0') return new Response(terminalBenchHtml({ rows: [tbRow({ metadata: tbMeta({ model_display: { label: 'Codename' } }) })] }));
+    return new Response('', { status: 503 });
+  };
+  const result = await refreshSnapshot({ transport, aliases: { terminalBench: { Codename: 'example/model' } } });
+  assert.equal(result.models[0].terminalBench.accuracy, 42.5);
+});
+
+test('upgradeSnapshot converts a v1 snapshot and rejects unknown versions', () => {
+  const v1 = { schemaVersion: 1, fetchedAt: '2026-09-01T00:00:00.000Z', sources: [], models: [{ id: 'example/model', speed: 1 }] };
+  const upgraded = upgradeSnapshot(v1);
+  assert.equal(upgraded.schemaVersion, 2);
+  assert.equal(upgraded.terminalBench, null);
+  assert.deepEqual(upgraded.models[0], { terminalBench: null, speedRequests: null, speedWindow: null, id: 'example/model', speed: 1 });
+  assert.equal(upgradeSnapshot(upgraded), upgraded);
+  assert.throws(() => upgradeSnapshot({ schemaVersion: 3, sources: [], models: [] }), /unsupported/);
+  assert.throws(() => upgradeSnapshot({ schemaVersion: 2, models: [] }), /unsupported/);
+});
+
+test('source adapter returns HTML for page sources and rejects redirects to another allowed host', async () => {
+  assert.equal(await fetchSource('https://www.tbench.ai/leaderboard/terminal-bench/4.0', async () => ({ ok: true, url: '', text: async () => '<html>' })), '<html>');
+  await assert.rejects(fetchSource('https://openrouter.ai/rankings', async () => ({ ok: true, url: 'https://www.tbench.ai/x', text: async () => '' })), /outside the source domain/);
 });

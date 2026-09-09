@@ -1,0 +1,18 @@
+---
+import GlassPanel from './GlassPanel.astro';
+import { amount, terminalRows, terminalUpdated, type ModelBoard } from '../../lib/model-board';
+interface Props { readonly board: ModelBoard; }
+const { board } = Astro.props;
+const rows = terminalRows(board);
+const top = rows[0]?.accuracy || 1;
+const updated = terminalUpdated(board);
+---
+<GlassPanel class="terminal-panel" label="Terminal-Bench 4.0 공식 순위">
+  <div class="panel-heading"><div><h2>Terminal-Bench 4.0</h2></div></div>
+  <p class="board-caption">모델별 최고 기록 · 에이전트 조합</p>
+  <ol class="usage-bars terminal-rows" data-terminal-rows>
+    {rows.map((row) => <li><div><span class="usage-rank">{row.rank}</span><span class="usage-name">{row.model}</span><strong>{amount(row.accuracy)}%</strong></div><small class="terminal-agent">{row.agent}{row.effort ? ` · ${row.effort}` : ''}</small><div class="usage-track"><span style={`width:${row.accuracy / top * 100}%`} /></div></li>)}
+  </ol>
+  <p class="board-empty" data-terminal-empty hidden={rows.length > 0}>공식 리더보드를 확인하지 못했습니다.</p>
+  <a class="source-link" href={board.terminalBench?.url ?? 'https://www.tbench.ai/leaderboard/terminal-bench/4.0'} target="_blank" rel="noopener noreferrer" data-terminal-link>리더보드 원문{updated ? ` · ${updated}` : ''} ↗</a>
+</GlassPanel>

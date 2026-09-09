@@ -1,4 +1,4 @@
-import { boardSchema, isMetric, metricKeys, metrics, metricValue, modelName, observedAt, ranked, sourceCopy, sourceForMetric, type Metric } from './model-board';
+import { axisMaxima, boardSchema, canonicalModels, cardMetrics, EMPTY, isAxis, isMetric, leaderNote, metrics, metricValue, modelName, observedAt, ranked, sourceCopy, strengthMap, valueNote, valuePick, type Axis, type CanonicalModel, type Metric, type Strength } from './model-board';
 import { comparisonCard, element, modelRow } from './model-board-render';
 import { updateCharts } from './model-board-charts';
 import { modelArtwork } from './model-artwork';
@@ -9,7 +9,11 @@ function mount(root: HTMLElement) {
   const initial = boardSchema.safeParse(JSON.parse(payload.textContent));
   if (!initial.success) return;
   let board = initial.data;
+  let canonical: CanonicalModel[] = canonicalModels(board.models);
+  let maxima = axisMaxima(canonical);
+  let strengths: Map<string, Strength[]> = strengthMap(canonical);
   let metric: Metric = 'intelligence';
+  let axis: Axis = 'intelligence';
   let limit = 20;
   const selected = new Set<string>();
   const budget = { input: 1, output: 1 };
@@ -20,6 +24,7 @@ function mount(root: HTMLElement) {
   const empty = root.querySelector<HTMLElement>('[data-ranking-empty]');
   const more = root.querySelector<HTMLButtonElement>('[data-more]');
   const refresh = root.querySelector<HTMLButtonElement>('[data-refresh]');
+  const axisHead = root.querySelector<HTMLElement>('[data-axis-head]');
   if (!query || !provider || !rows || !feedback || !empty || !more || !refresh) return;
   root.classList.add('has-board-js');
   root.querySelectorAll<HTMLElement>('[data-js-only]').forEach((node) => { node.hidden = false; });
@@ -29,9 +34,46 @@ function mount(root: HTMLElement) {
       if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
     }
     history.replaceState(null, '', url);
-  }
+  };
+  const setArt = (key: string, id: string | undefined) => {
+    const image = root.querySelector<HTMLImageElement>(`[data-leader-art="${key}"]`);
+    if (!image) return;
+    const artwork = modelArtwork(id ? { id } : undefined);
+    image.hidden = !artwork;
+    if (artwork) image.src = artwork; else image.removeAttribute('src');
+  };
+  const renderCards = () => {
+    for (const key of cardMetrics) {
+      const leader = ranked(canonical, key)[0];
+      const card = root.querySelector<HTMLElement>(`[data-metric-shortcut="${key}"]`);
+      if (card) {
+        if (leader) card.dataset.leaderModel = leader.id; else delete card.dataset.leaderModel;
+        if (key === 'speed') card.hidden = !leader;
+      }
+      setArt(key, leader?.id);
+      const value = root.querySelector(`[data-leader-value="${key}"]`);
+      const name = root.querySelector(`[data-leader-name="${key}"]`);
+      const note = root.querySelector(`[data-leader-note="${key}"]`);
+      if (value) value.textContent = leader ? metricValue(leader, key) : EMPTY;
+      if (name) name.textContent = leader ? modelName(leader) : '관측 대기';
+      if (note) note.textContent = leaderNote(board, leader, key);
+    }
+    const pick = valuePick(canonical);
+    const card = root.querySelector<HTMLElement>('[data-value-card]');
+    if (card) {
+      card.hidden = !pick;
+      if (pick) card.dataset.leaderModel = pick.id; else delete card.dataset.leaderModel;
+    }
+    setArt('value', pick?.id);
+    const value = root.querySelector('[data-leader-value="value"]');
+    const name = root.querySelector('[data-leader-name="value"]');
+    const note = root.querySelector('[data-leader-note="value"]');
+    if (value) value.textContent = pick ? metricValue(pick, 'cost') : EMPTY;
+    if (name) name.textContent = pick ? modelName(pick) : '관측 대기';
+    if (note) note.textContent = pick ? valueNote(canonical, pick) : '';
+  };
   const renderComparison = () => {
-    const models = board.models.filter((model) => selected.has(model.id));
+    const models = canonical.filter((model) => selected.has(model.id));
     root.querySelector('[data-comparison]')?.replaceChildren(...models.map((model) => comparisonCard(model, budget)));
     const count = root.querySelector('[data-selection-count]');
     if (count) count.textContent = `${selected.size} / 3`;
@@ -40,12 +82,12 @@ function mount(root: HTMLElement) {
     const dockCount = root.querySelector('[data-dock-count]');
     if (dockCount) dockCount.textContent = `${selected.size} / 3`;
     root.querySelectorAll<HTMLInputElement>('[data-compare]').forEach((checkbox) => { checkbox.checked = selected.has(checkbox.dataset.compare ?? ''); });
-  }
+  };
   const render = () => {
     const terms = query.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    const filtered = board.models.filter((model) => (provider.value === 'all' || model.provider === provider.value) && terms.every((term) => `${model.name} ${model.provider}`.toLowerCase().includes(term)));
+    const filtered = canonical.filter((model) => (provider.value === 'all' || model.provider === provider.value) && terms.every((term) => `${model.name} ${model.provider}`.toLowerCase().includes(term)));
     const sorted = ranked(filtered, metric);
-    rows.replaceChildren(...sorted.slice(0, limit).map((model, index) => modelRow(model, index, { metric, max: sorted[0]?.[metric] ?? 1, selected })));
+    rows.replaceChildren(...sorted.slice(0, limit).map((model, index) => modelRow(model, index, { metric, maxima, strengths: strengths.get(model.id) ?? [], selected })));
     more.hidden = sorted.length <= limit;
     empty.hidden = sorted.length > 0;
     const heading = empty.querySelector('h3'); const text = empty.querySelector('p');
@@ -54,29 +96,46 @@ function mount(root: HTMLElement) {
     const count = root.querySelector('[data-ranking-count]');
     if (count) count.textContent = `${metrics[metric].label} · ${sorted.length}개 · ${metrics[metric].ascending ? '낮은' : '높은'} 순`;
     root.querySelectorAll<HTMLButtonElement>('[data-metric]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.metric === metric)));
-    root.querySelectorAll<HTMLElement>('[data-column]').forEach((column) => { if (column.dataset.column === metric) column.setAttribute('aria-sort', metrics[metric].ascending ? 'ascending' : 'descending'); else column.removeAttribute('aria-sort'); });
-  }
+    if (axisHead) {
+      axisHead.dataset.column = axis;
+      axisHead.replaceChildren(document.createTextNode(`${metrics[axis].label} `), element('small', 'AA'));
+    }
+    root.querySelectorAll<HTMLElement>('[data-column]').forEach((column) => {
+      if (column.dataset.column === metric) column.setAttribute('aria-sort', metrics[metric].ascending ? 'ascending' : 'descending'); else column.removeAttribute('aria-sort');
+    });
+  };
+  const setMetric = (value: Metric, redraw = true) => {
+    metric = value;
+    const nextAxis: Axis = isAxis(value) ? value : 'intelligence';
+    const axisChanged = nextAxis !== axis;
+    axis = nextAxis;
+    limit = 20;
+    render();
+    if (redraw && axisChanged) updateCharts(root, board, canonical, axis);
+    saveURL();
+  };
   const freshness = () => {
     const source = board.sources.find((entry) => entry.id === 'openrouter-catalog');
     const age = source?.status === 'ok' && source.observedAt ? Date.now() - new Date(source.observedAt).getTime() : Infinity;
     const state = root.querySelector<HTMLElement>('[data-freshness]');
     if (state) { state.textContent = age > 2 * 60 * 60 * 1000 ? '갱신 지연' : '관측값'; state.dataset.stale = String(age > 2 * 60 * 60 * 1000); }
-  }
+  };
   const restore = () => {
     const params = new URLSearchParams(location.search);
-    const value = params.get('metric'); metric = isMetric(value) ? value : 'intelligence';
+    const value = params.get('metric');
     query.value = (params.get('q') ?? '').slice(0, 100);
     const author = params.get('provider') ?? 'all';
     provider.value = [...provider.options].some((option) => option.value === author) ? author : 'all';
-    limit = 20; render(); saveURL();
-  }
+    setMetric(isMetric(value) ? value : 'intelligence', false);
+    updateCharts(root, board, canonical, axis);
+  };
   for (const button of root.querySelectorAll<HTMLElement>('[data-metric],[data-metric-shortcut]')) button.addEventListener('click', () => {
     const value = button.dataset.metric ?? button.dataset.metricShortcut ?? null;
-    if (isMetric(value)) { metric = value; limit = 20; render(); saveURL(); }
+    if (isMetric(value)) setMetric(value);
   });
   query.addEventListener('input', () => { limit = 20; render(); saveURL(); });
   provider.addEventListener('change', () => { limit = 20; render(); saveURL(); });
-  root.querySelector('[data-reset]')?.addEventListener('click', () => { query.value = ''; provider.value = 'all'; metric = 'intelligence'; limit = 20; render(); saveURL(); query.focus(); });
+  root.querySelector('[data-reset]')?.addEventListener('click', () => { query.value = ''; provider.value = 'all'; setMetric('intelligence'); query.focus(); });
   more.addEventListener('click', () => { limit += 20; render(); });
   root.addEventListener('change', (event) => {
     const target = event.target;
@@ -124,30 +183,20 @@ function mount(root: HTMLElement) {
       if (changed) {
         const focused = document.activeElement instanceof HTMLInputElement ? document.activeElement.dataset.compare : undefined;
         board = next;
+        canonical = canonicalModels(board.models);
+        maxima = axisMaxima(canonical);
+        strengths = strengthMap(canonical);
         const author = provider.value;
-        provider.replaceChildren(...['all', ...new Set(board.models.map((model) => model.provider))].sort().map((name) => { const option = element('option', name === 'all' ? '모든 개발사' : name); option.value = name; return option; }));
+        provider.replaceChildren(...['all', ...new Set(canonical.map((model) => model.provider))].sort().map((name) => { const option = element('option', name === 'all' ? '모든 개발사' : name); option.value = name; return option; }));
         provider.value = [...provider.options].some((option) => option.value === author) ? author : 'all';
-        for (const id of selected) if (!board.models.some((model) => model.id === id)) selected.delete(id);
-        for (const key of metricKeys) {
-          const leader = ranked(board.models, key)[0];
-          const card = root.querySelector<HTMLElement>(`[data-metric-shortcut="${key}"]`);
-          if (card) { if (leader) card.dataset.leaderModel = leader.id; else delete card.dataset.leaderModel; }
-          const image = root.querySelector<HTMLImageElement>(`[data-leader-art="${key}"]`);
-          if (image) {
-            const artwork = modelArtwork(leader);
-            image.hidden = !artwork;
-            if (artwork) image.src = artwork; else image.removeAttribute('src');
-          }
-          const value = root.querySelector(`[data-leader-value="${key}"]`); const name = root.querySelector(`[data-leader-name="${key}"]`);
-          const date = root.querySelector(`[data-metric-date="${key}"]`); if (date) date.textContent = sourceForMetric(board, key);
-          if (value) value.textContent = leader ? metricValue(leader, key) : '—'; if (name) name.textContent = leader ? modelName(leader) : '관측 데이터 대기';
-        }
+        for (const id of selected) if (!canonical.some((model) => model.id === id)) selected.delete(id);
+        renderCards();
         const time = root.querySelector<HTMLTimeElement>('[data-board-time]'); if (time) { time.dateTime = board.fetchedAt; time.textContent = observedAt(board); }
         root.querySelector('[data-board-sources]')?.replaceChildren(...board.sources.map((source) => {
           const row = element('li'); const link = element('a', `${source.label} ↗`); link.href = source.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
           row.append(link, element('span', `${source.status === 'ok' ? '확인' : '미제공'} · ${source.observedAt ?? '관측 시각 없음'}`), element('p', sourceCopy(source))); return row;
         }));
-        render(); renderComparison(); updateCharts(root, board);
+        render(); renderComparison(); updateCharts(root, board, canonical, axis);
         if (focused) [...root.querySelectorAll<HTMLInputElement>('[data-compare]')].find((input) => input.dataset.compare === focused)?.focus({ preventScroll: true });
       }
       if (manual || changed) feedback.textContent = changed ? '새 관측값으로 업데이트했습니다.' : '새로 확인했습니다. 현재 표시된 관측값이 최신 파일입니다.';
@@ -157,7 +206,7 @@ function mount(root: HTMLElement) {
       pending = false; refresh.disabled = false; freshness();
       if (restoreRefreshFocus && document.activeElement === document.body) refresh.focus({ preventScroll: true });
     }
-  }
+  };
   refresh.addEventListener('click', () => { void refreshBoard(true); });
   window.addEventListener('popstate', restore);
   restore(); freshness();

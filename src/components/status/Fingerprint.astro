@@ -1,0 +1,8 @@
+---
+import { amount, fingerprint, metrics, type Axis, type Metric, type Model } from '../../lib/model-board';
+interface Props { readonly model: Model; readonly maxima: Record<Axis, number>; readonly metric: Metric; }
+const { model, maxima, metric } = Astro.props;
+const bars = fingerprint(model, maxima);
+const summary = bars.map((bar) => `${metrics[bar.axis].label} ${amount(bar.value)}`).join(' · ');
+---
+<span class="fingerprint" role="img" aria-label={summary} title={summary}>{bars.map((bar) => <i class:list={['fp-bar', { 'fp-active': bar.axis === metric, 'fp-missing': bar.ratio === null }]} style={`--fp:${Math.round((bar.ratio ?? 0) * 100)}%`} />)}</span>

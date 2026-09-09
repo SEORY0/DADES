@@ -1,16 +1,19 @@
 ---
-import { amount, compact, dollars, modelName, metrics, type Model, type Metric } from '../../lib/model-board';
-interface Props { readonly model: Model; readonly rank: number; readonly metric: Metric; readonly max: number; }
-const { model, rank, metric, max } = Astro.props;
-const value = model[metric];
+import Fingerprint from './Fingerprint.astro';
+import { amount, dollars, EMPTY, isAxis, metricValue, modelName, variantChip, type Axis, type CanonicalModel, type Metric, type Strength } from '../../lib/model-board';
+interface Props { readonly model: CanonicalModel; readonly rank: number; readonly metric: Metric; readonly maxima: Record<Axis, number>; readonly strengths: readonly Strength[]; }
+const { model, rank, metric, maxima, strengths } = Astro.props;
+const tb = model.terminalBench;
+const cell = (key: Metric) => ['numeric', { 'metric-active': metric === key, empty: metricValue(model, key) === EMPTY }];
 ---
 <tr data-model-row={model.id}>
   <td class="board-rank">{rank}</td>
-  <th scope="row"><div class="model-identity"><label class="compare-check" data-js-only hidden><input type="checkbox" data-compare={model.id} aria-label={`${modelName(model)} 비교`} /><span class="sr-only">비교</span></label><div><a href={model.url} target="_blank" rel="noopener noreferrer">{modelName(model)}<span class="sr-only"> 원문, 새 탭</span></a><small>{model.provider}</small></div></div></th>
-  <td class:list={['numeric', { 'metric-active': metric === 'intelligence' }]}><span>{amount(model.intelligence)}</span>{metric === 'intelligence' && <i class="cell-bar" style={`--bar:${max ? (value ?? 0) / max * 100 : 0}%`} />}</td>
-  <td class="numeric">{dollars(model.inputPrice)}</td>
-  <td class:list={['numeric', { 'metric-active': metric === 'outputPrice' }]}>{dollars(model.outputPrice)}</td>
-  <td class:list={['numeric', { 'metric-active': metric === 'speed' }]}>{amount(model.speed)}{model.speedProvider && <small>{model.speedProvider}</small>}</td>
-  <td class:list={['numeric', { 'metric-active': metric === 'tokens7d' }]}>{compact(model.tokens7d)}</td>
-  <td class="numeric">{compact(model.context)}</td>
+  <th scope="row"><div class="model-identity"><label class="compare-check" data-js-only hidden><input type="checkbox" data-compare={model.id} aria-label={`${modelName(model)} 비교`} /><span class="sr-only">비교</span></label><div><a href={model.url} target="_blank" rel="noopener noreferrer">{modelName(model)}<span class="sr-only"> 원문, 새 탭</span></a><small>{model.provider}{model.variants.map((variant) => <span class="variant-chip">{variantChip(model, variant)}</span>)}</small></div></div></th>
+  <td class="fingerprint-cell"><Fingerprint model={model} maxima={maxima} metric={metric} /></td>
+  <td class="strength-cell">{strengths.map((label) => <span class="strength-pill">{label}</span>)}</td>
+  <td class:list={cell('terminalBench')} title={tb ? `±${amount(tb.ci95)} · ${tb.agent}${tb.effort ? ` · ${tb.effort}` : ''} · ${tb.date}` : undefined}><span>{metricValue(model, 'terminalBench')}</span></td>
+  <td class:list={cell('speed')}><span>{metricValue(model, 'speed')}</span>{model.speedProvider && <small>{model.speedProvider}</small>}</td>
+  <td class:list={cell('cost')} title={`입력 ${dollars(model.inputPrice)} · 출력 ${dollars(model.outputPrice)}`}><span>{metricValue(model, 'cost')}</span></td>
+  <td class:list={cell('tokens7d')}><span>{metricValue(model, 'tokens7d')}</span></td>
+  <td class:list={['numeric', 'axis-value', { 'metric-active': isAxis(metric), empty: isAxis(metric) && metricValue(model, metric) === EMPTY }]}><span>{isAxis(metric) ? metricValue(model, metric) : ''}</span></td>
 </tr>

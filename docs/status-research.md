@@ -10,13 +10,24 @@
 | [OpenRouter](https://openrouter.ai/rankings) | 실제 라우팅 사용량과 모델별 가격 | 주간 토큰 합계라는 단위와 플랫폼 표본을 표시. 전체 시장 점유율·사용자 수·매출로 해석하지 않음. 무료/배치 등 경로를 명시 |
 | [LiveBench](https://github.com/LiveBench/new-livebench) | 같은 릴리스 안에서 객관적 세부 과제와 비용을 비교 | 임의의 통합 순위를 만들지 않고 하나의 지표를 선택하게 함. 비용 계산의 입력/출력 토큰 양을 독자가 직접 바꿀 수 있게 함 |
 
+## 2026-09-08 추가 조사: 벤치마크·속도 출처
+
+| 출처 | 확인 결과 | 결정 |
+| --- | --- | --- |
+| [Terminal-Bench 4.0 공식 리더보드](https://www.tbench.ai/leaderboard/terminal-bench/4.0) | 2026-09-03 갱신, 18행, 95% CI 포함, GPT-6 Astra·Fable 5.1·Opus 5·GLM-5.3 등 포함. 페이지 임베디드 JSON | 수집. 모델 값은 조합 중 최고 하나, 조합 전체는 패널에 표시 |
+| [SWE-bench Verified 공식](https://www.swebench.com/) | 마지막 갱신 2026-02 | 싣지 않음 |
+| [Epoch AI Benchmarking Hub](https://epoch.ai/benchmarks) (CC BY, 매일 ZIP) | SWE-bench Verified 자체 실행은 2026-06이 마지막. 다른 벤치마크는 9월 모델 반영 | SWE-bench 대체 출처로 부적합. 향후 다른 지표 후보 |
+| [OpenRouter 문서화 endpoints API](https://openrouter.ai/docs/api/api-reference/endpoints/list-all-endpoints-for-a-model) | 인증 없이는 `throughput_last_30m`·`latency_last_30m`가 null | 사용 중단 |
+| OpenRouter 공개 모델 페이지 | 제공사별 p50 속도·지연·요청 수·창 길이가 키 없이 임베디드됨 | 속도 출처로 채택. 요청 수 최다 표준 경로를 대표값으로 |
+| Artificial Analysis, llm-stats, BenchLM, LLMPerf, TheFastest.ai | 약관 제한, 원본 비공개, 2026-01 아카이브, 사이트 폐쇄 | 사용 안 함 |
+
 ## 실제 구현
 
 1. 네 가지 지표의 선두 모델과 단위를 먼저 표시한다.
 2. 성능 대 비용 산점도는 입력100만+출력100만 토큰의 기본 단가를 동일하게 적용한다. x는 log(1+cost), y는 원래 AA 지수이다. 높은 성능과 낮은 비용 방향을 분리한다.
 3. 주간 사용량은 출처가 공개한 상위 모델만 막대로 비교한다. 과거 합계가 없어 시계열·증감률을 추정하지 않는다.
 4. 표는 검색/개발사/지표별 정렬이 가능하며 URL에 상태를 보존한다. 최대3개 모델을 같은 토큰 양으로 비교한다.
-5. 현재 속도 값이 없는 모델을 0tok/s로 만들지 않는다. 공개 endpoint의 최근30분p50이 제공되면 해당 제공 경로와 함께 반영한다.
+5. 속도는 OpenRouter 공개 모델 페이지의 제공사별 p50 중 요청 수가 가장 많은 표준 경로 하나를 쓰고, 제공사명·요청 수·창 길이를 함께 저장한다. 관측이 없는 모델은 0이 아니라 비워 둔다.
 6. 사용자 최신 요청에 맞춰 nav의 실제 회색 fill·블러·곡률·미세한 inset shadow를 복사하고 설명은 접어둔다. nav 자체는 수정하지 않았다.
 
 ## 조사 증거

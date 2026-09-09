@@ -1,30 +1,34 @@
 ---
 import GlassPanel from './GlassPanel.astro';
-import { scatter, ranked, modelName, estimate, dollars, amount, compact, providerTone, type ModelBoard } from '../../lib/model-board';
-interface Props { readonly board: ModelBoard; }
-const { board } = Astro.props;
-const chart = scatter(board.models);
+import TerminalBenchPanel from './TerminalBenchPanel.astro';
+import { amount, compact, dollars, estimate, metrics, modelName, providerTone, ranked, scatter, type Axis, type CanonicalModel, type Model, type ModelBoard } from '../../lib/model-board';
+interface Props { readonly board: ModelBoard; readonly models: readonly CanonicalModel[]; readonly axis?: Axis; }
+const { board, models, axis = 'intelligence' } = Astro.props;
+const chart = scatter(models, axis);
 const usage = ranked(board.models, 'tokens7d').slice(0, 5);
-const labelled = [chart.models[0], [...chart.models].filter((model) => (model.intelligence ?? 0) >= chart.maxScore / 2).sort((a, b) => (estimate(a, 1, 1) ?? 0) - (estimate(b, 1, 1) ?? 0))[0]].filter(Boolean);
+const readout = (model: Model) => `${modelName(model)} · ${metrics[axis].label} ${amount(model[axis])} · 기준 비용 ${dollars(estimate(model, 1, 1))}`;
+const labelled = [chart.models[0], chart.frontier[0]].filter((model, index, list): model is Model => Boolean(model) && list.indexOf(model) === index);
 const scoreTicks = [0, .25, .5, .75, 1].map((part) => chart.maxScore * part);
 ---
 <div class="board-charts">
   <GlassPanel class="value-panel" label="성능과 비용 비교">
-    <div class="panel-heading"><div><h2>성능과 비용</h2></div><span class="chart-hint">왼쪽 위일수록 유리 ↖</span></div>
-    <p class="board-caption">입력 1M + 출력 1M tokens</p>
+    <div class="panel-heading" id="value-chart"><div><h2>성능과 비용</h2></div><span class="chart-hint">왼쪽 위일수록 유리 ↖</span></div>
+    <p class="board-caption">입력 1M + 출력 1M tokens · 점선은 가성비 전선</p>
     <div data-scatter>
-      <svg class="scatter-chart" viewBox="0 0 640 310" role="img" aria-label="가로축 비용 USD, 세로축 AA 성능 지수. 왼쪽 위일수록 적은 비용으로 높은 성능입니다.">
+      <svg class="scatter-chart" viewBox="0 0 640 310" role="img" aria-label="가로축 비용 USD, 세로축 AA 지수. 왼쪽 위일수록 적은 비용으로 높은 점수입니다.">
         {scoreTicks.map((score) => <g><line x1="55" x2="605" y1={chart.y(score)} y2={chart.y(score)} class="chart-grid" /><text x="42" y={chart.y(score) + 4} text-anchor="end">{amount(score, 0)}</text></g>)}
         {chart.ticks.map((tick) => <text x={chart.x(tick)} y="285" text-anchor="middle">${tick}</text>)}
-        <text x="55" y="17" class="axis-title">성능 · AA 지수 ↑</text><text x="605" y="305" text-anchor="end">비용 USD · 로그 눈금 →</text>
-        {chart.models.map((model) => <g><circle cx={chart.x(estimate(model, 1, 1) ?? 0)} cy={chart.y(model.intelligence ?? 0)} r="6" class={`chart-dot tone-${providerTone(model.provider)}`} tabindex="0" role="img" aria-label={`${modelName(model)}: 성능 ${amount(model.intelligence)}, 비용 ${dollars(estimate(model, 1, 1))}`}><title>{modelName(model)} · {amount(model.intelligence)} · {dollars(estimate(model, 1, 1))}</title></circle></g>)}
-        {labelled.map((model, index) => <text class="point-label" x={chart.x(estimate(model, 1, 1) ?? 0) + (index === 0 ? -8 : 8)} y={chart.y(model.intelligence ?? 0) - 12} text-anchor={index === 0 ? "end" : "start"}>{modelName(model)}</text>)}
+        <text x="55" y="17" class="axis-title" data-axis-title>{metrics[axis].label} · AA 지수 ↑</text><text x="605" y="305" text-anchor="end">비용 USD · 로그 눈금 →</text>
+        {chart.frontierPoints && <polyline class="frontier-line" points={chart.frontierPoints} data-frontier />}
+        {chart.models.map((model) => <g><circle cx={chart.x(estimate(model, 1, 1) ?? 0)} cy={chart.y(model[axis] ?? 0)} r="6" class={`chart-dot tone-${providerTone(model.provider)}`} tabindex="0" role="img" aria-label={readout(model)}><title>{readout(model)}</title></circle></g>)}
+        {labelled.map((model, index) => <text class="point-label" x={chart.x(estimate(model, 1, 1) ?? 0) + (index === 0 ? -8 : 8)} y={chart.y(model[axis] ?? 0) - 12} text-anchor={index === 0 ? 'end' : 'start'}>{modelName(model)}</text>)}
       </svg>
     </div>
     <div class="chart-legend"><span><i class="tone-blue" />OpenAI</span><span><i class="tone-orange" />Anthropic</span><span><i class="tone-green" />Google</span><span><i class="tone-slate" />그 외</span></div>
-    <p class="chart-readout" data-chart-readout role="status" aria-live="polite">{chart.models[0] ? `${modelName(chart.models[0])} · 성능 ${amount(chart.models[0].intelligence)} · 기준 비용 ${dollars(estimate(chart.models[0], 1, 1))}` : "관측값 대기"}</p>
+    <p class="chart-readout" data-chart-readout role="status" aria-live="polite">{chart.models[0] ? readout(chart.models[0]) : '관측값 대기'}</p>
     <p class="board-caption" data-scatter-hint hidden={chart.models.length === 0}>점 선택으로 상세 보기</p>
   </GlassPanel>
+  <TerminalBenchPanel board={board} />
   <GlassPanel class="usage-panel" label="주간 토큰 사용량">
     <div class="panel-heading"><div><h2>주간 사용량</h2></div></div>
     <p class="board-caption">OpenRouter 내 입력 + 출력 토큰</p>

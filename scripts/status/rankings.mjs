@@ -1,27 +1,7 @@
 import { numberOrNull } from './catalog.mjs';
+import { flightRecords } from './flight.mjs';
 
 export const RANKINGS_URL = 'https://openrouter.ai/rankings';
-
-function publishedRecords(html) {
-  if (typeof html !== 'string') throw new Error('Rankings response is not HTML.');
-  const chunks = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].flatMap(([, script]) => {
-    const match = /^self\.__next_f\.push\(([\s\S]+)\);?$/.exec(script.trim());
-    if (!match) return [];
-    const push = JSON.parse(match[1]);
-    return push[0] === 1 && typeof push[1] === 'string' ? [push[1]] : [];
-  });
-  const records = new Map();
-  for (const line of chunks.join('').split('\n')) {
-    const match = /^([\da-f]+):(\[.*|\{.*)$/.exec(line);
-    if (!match) continue;
-    try {
-      records.set(match[1], JSON.parse(match[2]));
-    } catch {
-      // React's stream also contains transport records; only JSON records are data.
-    }
-  }
-  return records;
-}
 
 function catalogIdentities(catalog) {
   const candidates = new Map();
@@ -37,7 +17,7 @@ function catalogIdentities(catalog) {
 }
 
 export function parseRankings(html, catalog = null) {
-  const records = publishedRecords(html);
+  const records = flightRecords(html);
   const ranking = [...records.values()].map((value) => value?.[3]?.initialRanking).find((value) => value?.rankingType === 'week');
   const reference = /^\$([\da-f]+):props:state:queries:(\d+):state:data$/.exec(ranking?.rankingData ?? '');
   if (!reference) throw new Error('Published weekly ranking reference is unavailable.');

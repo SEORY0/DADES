@@ -83,6 +83,7 @@
   --radius-menu: 1.25rem;
   --radius-pill: 999px;
   --frame-max: 90rem;
+  --page-content-width: min(calc(100% - 64px), 1376px);
   --reading-max: 48rem;
   --motion-micro: 160ms;
   --motion-standard: 260ms;
@@ -848,6 +849,10 @@ kbd {
 /* Mobile */
 
 @media (max-width: 809.98px) {
+  :root {
+    --page-content-width: calc(100% - 32px);
+  }
+
   html {
     scroll-padding-top: var(--space-5);
   }

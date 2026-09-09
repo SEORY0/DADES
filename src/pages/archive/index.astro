@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import '../../styles/issue-archive.css';
+import '../../styles/reference-index.css';
 import { SOURCE_META, SOURCE_ORDER, collectTags, flattenItems, tagHref } from '../../lib/mag';
 
 const issues = await getCollection('issues');
@@ -21,13 +22,12 @@ const totals = SOURCE_ORDER.map((key) => ({
   active="archive"
   layout="listing"
 >
+  <div class="reference-index topic-index">
   <section class="index-head" aria-labelledby="archive-title">
     <div class="index-headline">
-      <p class="ia-kicker">DADES INDEX</p>
       <h1 id="archive-title">주제 색인</h1>
       <p class="index-lede">
-        발행된 모든 항목을 태그로 다시 묶은 색인입니다. 그 글이 몇 호에 실렸는지 기억나지
-        않을 때 여기서 찾으면 됩니다.
+        주제별로 소식을 모아 보고, 관심 있는 태그를 저장하세요.
       </p>
     </div>
 
@@ -61,8 +61,7 @@ const totals = SOURCE_ORDER.map((key) => ({
     <div class="index-tags-head">
       <h2 id="tag-index-title">전체 태그</h2>
       <p class="index-hint">
-        ★로 관심 태그를 등록하면 지면에서 해당 항목이 표시되고, 홈의 방문 요약에 적중 여부가
-        함께 나옵니다. 이 브라우저에만 저장됩니다.
+        별표를 눌러 관심 태그를 저장하세요. 이 브라우저에만 저장됩니다.
       </p>
     </div>
 
@@ -75,7 +74,7 @@ const totals = SOURCE_ORDER.map((key) => ({
               data-interest-tag={tag}
               aria-pressed="false"
               aria-label={`관심 태그로 등록: ${tag}`}
-            >★</button>
+            ><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z" /></svg></button>
             <a class="index-line" href={tagHref(tag)}>
               <span class="index-tag">{tag}</span>
               <span class="leader" />
@@ -86,6 +85,7 @@ const totals = SOURCE_ORDER.map((key) => ({
       }
     </ul>
   </section>
+  </div>
 </Base>
 
 <script>

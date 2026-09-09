@@ -20,7 +20,7 @@
   font-variant-numeric: tabular-nums;
 }
 .page.page-immersive:has(.model-board) { background: var(--surface-canvas); padding: 0; }
-.page.page-immersive > .model-board { width: min(calc(100% - 64px),1376px); }
+.page.page-immersive > .model-board { width: var(--page-content-width); }
 .model-board [hidden] { display:none !important; }
 .model-board :is(h1,h2,h3,p,ol,ul) { margin:0; }
 .model-board a { color:inherit; }
@@ -189,7 +189,6 @@
   --board-slate:#bec5d4;
 }
 @media(max-width:809.98px) {
-  .page.page-immersive > .model-board { width:calc(100% - 32px); }
   .model-board { --board-glass:var(--chrome-mobile-fill); --board-shadow:none; padding-top:36px; padding-bottom:48px; }
   [data-theme='ink'] .model-board { --board-glass:rgba(46,51,58,.8); }
   .board-heading { align-items:flex-start; flex-direction:column; gap:16px; }

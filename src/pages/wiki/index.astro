@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { WIKI_CATEGORY, fmtDate, href, sortWiki, stripRefs, wikiHref } from '../../lib/mag';
 import '../../styles/wiki-articles.css';
+import '../../styles/reference-index.css';
 
 const entries = sortWiki(await getCollection('wiki'));
 const updated = entries.map((e) => e.data.updated).sort().at(-1) ?? '';

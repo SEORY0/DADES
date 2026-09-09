@@ -262,6 +262,7 @@ All semantic spacing follows a 4px base.
 | Geometry | Token/value | Role |
 | --- | --- | --- |
 | Wide frame | `--frame-max: 90rem` | Home, footer, and full-width page inset |
+| Status/publication content | `--page-content-width: min(calc(100% - 64px), 1376px)`; `calc(100% - 32px)` at 809.98px and below | Shared centered frame for the AI status board and publication briefing |
 | Reading measure | `--reading-max: 48rem` | Default reading pages and issue results |
 | Wide article media | `70.5rem` / `1128px` | Issue and wiki hero media |
 | Control radius | `--radius-control: 8px` | Small controls and cells |
@@ -269,6 +270,33 @@ All semantic spacing follows a 4px base.
 | Card radius | `--radius-card: 16px` | Editorial panels |
 | Menu radius | `--radius-menu: 20px` | Legacy mobile panel alias |
 | Pill radius | `--radius-pill: 999px` | Navigation and controls |
+
+The current publication briefing uses the status board's shared content width.
+Its heading, issue strip, story grid, and past issues share the same centered
+edges: 1376px maximum, 32px minimum side gutters, and 16px side gutters at
+809.98px and below. This supersedes earlier home/gallery frame measurements;
+the briefing's source imagery and interactions stay intact. The story grid uses
+three columns above 1000px and two columns at 1000px and below, including mobile.
+At 480px and below it uses a 12px gap, `--space-3` card padding, `--type-body`
+headlines, and wrapping footer actions so expanded cards fit narrow screens.
+
+The topic index shares this frame, 124px desktop / 32px mobile top
+insets, and the publication's quiet card material. Its reference-index
+surface uses `--surface-raised` mixed with transparent (74%), `--rule-default`,
+20px card corners, 24px padding, and 16px grid gaps. Ink uses the existing
+theme palette. Headings use 28px/1.2, 550 weight; descriptions use 15px/1.65.
+Topic cards use three columns above 1000px and two below, with 12px card padding and
+13px label text at 480px and below. Search, category selection, empty
+states, source counts, full-text results and browser-local favorite tags remain
+functional. Styles apply only to index routes; reading pages keep their measure.
+On narrow topic cards, count and favorite occupy the upper row; the tag name
+uses the full lower row so long Latin labels do not collapse to single letters.
+
+The glossary retains its original text-first list, column headings, ruled rows,
+masthead, search/filter controls and stacked mobile rows. Only its outer width
+uses `--page-content-width`; term labels are 20px, definitions/search input 16px,
+and English labels, source counts and list/filter metadata 14px. These overrides
+are scoped to `.wiki-index`, so glossary detail typography stays unchanged.
 
 Breakpoints match the captured Framer bands: mobile is `<=809.98px`, tablet is
 `810px–1199.98px`, and desktop is `>=1200px`. Desktop wide pages use 40px

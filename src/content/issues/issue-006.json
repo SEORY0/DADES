@@ -19,9 +19,18 @@
       "url": "https://developers.openai.com/api/docs/guides/your-data",
       "source": "read",
       "origin": "OpenAI",
-      "tags": ["security", "data", "privacy"],
+      "tags": [
+        "security",
+        "data",
+        "privacy"
+      ],
       "summary": "OpenAI 플랫폼의 데이터 컨트롤 문서는 API로 보낸 데이터가 명시적으로 opt-in하지 않는 한 모델 학습이나 개선에 쓰이지 않는다고 설명한다. 기업 환경에서는 데이터 보존, 접근, 공유 설정을 계약과 운영 정책까지 이어서 확인해야 한다.",
-      "note": "AI에 데이터를 연결할 때 첫 질문은 '무엇을 보낼 수 있나'가 아니라 '어디까지 저장되고 누가 볼 수 있나'다."
+      "note": "AI에 데이터를 연결할 때 첫 질문은 '무엇을 보낼 수 있나'가 아니라 '어디까지 저장되고 누가 볼 수 있나'다.",
+      "image": {
+        "url": "https://developers.openai.com/open-graph.png",
+        "sourceUrl": "https://developers.openai.com/",
+        "credit": "OpenAI"
+      }
     },
     {
       "id": "i6-secure-mcp-tunnel",
@@ -29,9 +38,18 @@
       "url": "https://developers.openai.com/api/docs/guides/secure-mcp-tunnels",
       "source": "release",
       "origin": "OpenAI",
-      "tags": ["security", "mcp", "data"],
+      "tags": [
+        "security",
+        "mcp",
+        "data"
+      ],
       "summary": "Secure MCP Tunnel은 사설 MCP 서버를 공개 인터넷에 노출하거나 인바운드 방화벽 포트를 열지 않고 OpenAI 제품과 연결하는 방법을 제시한다. 고객 네트워크 안의 tunnel-client가 outbound HTTPS 경로를 열고, 요청을 로컬 MCP 서버로 전달한 뒤 같은 경로로 응답을 돌려준다.",
-      "note": "내부 지식베이스 연결은 편의성보다 네트워크 노출면과 감사 가능성을 먼저 설계해야 한다."
+      "note": "내부 지식베이스 연결은 편의성보다 네트워크 노출면과 감사 가능성을 먼저 설계해야 한다.",
+      "image": {
+        "url": "https://developers.openai.com/og/api/docs/guides/secure-mcp-tunnels.png",
+        "sourceUrl": "https://developers.openai.com/api/docs/guides/secure-mcp-tunnels",
+        "credit": "OpenAI"
+      }
     },
     {
       "id": "i6-mcp-security",
@@ -39,9 +57,18 @@
       "url": "https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices",
       "source": "read",
       "origin": "Model Context Protocol",
-      "tags": ["security", "mcp", "oauth"],
+      "tags": [
+        "security",
+        "mcp",
+        "oauth"
+      ],
       "summary": "MCP 보안 모범 사례는 권한 위임 혼동, 토큰 passthrough, SSRF 같은 구현 위험과 대응책을 정리한다. 특히 MCP 서버가 자신에게 발급되지 않은 토큰을 받아들이거나 downstream으로 그대로 넘기는 패턴을 금지해야 한다고 강조한다.",
-      "note": "도구 연결이 늘어날수록 권한 범위, 동의 화면, 토큰 audience 검증이 제품 운영의 기본 안전장치가 된다."
+      "note": "도구 연결이 늘어날수록 권한 범위, 동의 화면, 토큰 audience 검증이 제품 운영의 기본 안전장치가 된다.",
+      "image": {
+        "url": "https://raw.githubusercontent.com/modelcontextprotocol/docs/2eb6171ddbfeefde349dc3b8d5e2b87414c26250/images/og-image.png",
+        "sourceUrl": "https://modelcontextprotocol.io/",
+        "credit": "Model Context Protocol"
+      }
     }
   ]
 }

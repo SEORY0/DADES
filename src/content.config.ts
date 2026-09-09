@@ -20,6 +20,7 @@ const item = z.object({
   /** 선별 이유 한 줄 (에디터 노트) */
   note: z.string().nullish(),
   signal: z.enum(SIGNAL_KEYS).nullish(),
+  image: z.object({ url: z.string().url(), sourceUrl: z.string().url(), credit: z.string(), fit: z.enum(['cover','contain']).optional() }).optional(),
 });
 
 const issues = defineCollection({

@@ -23,15 +23,15 @@ test('Codex publication rejects stale runs and altered URLs, then publishes once
   try {
     await write('candidates.json',candidates); await write('draft.json',draft);
     await write('diagnostics.json',{plan:{...plan,date:'2026-09-03'}});
-    await assert.rejects(publishCodexDraft({root,runDir,draftFile,now}),/Stale/);
+    await assert.rejects(publishCodexDraft({root,runDir,draftFile,now,enrich:async issue=>issue}),/Stale/);
     await write('diagnostics.json',{plan});
     await write('draft.json',{...draft,items:draft.items.map((item,index)=>index===0?{...item,url:'https://invented.example/'}:item)});
-    await assert.rejects(publishCodexDraft({root,runDir,draftFile,now}),/changed source URL/);
+    await assert.rejects(publishCodexDraft({root,runDir,draftFile,now,enrich:async issue=>issue}),/changed source URL/);
     await write('draft.json',draft);
-    const file = await publishCodexDraft({root,runDir,draftFile,now});
+    const file = await publishCodexDraft({root,runDir,draftFile,now,enrich:async issue=>issue});
     const bytes = await fs.readFile(file,'utf8');
     assert.equal(JSON.parse(bytes).items.length,3);
-    await assert.rejects(publishCodexDraft({root,runDir,draftFile,now}),/Stale or already published/);
+    await assert.rejects(publishCodexDraft({root,runDir,draftFile,now,enrich:async issue=>issue}),/Stale or already published/);
     assert.equal(await fs.readFile(file,'utf8'),bytes);
   } finally {
     // Only delete the exact temporary fixture directory created above.

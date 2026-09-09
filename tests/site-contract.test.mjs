@@ -191,7 +191,7 @@ test('status exposes sourced model comparisons while wiki remains a searchable f
   assert.match(article, /data-copy-link/);
 });
 
-test('shared artwork remains local while the briefing avoids cover downloads', async () => {
+test('briefing images retain source attribution and local shared artwork', async () => {
   const home = await readPage('/DADES/');
   const patternFiles = [
     'dades-flow-lines.svg',
@@ -212,6 +212,10 @@ test('shared artwork remains local while the briefing avoids cover downloads', a
   const covers = [...home.matchAll(/<img[^>]+src="([^"]+)"/g)].map((match) => match[1]);
   assert.doesNotMatch(home, /class="gallery-card/);
   for (const src of covers) {
+    if (src.startsWith('https://')) {
+      assert.ok(issues.some(issue => issue.items.some(item => item.image?.url === src.replaceAll('&amp;', '&'))));
+      continue;
+    }
     assert.ok(src.startsWith('/DADES/'));
     const response = await fetch(`${origin}${src}`);
     assert.equal(response.status, 200);

@@ -5,9 +5,10 @@ import { pathToFileURL } from 'node:url';
 import { candidateSchema, validateDraft, toIssueJson } from './schema.mjs';
 import { loadConfig, readPublishedIssues, makeIssuePlan } from './collect.mjs';
 import { publishIssue } from './publish.mjs';
+import { enrichStoryImages } from './story-images.mjs';
 
 // Codex writes the draft after reading the collected primary sources. No model API key.
-export async function publishCodexDraft({ root = process.cwd(), runDir, draftFile, now = new Date() }) {
+export async function publishCodexDraft({ root = process.cwd(), runDir, draftFile, now = new Date(), enrich = enrichStoryImages }) {
   const config = await loadConfig(path.join(root, 'config/editorial.sources.json'));
   const issuesDir = path.join(root, 'src/content/issues');
   const published = await readPublishedIssues(issuesDir);
@@ -20,7 +21,7 @@ export async function publishCodexDraft({ root = process.cwd(), runDir, draftFil
   const draft = JSON.parse(await fs.readFile(draftFile, 'utf8'));
   const parsed = validateDraft({ draft, candidates, published, plan, quality: config.collection });
   if (parsed.items.length > config.collection.maxItems) throw new Error('Too many stories for one briefing.');
-  const issue = toIssueJson(parsed);
+  const issue = await enrich(toIssueJson(parsed));
   return publishIssue({ issuesDir, plan, issue });
 }
 

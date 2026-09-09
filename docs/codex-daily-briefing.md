@@ -15,7 +15,7 @@
 1. origin/main을 fetch하고 현재 작업과 분리한 임시 worktree에서 작업한다. 기존 미커밋 변경은 건드리지 않는다. 같은 한국 날짜의 호가 이미 있으면 종료한다.
 2. `npm ci`, `node scripts/editorial/cli.mjs --collect-only`를 실행한다. 출력된 실행 폴더의 candidates.json, diagnostics.json을 읽는다. 모든 피드 실패는 오류로 보고한다.
 3. 원문을 검증하고 `scripts/editorial/schema.mjs`의 issueDraftSchema에 맞는 draft.raw.json을 해당 실행 폴더에 쓴다. plan의 number/date/period, 후보의 candidateId/url/source/origin을 그대로 보존한다. ID는 i번호-슬러그 형식이다.
-4. `node scripts/editorial/publish-codex.mjs RUN_DIR DRAFT_JSON`으로 검증 후 새 issue JSON을 쓴다. 중복 날짜·번호·URL, 부족한 출처, 오래된 실행 폴더는 거절된다. 검증을 우회하지 않는다.
+4. `node scripts/editorial/publish-codex.mjs RUN_DIR DRAFT_JSON`으로 검증 후 새 issue JSON을 쓴다. 원문 또는 해당 사이트의 공개 대표 이미지를 카드 배경으로 자동 연결한다. 브라우저에서 이미지·크롭·제목 대비를 확인하고 관련 없는 이미지나 아이콘은 제외한다. 확보하지 못하면 글래스 배경을 유지한다. 중복 날짜·번호·URL, 부족한 출처, 오래된 실행 폴더는 거절된다. 검증을 우회하지 않는다.
 5. `npm test`, `npm run build`를 통과시킨다. 로컬 preview에서 새 호와 홈을 확인한다. 실패 시 발행하지 않는다.
 6. 새 호 JSON 한 개만 commit한다. origin/main이 움직였으면 최신 상태에 적용하고 중복 날짜를 다시 검사한 뒤 테스트한다. fast-forward push로 main에 반영하며 force push하지 않는다. 보호 규칙이 막으면 PR을 만들고 차단 사유를 알린다.
 7. push가 실행한 deploy.yml의 결과와 공개 사이트의 새 호 URL을 확인한 다음 발행 완료를 알린다. 배포 실패와 자료 수집 실패는 알리고, 무변경·중복 날짜·품질 미달로 건너뛴 경우 조용히 종료한다.

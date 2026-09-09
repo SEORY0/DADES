@@ -1,13 +1,17 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import { issueCover } from '../lib/covers';
 import Base from '../layouts/Base.astro';
 import { sortIssues, flattenItems, issueHref, href, fmtDate, clipPayload } from '../lib/mag';
 import { storyTopic } from '../lib/editorial';
 import '../styles/briefing.css';
 const issues = sortIssues(await getCollection('issues'));
 const latest = issues[0];
+const sourceCovers = new Map(issues.filter(issue=>issue.data.cover?.sourceUrl).map(issue=>[issue.data.cover!.sourceUrl,issueCover(issue)]));
 const seen = new Set<string>();
 const stories = flattenItems(issues).filter(({ item }) => { if(seen.has(item.url)) return false; seen.add(item.url); return item.signal !== 'noise'; });
+const sourceCredits = new Map(issues.filter(issue=>issue.data.cover?.sourceUrl).map(issue=>[issue.data.cover!.sourceUrl,{sourceUrl:issue.data.cover!.sourceUrl!,credit:issue.data.cover!.credit ?? '원문'}]));
 const topics = [{key:'all',label:'전체'},{key:'ai',label:'AI'},{key:'agents',label:'에이전트'},{key:'security',label:'AI 보안'},{key:'action',label:'행동 필요'}];
 ---
 <Base title="발행" description="AI의 중요한 변화만, 요약과 맥락으로 읽는 DADES 브리핑." active="home" home>
@@ -20,11 +24,12 @@ const topics = [{key:'all',label:'전체'},{key:'ai',label:'AI'},{key:'agents',l
         <div class="brief-filters" role="group" aria-label="소식 주제">{topics.map(topic=><button type="button" data-brief-filter={topic.key} aria-pressed={topic.key==='all'}>{topic.label}</button>)}</div>
         <label class="brief-search"><span class="sr-only">소식 검색</span><input type="search" data-brief-query placeholder="검색" maxlength="160" /></label>
       </div>
-      <ol class="brief-list">{stories.map(flat => { const { item, issue } = flat; return <li id={`brief-${item.id}`} data-brief-row data-topic={storyTopic(item)} data-action={item.signal==='action'} data-search={[item.title,item.summary,item.note,item.origin,...item.tags].join(' ').toLocaleLowerCase('ko')}>
+      <ol class="brief-list">{stories.map((flat,index) => { const { item, issue } = flat; const artwork = sourceCovers.get(item.url) ?? item.image?.url; const imageCredit = sourceCredits.get(item.url) ?? item.image; return <li class:list={[{'has-story-image':!!artwork,'story-image-contain':item.image?.fit==='contain'}]} id={`brief-${item.id}`} data-brief-row data-topic={storyTopic(item)} data-action={item.signal==='action'} data-search={[item.title,item.summary,item.note,item.origin,...item.tags].join(' ').toLocaleLowerCase('ko')}>
+        {artwork && (typeof artwork === 'string' ? <img class="story-image" src={artwork} alt="" loading={index<3?'eager':'lazy'} decoding="async" referrerpolicy="no-referrer" /> : <Image class="story-image" src={artwork} alt="" widths={[480,800]} sizes="(max-width:480px) 100vw, (max-width:1000px) 50vw, 33vw" format="webp" loading={index<3?'eager':'lazy'} />)}
         <div class="story-meta"><span>{item.origin}</span><time datetime={issue.date}>{fmtDate(issue.date).slice(5)}</time></div>
         <article>
           <div class="story-title"><h3><a href={item.url} target="_blank" rel="noopener noreferrer">{item.title}<span class="sr-only"> (원문, 새 탭)</span><span aria-hidden="true"> ↗</span></a></h3>{item.signal==='action' && <span class="action-mark">행동 필요</span>}</div>
-          <details class="story-context"><summary>요약 <span aria-hidden="true">+</span></summary><div><p>{item.summary}</p>{item.note && <p class="editor-note">{item.note}</p>}<div class="story-bottom"><a href={`${issueHref(issue.number)}#${item.id}`}>이 호 읽기 ↗</a><button type="button" class="clip-btn" data-clip-id={item.id} data-clip-payload={JSON.stringify(clipPayload(flat))} aria-pressed="false" aria-label={`${item.title} 저장`}><span class="clip-label">클립</span></button></div></div></details>
+          <details class="story-context"><summary>요약 <span aria-hidden="true">+</span></summary><div><p>{item.summary}</p>{item.note && <p class="editor-note">{item.note}</p>}{imageCredit && <a class="image-credit" href={imageCredit.sourceUrl} target="_blank" rel="noopener noreferrer">이미지 · {imageCredit.credit} ↗</a>}<div class="story-bottom"><a href={`${issueHref(issue.number)}#${item.id}`}>이 호 읽기 ↗</a><button type="button" class="clip-btn" data-clip-id={item.id} data-clip-payload={JSON.stringify(clipPayload(flat))} aria-pressed="false" aria-label={`${item.title} 저장`}><span class="clip-label">클립</span></button></div></div></details>
         </article>
       </li>; })}</ol>
       <p class="brief-empty" data-brief-empty hidden>일치하는 소식이 없습니다.</p><button class="brief-more" type="button" data-brief-more hidden>더 읽기 ↓</button>
@@ -33,6 +38,7 @@ const topics = [{key:'all',label:'전체'},{key:'ai',label:'AI'},{key:'agents',l
   </div>
 </Base>
 <script>
+  document.querySelectorAll<HTMLImageElement>('.story-image').forEach(image=>{const fallback=()=>{image.closest('li')?.classList.remove('has-story-image');image.remove();};image.addEventListener('error',fallback);if(image.complete&&!image.naturalWidth)fallback();});
   const rows = [...document.querySelectorAll<HTMLElement>('[data-brief-row]')];
   const filters = [...document.querySelectorAll<HTMLButtonElement>('[data-brief-filter]')];
   const query = document.querySelector<HTMLInputElement>('[data-brief-query]');

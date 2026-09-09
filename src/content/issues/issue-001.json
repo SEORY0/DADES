@@ -19,10 +19,19 @@
       "url": "https://quasarzone.com/bbs/qn_game/views/456663",
       "source": "news",
       "origin": "퀘이사존",
-      "tags": ["hardware", "culture"],
+      "tags": [
+        "hardware",
+        "culture"
+      ],
       "summary": "GPT-5.6 Sol로 설계했다는 CPU 'Codex-R32'가 가상 샌드박스에서 둠을 실행함. RV32IM을 단순화한 구조로, 물리 칩이 아니라 회로 시뮬레이션 검증이고 속도도 실제 프로세서에 한참 못 미침. 원 출처가 중국 매체 보도의 번역이라 개발자의 1차 게시물은 확인되지 않음.",
       "note": null,
-      "signal": "noise"
+      "signal": "noise",
+      "image": {
+        "url": "https://img2.quasarzone.com/homepage/real/themes/quasarzone/favicon/mstile-144x144.png?v=1",
+        "sourceUrl": "https://quasarzone.com/bbs/qn_game/views/456663",
+        "credit": "퀘이사존",
+        "fit": "contain"
+      }
     },
     {
       "id": "i1-webmcp",
@@ -30,10 +39,19 @@
       "url": "https://openai.com/ko-KR/webmcp-challenge/",
       "source": "release",
       "origin": "OpenAI",
-      "tags": ["agents", "browser-agents", "mcp"],
+      "tags": [
+        "agents",
+        "browser-agents",
+        "mcp"
+      ],
       "summary": "OpenAI가 Chrome·Cloudflare·Shopify 등과 여는 10일짜리 WebMCP 해커톤. 웹페이지가 navigator.modelContext API로 에이전트에게 도구를 직접 노출하는 W3C 드래프트 표준을 겨냥함. 상금 3만 5천 달러, 제출 마감은 9월 3일(PT).",
       "note": "마감이 9월 3일이라 뛰어들 거면 이번 주가 끝이다.",
-      "signal": "action"
+      "signal": "action",
+      "image": {
+        "url": "https://developers.openai.com/open-graph.png",
+        "sourceUrl": "https://developers.openai.com/",
+        "credit": "OpenAI"
+      }
     },
     {
       "id": "i1-prompt-guide",
@@ -41,9 +59,17 @@
       "url": "https://github.com/dair-ai/Prompt-Engineering-Guide",
       "source": "repo",
       "origin": "GitHub",
-      "tags": ["prompt-engineering", "open-source"],
+      "tags": [
+        "prompt-engineering",
+        "open-source"
+      ],
       "summary": "dair-ai가 2022년부터 운영한 프롬프트 엔지니어링 자료집. 스타 77.9k, 13개 언어 번역, 웹 버전은 promptingguide.ai. 기법 정리는 zero-shot부터 ReAct까지 넓은데 마지막 push가 2026년 3월이니 최신 기법은 갱신 시점을 확인할 것.",
-      "note": null
+      "note": null,
+      "image": {
+        "url": "https://opengraph.githubassets.com/d20cfd80365149572ff646675af9b424a9354e0884b527834f1b9136f8e95168/dair-ai/Prompt-Engineering-Guide",
+        "sourceUrl": "https://github.com/dair-ai/Prompt-Engineering-Guide",
+        "credit": "GitHub"
+      }
     },
     {
       "id": "i1-songhan",
@@ -51,9 +77,18 @@
       "url": "https://www.instagram.com/p/DciFoeSkURj/",
       "source": "sns",
       "origin": "Instagram",
-      "tags": ["efficiency", "culture"],
+      "tags": [
+        "efficiency",
+        "culture"
+      ],
       "summary": "MIT 교수이자 NVIDIA에 적을 둔 경량화 연구자 Song Han을 소개하는 포스트. SmoothQuant, StreamingLLM을 간단한 아이디어로 임팩트를 낸 예로 들고, 입문 코스로 유튜브의 MIT 강의를 권함. 함께 팔로우할 연구자로는 Tri Dao를 언급.",
-      "note": null
+      "note": null,
+      "image": {
+        "url": "https://static.cdninstagram.com/rsrc.php/v4/yD/r/R0fBIMurK8v.png",
+        "sourceUrl": "https://www.instagram.com/",
+        "credit": "Instagram",
+        "fit": "contain"
+      }
     },
     {
       "id": "i1-trillion-ikp",
@@ -61,9 +96,17 @@
       "url": "https://blog.trillionlabs.co/posts/estimating-closed-source-llm-parameters/",
       "source": "read",
       "origin": "Trillion Labs",
-      "tags": ["evals", "research"],
+      "tags": [
+        "evals",
+        "research"
+      ],
       "summary": "파라미터를 밝히지 않는 GPT·Claude의 크기를 추정하는 방법을 정리한 Trillion Labs의 리서치 노트. 추론으로는 못 맞히고 알아야만 맞히는 희귀 사실 문제(IKP)로 지식 저장량을 재는 방식인데, 공개 모델 93개로 보정하니 파라미터 10배당 정답률이 15.9%p 오르는 관계가 나옴(R² 0.910). 이 자로 재면 GPT-5.5 Pro는 약 5.3T, Claude Opus는 약 1.6T. 1T 초과 구간은 비교할 공개 모델이 2개뿐이라 오차가 크다고 스스로 밝힘.",
-      "note": "4월에 머스크가 흘린 숫자와 대체로 맞아떨어진다는 대목이 재미있다."
+      "note": "4월에 머스크가 흘린 숫자와 대체로 맞아떨어진다는 대목이 재미있다.",
+      "image": {
+        "url": "https://blog.trillionlabs.co/og-default.png",
+        "sourceUrl": "https://blog.trillionlabs.co/posts/estimating-closed-source-llm-parameters/",
+        "credit": "Trillion Labs"
+      }
     }
   ]
 }

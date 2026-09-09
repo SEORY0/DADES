@@ -19,9 +19,18 @@
       "url": "https://developers.openai.com/api/docs/guides/evals",
       "source": "tool",
       "origin": "OpenAI",
-      "tags": ["ai", "evals", "quality"],
+      "tags": [
+        "ai",
+        "evals",
+        "quality"
+      ],
       "summary": "OpenAI의 evals 가이드는 대시보드나 API로 모델 출력을 평가하는 흐름을 설명한다. 현재 문서는 Evals 플랫폼이 2026년 10월 31일 읽기 전용으로 바뀌고 11월 30일 종료될 예정이라고 밝히므로, 새 시스템은 이 일정까지 감안해야 한다.",
-      "note": "평가를 제품에 붙일 때는 특정 플랫폼보다 평가 데이터셋과 채점 기준을 이식 가능하게 남기는 편이 안전하다."
+      "note": "평가를 제품에 붙일 때는 특정 플랫폼보다 평가 데이터셋과 채점 기준을 이식 가능하게 남기는 편이 안전하다.",
+      "image": {
+        "url": "https://developers.openai.com/open-graph.png",
+        "sourceUrl": "https://developers.openai.com/",
+        "credit": "OpenAI"
+      }
     },
     {
       "id": "i5-stanford-helm",
@@ -29,9 +38,19 @@
       "url": "https://crfm.stanford.edu/helm/",
       "source": "read",
       "origin": "Stanford CRFM",
-      "tags": ["ai", "evals", "benchmarks"],
+      "tags": [
+        "ai",
+        "evals",
+        "benchmarks"
+      ],
       "summary": "Stanford CRFM의 HELM은 언어 모델 투명성을 위한 살아 있는 벤치마크로, 넓은 범위의 시나리오와 여러 평가 지표를 함께 보려는 프로젝트다. 정확도만이 아니라 견고성, 편향, 독성, 효율성 같은 절충을 드러내는 데 초점이 있다.",
-      "note": "제품 답변 품질도 정확도, 최신성, 출처성, 응답 시간을 분리해 기록하면 개선 지점이 보인다."
+      "note": "제품 답변 품질도 정확도, 최신성, 출처성, 응답 시간을 분리해 기록하면 개선 지점이 보인다.",
+      "image": {
+        "url": "https://crfm.stanford.edu/static/img/header/crfm-rgb.png",
+        "sourceUrl": "https://crfm.stanford.edu/",
+        "credit": "Stanford CRFM",
+        "fit": "contain"
+      }
     },
     {
       "id": "i5-ailuminate-safety",
@@ -39,9 +58,18 @@
       "url": "https://mlcommons.org/ailuminate/safety/",
       "source": "read",
       "origin": "MLCommons",
-      "tags": ["ai", "evals", "safety"],
+      "tags": [
+        "ai",
+        "evals",
+        "safety"
+      ],
       "summary": "MLCommons AILuminate Safety는 일반 챗봇형 생성 AI 시스템의 안전성을 평가해 개발자, 구매자, 표준 기관이 참고할 수 있게 한다. 공개·비공개 프롬프트를 섞고, 위험 범주별 및 전체 안전 등급을 제공해 벤치마크 게임화를 줄이려 한다.",
-      "note": "AI 제품을 비교할 때는 성능 벤치마크와 함께 안전성 벤치마크를 같은 무게로 다루는 편이 유용하다."
+      "note": "AI 제품을 비교할 때는 성능 벤치마크와 함께 안전성 벤치마크를 같은 무게로 다루는 편이 유용하다.",
+      "image": {
+        "url": "https://mlcommons.org/wp-content/uploads/2024/10/ai5.jpg.webp",
+        "sourceUrl": "https://mlcommons.org/ailuminate/safety/",
+        "credit": "MLCommons"
+      }
     }
   ]
 }

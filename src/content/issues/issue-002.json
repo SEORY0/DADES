@@ -19,9 +19,18 @@
       "url": "https://developers.openai.com/api/docs/guides/agents",
       "source": "release",
       "origin": "OpenAI",
-      "tags": ["agents", "orchestration", "tools"],
+      "tags": [
+        "agents",
+        "orchestration",
+        "tools"
+      ],
       "summary": "OpenAI Agents SDK 문서는 에이전트를 계획, 도구 호출, 협업, 상태 유지가 필요한 애플리케이션으로 설명한다. 반복 도구 호출과 분기, 세션, tracing, guardrails, 승인 흐름을 SDK가 맡을지 아니면 Responses API로 애플리케이션이 직접 루프를 잡을지 나누어 고르게 한다.",
-      "note": "반복되는 제품 운영 작업은 SDK가 유리하고, 단발성 검색·요약은 직접 루프가 더 읽기 쉽다."
+      "note": "반복되는 제품 운영 작업은 SDK가 유리하고, 단발성 검색·요약은 직접 루프가 더 읽기 쉽다.",
+      "image": {
+        "url": "https://developers.openai.com/og/api/docs/guides/agents.png",
+        "sourceUrl": "https://developers.openai.com/api/docs/guides/agents",
+        "credit": "OpenAI"
+      }
     },
     {
       "id": "i2-google-adk",
@@ -29,9 +38,18 @@
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk",
       "source": "tool",
       "origin": "Google Cloud",
-      "tags": ["agents", "adk", "workflow"],
+      "tags": [
+        "agents",
+        "adk",
+        "workflow"
+      ],
       "summary": "Google의 Agent Development Kit은 에이전트와 도구에서 시작해 복잡한 멀티 에이전트 시스템으로 확장하는 오픈소스 개발 프레임워크다. 개인 비서부터 미션 크리티컬 업무 흐름까지 만들 수 있도록 빌드, 디버그, 배포 과정을 코드 중심으로 다룬다.",
-      "note": "장기 운영되는 AI 기능은 프롬프트 묶음보다 역할과 도구가 분리된 코드 구조가 오래 간다."
+      "note": "장기 운영되는 AI 기능은 프롬프트 묶음보다 역할과 도구가 분리된 코드 구조가 오래 간다.",
+      "image": {
+        "url": "https://docs.cloud.google.com/_static/cloud/images/social-icon-google-cloud-1200-630.png",
+        "sourceUrl": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk",
+        "credit": "Google Cloud"
+      }
     },
     {
       "id": "i2-mcp-intro",
@@ -39,9 +57,18 @@
       "url": "https://www.anthropic.com/news/model-context-protocol",
       "source": "release",
       "origin": "Anthropic",
-      "tags": ["mcp", "agents", "data"],
+      "tags": [
+        "mcp",
+        "agents",
+        "data"
+      ],
       "summary": "Anthropic은 Model Context Protocol을 데이터 소스와 AI 도구 사이의 안전한 양방향 연결을 위한 공개 표준으로 소개했다. 개발자는 데이터를 MCP 서버로 노출하거나, MCP 클라이언트를 갖춘 AI 앱이 서버에 연결되도록 구성할 수 있다.",
-      "note": "제품이 외부 데이터를 읽거나 쓰기 시작하면 연결 표준과 권한 경계를 먼저 정해야 한다."
+      "note": "제품이 외부 데이터를 읽거나 쓰기 시작하면 연결 표준과 권한 경계를 먼저 정해야 한다.",
+      "image": {
+        "url": "https://cdn.sanity.io/images/4zrzovbb/website/1aef864f9b246c740fe3cef6e1068f2220995d5e-2400x1260.png",
+        "sourceUrl": "https://www.anthropic.com/news/model-context-protocol",
+        "credit": "Anthropic"
+      }
     }
   ]
 }

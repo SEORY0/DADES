@@ -31,7 +31,7 @@ jobs:
       - name: Install existing dependencies
         run: npm ci
       - name: Test status pipeline
-        run: node --test tests/status-data.test.mjs
+        run: npm run test:status
       - name: Refresh public snapshot
         run: node scripts/status/cli.mjs
       - name: Build with refreshed snapshot

@@ -1,8 +1,8 @@
 name: Editorial Pipeline
 
 on:
-  schedule:
-    - cron: '20 23 * * 4'
+  # Daily publishing is owned by the Codex scheduled task (08:00 Asia/Seoul).
+  # Keep this legacy API pipeline manual to prevent duplicate scheduled editions.
   workflow_dispatch:
     inputs:
       publish:

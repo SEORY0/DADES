@@ -5,7 +5,7 @@ import { axisMaxima, canonicalModels, fingerprint, metricValue, paretoFrontier, 
 const model = (id, overrides = {}) => ({
   id, name: id.split('/')[1], provider: id.split('/')[0], url: `https://openrouter.ai/${id}`, context: 1000, inputPrice: 1, outputPrice: 4,
   intelligence: null, coding: null, agentic: null, speed: null, latency: null, speedProvider: null, speedRequests: null, speedWindow: null,
-  terminalBench: null, tokens7d: null, previousTokens7d: null, dailyTokens: [], ...overrides,
+  terminalBench: null, tokens7d: null, previousTokens7d: null, dailyTokens: [], aaIntelligence: null, aaCoding: null, ...overrides,
 });
 
 const fleet = [
@@ -16,6 +16,8 @@ const fleet = [
   model('e/weak', { intelligence: 20, coding: 30, agentic: 10, inputPrice: 0, outputPrice: 0, speed: 200 }),
   model('f/blank', { inputPrice: null, outputPrice: null }),
 ];
+// Measured task costs are separate observations, not derived from token tariffs.
+[60, 10, 0.4, 12, 0, null].forEach((costPerTask, index) => { fleet[index].aaIntelligence = { costPerTask }; });
 
 test('metric values read nested Terminal-Bench accuracy and derived 1M+1M cost, leaving unknowns null', () => {
   assert.equal(metricValue(fleet[0], 'terminalBench'), 58);
@@ -42,7 +44,7 @@ test('canonical folding keeps the base model as the row and lists alias, batch, 
 
 test('the Pareto frontier keeps models nothing beats on both score and cost, and value picks the cheapest strong one', () => {
   assert.deepEqual(paretoFrontier(fleet).map((m) => m.id), ['e/weak', 'c/cheap', 'b/runner', 'a/leader']);
-  assert.deepEqual(valueSet(fleet).map((m) => m.id), ['c/cheap', 'b/runner']);
+  assert.deepEqual(valueSet(fleet).map((m) => m.id), ['c/cheap', 'b/runner', 'a/leader']);
   assert.equal(valuePick(fleet).id, 'c/cheap');
   assert.equal(valuePick([model('z/none')]), null);
 });
@@ -50,7 +52,7 @@ test('the Pareto frontier keeps models nothing beats on both score and cost, and
 test('strength labels mark the top three per axis, the top three fastest, and the value set in a fixed order', () => {
   const labels = strengthMap(fleet);
   assert.deepEqual(labels.get('a/leader'), ['종합', '코딩', '에이전트']);
-  assert.deepEqual(labels.get('b/runner'), ['종합', '코딩', '에이전트', '빠름', '가성비']);
+  assert.deepEqual(labels.get('b/runner'), ['종합', '코딩', '에이전트', '빠름']);
   assert.deepEqual(labels.get('c/cheap'), ['빠름', '가성비']);
   assert.deepEqual(labels.get('e/weak'), ['빠름']);
   assert.equal(labels.get('f/blank'), undefined);
@@ -62,4 +64,14 @@ test('fingerprints scale each axis to the fleet maximum and mark missing axes in
   assert.deepEqual(fingerprint(fleet[1], maxima).map((bar) => bar.ratio), [0.9, 0.875, 50 / 55]);
   assert.deepEqual(fingerprint(fleet[5], maxima).map((bar) => bar.ratio), [null, null, null]);
   assert.deepEqual(fingerprint(fleet[5], maxima).map((bar) => bar.axis), ['intelligence', 'coding', 'agentic']);
+});
+
+test('value uses measured cost for the same benchmark rather than token tariffs or another benchmark', () => {
+  const leader = model('x/leader', { intelligence: 100 });
+  const priceyTokens = model('x/efficient', { intelligence: 75, inputPrice: 10, outputPrice: 50, aaIntelligence: { costPerTask: 0.2 } });
+  const cheapTokens = model('x/inefficient', { intelligence: 75, inputPrice: 0.1, outputPrice: 0.2, aaIntelligence: { costPerTask: 2 } });
+  assert.equal(valuePick([leader, priceyTokens, cheapTokens]).id, priceyTokens.id);
+  assert.equal(valuePick([leader, { ...priceyTokens, intelligence: 74.9 }]), null);
+  assert.equal(valuePick([leader, { ...priceyTokens, aaIntelligence: null, aaCoding: { costPerTask: 0.1 } }]), null);
+  assert.equal(valuePick([leader, { ...priceyTokens, inputPrice: null }]).id, priceyTokens.id);
 });

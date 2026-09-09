@@ -2,19 +2,20 @@ import { CATALOG_URL, parseCatalog } from './catalog.mjs';
 import { parseRankings, RANKINGS_URL } from './rankings.mjs';
 import { matchTerminalBench, parseTerminalBench, TERMINAL_BENCH_URL } from './terminal-bench.mjs';
 import { EMPTY_PERFORMANCE, parseModelPage, performanceSample } from './performance.mjs';
+import { AA_MODELS_URL, AA_CODING_URL, parseAAIntelligence, parseAACoding, matchAA } from './artificial-analysis.mjs';
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 const SOURCE_DETAILS = [
   { id: 'openrouter-catalog', label: 'OpenRouter catalog', url: CATALOG_URL },
-  { id: 'artificial-analysis', label: 'Artificial Analysis via OpenRouter', url: CATALOG_URL },
+  { id: 'aa-intelligence', label: 'Artificial Analysis Intelligence Index', url: AA_MODELS_URL },
+  { id: 'aa-coding', label: 'Artificial Analysis Coding Agent Index', url: AA_CODING_URL },
   { id: 'terminal-bench', label: 'Terminal-Bench 4.0 leaderboard', url: TERMINAL_BENCH_URL },
   { id: 'openrouter-performance', label: 'OpenRouter model page performance', url: 'https://openrouter.ai/models' },
   { id: 'openrouter-usage', label: 'OpenRouter usage rankings', url: RANKINGS_URL },
 ];
-const ALLOWED_HOSTS = new Set(['openrouter.ai', 'www.tbench.ai']);
+const ALLOWED_HOSTS = new Set(['openrouter.ai', 'www.tbench.ai', 'artificialanalysis.ai']);
 const PERFORMANCE_FIELDS = ['speed', 'latency', 'speedProvider', 'speedRequests', 'speedWindow'];
 const USAGE_FIELDS = ['tokens7d', 'previousTokens7d', 'dailyTokens'];
-const BENCHMARK_FIELDS = ['intelligence', 'coding', 'agentic'];
 const TERMINAL_BENCH_FIELDS = ['terminalBench'];
 
 export async function fetchSource(url, transport = fetch) {
@@ -34,8 +35,12 @@ export async function fetchSource(url, transport = fetch) {
 export function upgradeSnapshot(snapshot) {
   if (!snapshot || !Array.isArray(snapshot.models) || !Array.isArray(snapshot.sources)) throw new Error('Existing status snapshot has an unsupported format.');
   if (snapshot.schemaVersion === SCHEMA_VERSION) return snapshot;
-  if (snapshot.schemaVersion !== 1) throw new Error('Existing status snapshot has an unsupported format.');
-  return { ...snapshot, schemaVersion: SCHEMA_VERSION, terminalBench: null, models: snapshot.models.map((model) => ({ terminalBench: null, speedRequests: null, speedWindow: null, ...model })) };
+  if (![1, 2].includes(snapshot.schemaVersion)) throw new Error('Existing status snapshot has an unsupported format.');
+  return { ...snapshot, schemaVersion: SCHEMA_VERSION, terminalBench: snapshot.terminalBench ?? null,
+    sources: snapshot.sources.filter((source) => source.id !== 'artificial-analysis'),
+    models: snapshot.models.map((model) => ({ terminalBench: null, speedRequests: null, speedWindow: null, ...model,
+      intelligence: null, coding: null, agentic: null, aaIntelligence: null, aaCoding: null,
+    })) };
 }
 
 function keepFields(models, previous, fields) {
@@ -67,10 +72,11 @@ async function collectPerformance(models, transport) {
 }
 
 export async function refreshSnapshot({ previous = null, transport = fetch, now = new Date(), aliases = {} } = {}) {
+  if (previous) previous = upgradeSnapshot(previous);
   const fetchedAt = now.toISOString();
-  const sources = SOURCE_DETAILS.map((details) => ({ ...details, observedAt: previous?.sources.find((source) => source.id === details.id)?.observedAt ?? null, status: 'unavailable', note: '' }));
+  const sources = SOURCE_DETAILS.map((details) => ({ ...details, version: previous?.sources.find((source) => source.id === details.id)?.version ?? null, observedAt: previous?.sources.find((source) => source.id === details.id)?.observedAt ?? null, status: 'unavailable', note: '' }));
   const source = (id) => sources.find((entry) => entry.id === id);
-  const results = await Promise.allSettled([fetchSource(CATALOG_URL, transport), fetchSource(RANKINGS_URL, transport), fetchSource(TERMINAL_BENCH_URL, transport)]);
+  const results = await Promise.allSettled([fetchSource(CATALOG_URL, transport), fetchSource(RANKINGS_URL, transport), fetchSource(TERMINAL_BENCH_URL, transport), fetchSource(AA_MODELS_URL, transport), fetchSource(AA_CODING_URL, transport)]);
   let payload = null;
   let models;
   try {
@@ -85,11 +91,23 @@ export async function refreshSnapshot({ previous = null, transport = fetch, now 
     source('openrouter-catalog').note = `Catalog refresh failed; retained the last successful catalog. ${error.message}`;
   }
 
-  if (payload && models.some((model) => BENCHMARK_FIELDS.some((field) => model[field] !== null))) {
-    Object.assign(source('artificial-analysis'), { status: 'ok', observedAt: fetchedAt, note: 'Artificial Analysis intelligence, coding, and agentic indices as forwarded by OpenRouter. Original scales, not percentages or a DADES aggregate. Missing evaluations remain null.' });
-  } else {
-    keepFields(models, previous, BENCHMARK_FIELDS);
-    source('artificial-analysis').note = 'The refreshed catalog did not supply usable benchmark indices. Last successful observations, if any, are retained at their earlier timestamp.';
+  for (const [index, kind, parser, sourceId, fields] of [
+    [3, 'intelligence', parseAAIntelligence, 'aa-intelligence', ['intelligence', 'agentic', 'aaIntelligence']],
+    [4, 'coding', parseAACoding, 'aa-coding', ['coding', 'aaCoding']],
+  ]) {
+    try {
+      if (results[index].status === 'rejected') throw results[index].reason;
+      const matched = matchAA(parser(results[index].value), models, kind, aliases[kind] ?? {});
+      for (const model of models) {
+        const row = matched.byId.get(model.id);
+        if (kind === 'intelligence') Object.assign(model, { intelligence: row?.intelligence ?? null, agentic: row?.agentic ?? null, aaIntelligence: row ?? null });
+        else Object.assign(model, { coding: row?.score ?? null, aaCoding: row ?? null });
+      }
+      Object.assign(source(sourceId), { status: 'ok', observedAt: fetchedAt, version: matched.version, note: `Direct AA public leaderboard v${matched.version}; ${matched.byId.size} catalog models matched from ${matched.rows.length} evaluation variants. Each model retains its highest measured score with that exact configuration and task cost. Unmatched or incomplete evaluations are excluded. Observation time is collection time, not evaluation time.` });
+    } catch (error) {
+      keepFields(models, previous, fields);
+      source(sourceId).note = `Direct AA refresh failed; last direct AA observations retained. No OpenRouter benchmark fallback. ${error.message}`;
+    }
   }
 
   try {

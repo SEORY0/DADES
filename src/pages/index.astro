@@ -1,100 +1,66 @@
 ---
 import { getCollection } from 'astro:content';
-import IssueCard from '../components/IssueCard.astro';
 import Base from '../layouts/Base.astro';
-import { sortIssues } from '../lib/mag';
-import '../styles/home-editorial.css';
-
+import { sortIssues, flattenItems, issueHref, href, fmtDate, clipPayload, SOURCE_META } from '../lib/mag';
+import { storyTopic, readingMinutes } from '../lib/editorial';
+import '../styles/briefing.css';
 const issues = sortIssues(await getCollection('issues'));
-const topics = [
-  { key: 'all', label: '전체' }, { key: 'ai', label: 'AI' },
-  { key: 'agents', label: '에이전트' }, { key: 'security', label: 'AI 보안' },
-];
+const latest = issues[0];
+const seen = new Set<string>();
+const stories = flattenItems(issues).filter(({ item }) => { if(seen.has(item.url)) return false; seen.add(item.url); return item.signal !== 'noise'; });
+const picks = latest?.data.items.filter(item => item.signal !== 'noise').slice(0, 3) ?? [];
+const topics = [{key:'all',label:'전체'},{key:'ai',label:'AI'},{key:'agents',label:'에이전트'},{key:'security',label:'AI 보안'},{key:'action',label:'행동 필요'}];
+const sentence = (text: string) => text.match(/^.*?[.!?](?:\s|$)/)?.[0].trim() ?? text;
 ---
-
-<Base title="발행" description="AI와 AI 보안, 한 가지 주제를 짧고 깊게 읽는 DADES의 발행 모음." active="home" home>
-  <section class="publication-gallery" aria-labelledby="gallery-title">
-    <header class="gallery-header">
-      <h1 id="gallery-title">발행 <span data-gallery-count aria-live="polite" aria-atomic="true" aria-label={`${issues.length}개 호`}>{issues.length}</span></h1>
-      <div class="gallery-toolbar" data-gallery-toolbar hidden>
-        <div class="gallery-filters" role="group" aria-label="발행 주제">
-          {topics.map(({ key, label }) => (
-            <button type="button" data-gallery-filter={key} aria-pressed={key === 'all'} aria-controls="issue-gallery">{label}</button>
-          ))}
-        </div>
-        <label class="gallery-search">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4 4" /></svg>
-          <span class="sr-only">발행 글 검색</span>
-          <input type="search" data-gallery-query placeholder="관심 있는 글 찾기" maxlength="160" autocomplete="off" aria-controls="issue-gallery" />
-        </label>
+<Base title="발행" description="AI의 중요한 변화만, 요약과 맥락으로 읽는 DADES 브리핑." active="home" home>
+  <div class="briefing">
+    <header class="briefing-heading"><h1>발행<span>BRIEFING</span></h1><a href={href('/archive/')}>아카이브 ↗</a></header>
+    {latest && <section class="briefing-edition" aria-labelledby="edition-title">
+      <div class="edition-lead">
+        <div class="brief-meta"><span>최근 발행 · № {String(latest.data.number).padStart(2,'0')}</span><time datetime={latest.data.date}>{fmtDate(latest.data.date)}</time></div>
+        <h2 id="edition-title"><a href={issueHref(latest.data.number)}>{latest.data.title}</a></h2>
+        <p>{latest.data.intro}</p>
+        <a class="edition-read" href={issueHref(latest.data.number)}>{readingMinutes(latest.data.items)}분 읽기 <span aria-hidden="true">↗</span></a>
       </div>
-    </header>
-    <ul class="issue-gallery" id="issue-gallery">
-      {issues.map((issue, index) => <IssueCard issue={issue} index={index} />)}
-    </ul>
-    <div class="gallery-empty" data-gallery-empty hidden>
-      <p>아직 일치하는 글이 없어요.</p>
-      <button type="button" data-gallery-reset>전체 발행 보기 <span aria-hidden="true">↗</span></button>
-    </div>
-  </section>
+      <ol class="edition-picks" aria-label="이번 호 핵심">{picks.map((item,index) => <li><a href={`#brief-${item.id}`}><span class="pick-number">0{index+1}</span><div><span class="brief-meta">{item.origin}</span><h3>{item.title}</h3></div><span aria-hidden="true">↘</span></a></li>)}</ol>
+    </section>}
+    <section aria-labelledby="brief-feed-title" class="brief-feed">
+      <div class="feed-heading"><h2 id="brief-feed-title">빠르게 읽기 <span data-brief-count aria-live="polite">{stories.length}</span></h2><a href={href('/status/')}>모델 상태판 ↗</a></div>
+      <div class="brief-toolbar" data-brief-toolbar hidden>
+        <div class="brief-filters" role="group" aria-label="소식 주제">{topics.map(topic=><button type="button" data-brief-filter={topic.key} aria-pressed={topic.key==='all'}>{topic.label}</button>)}</div>
+        <label class="brief-search"><span class="sr-only">소식 검색</span><input type="search" data-brief-query placeholder="검색" maxlength="160" /></label>
+      </div>
+      <ol class="brief-list">{stories.map(flat => { const { item, issue } = flat; return <li id={`brief-${item.id}`} data-brief-row data-topic={storyTopic(item)} data-action={item.signal==='action'} data-search={[item.title,item.summary,item.note,item.origin,...item.tags].join(' ').toLocaleLowerCase('ko')}>
+        <div class="story-meta"><span>{SOURCE_META[item.source].ko}</span><time datetime={issue.date}>{fmtDate(issue.date).slice(5)}</time></div>
+        <article>
+          <div class="story-title"><h3><a href={item.url} target="_blank" rel="noopener noreferrer">{item.title}<span class="sr-only"> (원문, 새 탭)</span><span aria-hidden="true"> ↗</span></a></h3>{item.signal==='action' && <span class="action-mark">행동 필요</span>}</div>
+          <p class="story-summary">{sentence(item.summary)}</p>
+          <div class="story-bottom"><span>{item.origin}</span><a href={`${issueHref(issue.number)}#${item.id}`}>№ {String(issue.number).padStart(2,'0')}</a><button type="button" class="clip-btn" data-clip-id={item.id} data-clip-payload={JSON.stringify(clipPayload(flat))} aria-pressed="false" aria-label={`${item.title} 저장`}><span class="clip-label">클립</span></button></div>
+          {(item.note || sentence(item.summary)!==item.summary) && <details class="story-context"><summary>맥락 <span aria-hidden="true">+</span></summary><div>{sentence(item.summary)!==item.summary && <p>{item.summary}</p>}{item.note && <p class="editor-note">{item.note}</p>}</div></details>}
+        </article>
+      </li>; })}</ol>
+      <p class="brief-empty" data-brief-empty hidden>일치하는 소식이 없습니다.</p><button class="brief-more" type="button" data-brief-more hidden>더 읽기 ↓</button>
+    </section>
+    <section class="brief-archive" aria-labelledby="past-title"><div class="feed-heading"><h2 id="past-title">지난 호</h2><a href={href('/archive/')}>전체 보기 ↗</a></div><div class="past-editions">{issues.slice(1,4).map(issue=><a href={issueHref(issue.data.number)}><span class="brief-meta">№ {String(issue.data.number).padStart(2,'0')} · {fmtDate(issue.data.date)}</span><h3>{issue.data.title}</h3><span>{issue.data.items.length}편 <span aria-hidden="true">↗</span></span></a>)}</div></section>
+  </div>
 </Base>
-
 <script>
-  const toolbar = document.querySelector<HTMLElement>('[data-gallery-toolbar]');
-  const query = document.querySelector<HTMLInputElement>('[data-gallery-query]');
-  const filters = [...document.querySelectorAll<HTMLButtonElement>('[data-gallery-filter]')];
-  const cards = [...document.querySelectorAll<HTMLElement>('[data-issue-card]')];
-  const count = document.querySelector<HTMLElement>('[data-gallery-count]');
-  const empty = document.querySelector<HTMLElement>('[data-gallery-empty]');
-  let topic = 'all';
-
+  const rows = [...document.querySelectorAll<HTMLElement>('[data-brief-row]')];
+  const filters = [...document.querySelectorAll<HTMLButtonElement>('[data-brief-filter]')];
+  const query = document.querySelector<HTMLInputElement>('[data-brief-query]');
+  const more = document.querySelector<HTMLButtonElement>('[data-brief-more]');
+  let topic = 'all', limit = 8;
   function render() {
-    const terms = (query?.value ?? '').trim().toLocaleLowerCase('ko').split(/\s+/).filter(Boolean);
-    const params = new URLSearchParams();
-    if (topic !== 'all') params.set('topic', topic);
-    if (query?.value.trim()) params.set('q', query.value.trim());
-    const search = params.size ? `?${params}` : '';
-    let visible = 0;
-    cards.forEach((card) => {
-      const matches = (topic === 'all' || card.dataset.topic === topic)
-        && terms.every((term) => (card.dataset.search ?? '').includes(term));
-      card.hidden = !matches;
-      if (matches) visible += 1;
-      const link = card.querySelector<HTMLAnchorElement>('[data-issue-link]');
-      if (link) link.search = search;
-    });
-    filters.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.galleryFilter === topic)));
-    if (count) { count.textContent = String(visible); count.setAttribute('aria-label', `${visible}개 호`); }
-    if (empty) empty.hidden = visible > 0;
-    history.replaceState(null, '', `${location.pathname}${search}${location.hash}`);
+    const terms = (query?.value ?? '').trim().toLocaleLowerCase('ko').split(/\s+/).filter(Boolean); let matches = 0;
+    rows.forEach(row => { const match = (topic==='all' || (topic==='action' ? row.dataset.action==='true' : row.dataset.topic===topic)) && terms.every(term=>row.dataset.search?.includes(term)); row.hidden = !match || ++matches > limit; });
+    filters.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.briefFilter===topic)));
+    const count = document.querySelector('[data-brief-count]'); if(count) count.textContent=String(matches);
+    const empty = document.querySelector<HTMLElement>('[data-brief-empty]'); if(empty) empty.hidden=matches>0;
+    if(more) more.hidden=matches<=limit;
+    const params=new URLSearchParams(); if(topic!=='all') params.set('topic',topic); if(query?.value.trim()) params.set('q',query.value.trim()); history.replaceState(null,'',`${location.pathname}${params.size?'?'+params:''}${location.hash}`);
   }
-
-  function restore() {
-    const params = new URLSearchParams(location.search);
-    const requested = params.get('topic');
-    topic = filters.some((button) => button.dataset.galleryFilter === requested) ? (requested ?? 'all') : 'all';
-    if (query) query.value = (params.get('q') ?? '').slice(0, 160);
-    render();
-  }
-  filters.forEach((button) => button.addEventListener('click', () => {
-    topic = button.dataset.galleryFilter ?? 'all';
-    render();
-  }));
-  query?.addEventListener('input', render);
-  document.querySelector('[data-gallery-reset]')?.addEventListener('click', () => {
-    topic = 'all';
-    if (query) query.value = '';
-    render();
-    filters[0]?.focus();
-  });
-  window.addEventListener('popstate', restore);
-  window.addEventListener('pageshow', restore);
-  cards.forEach((card) => {
-    const image = card.querySelector('img');
-    const hideBrokenImage = () => { image?.remove(); card.querySelector('a')?.classList.add('has-no-image'); };
-    image?.addEventListener('error', hideBrokenImage);
-    if (image?.complete && !image.naturalWidth) hideBrokenImage();
-  });
-  restore();
-  if (toolbar) toolbar.hidden = false;
+  function restore(){const params=new URLSearchParams(location.search); topic=filters.some(b=>b.dataset.briefFilter===params.get('topic'))?params.get('topic')!:'all'; if(query)query.value=(params.get('q')??'').slice(0,160);limit=8;render();revealAnchor();}
+  function revealAnchor(){const target=rows.find(row=>'#'+row.id===location.hash);if(target){topic='all';if(query)query.value='';limit=Math.max(8,rows.indexOf(target)+1);render();target.scrollIntoView({block:'start'});}}
+  filters.forEach(button=>button.addEventListener('click',()=>{topic=button.dataset.briefFilter??'all';limit=8;render();}));query?.addEventListener('input',()=>{limit=8;render();});more?.addEventListener('click',()=>{limit+=8;render();});
+  window.addEventListener('popstate',restore);window.addEventListener('hashchange',revealAnchor);restore();const toolbar=document.querySelector<HTMLElement>('[data-brief-toolbar]');if(toolbar)toolbar.hidden=false;
 </script>

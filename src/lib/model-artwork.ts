@@ -13,7 +13,8 @@ const icons: Record<string, string> = {
 export function modelArtwork(model?: Pick<Model, 'id'>) {
   if (!model) return null;
   const namespace = model.id.split('/')[0];
-  if (namespace === 'google' && !model.id.startsWith('google/gemini-')) return null;
-  const file = Object.hasOwn(icons, namespace) ? icons[namespace] : null;
-  return file ? `${import.meta.env.BASE_URL.replace(/\/$/, '')}/model-icons/${file}` : null;
+  const file = model.id.startsWith('meta/muse-spark') ? 'MetaAI.svg'
+    : namespace === 'google' && !model.id.startsWith('google/gemini-')
+    ? 'Model.svg' : Object.hasOwn(icons, namespace) ? icons[namespace] : 'Model.svg';
+  return `${import.meta.env.BASE_URL.replace(/\/$/, '')}/model-icons/${file}`;
 }

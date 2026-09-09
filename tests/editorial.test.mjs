@@ -3,6 +3,42 @@ import test from 'node:test';
 import { parseModelJson } from '../scripts/editorial/anthropic.mjs';
 import { collectCandidates, makeIssuePlan, normalizeUrl, parseFeed } from '../scripts/editorial/collect.mjs';
 import { toIssueJson, validateDraft } from '../scripts/editorial/schema.mjs';
+import { publishCodexDraft } from '../scripts/editorial/publish-codex.mjs';
+
+test('Codex publication rejects stale runs and altered URLs, then publishes once without an API', async () => {
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'dades-codex-'));
+  const runDir = path.join(root, 'run');
+  const draftFile = path.join(runDir, 'draft.json');
+  await fs.mkdir(path.join(root, 'src/content/issues'), { recursive:true });
+  await fs.mkdir(path.join(root, 'config')); await fs.mkdir(runDir);
+  await fs.copyFile(new URL('../config/editorial.sources.json', import.meta.url), path.join(root,'config/editorial.sources.json'));
+  const now = new Date('2026-09-04T00:00:00Z');
+  const plan = makeIssuePlan({now,maxNumber:0,windowDays:2});
+  const candidates = [candidate('c1','https://example.com/a','Lab A'),candidate('c2','https://example.org/b','Lab B'),candidate('c3','https://example.org/c','Lab B')].map(row=>({...row,publishedAt:'2026-09-03T00:00:00Z',feedName:'Fixture feed'}));
+  const draft = validDraft(plan,candidates);
+  const write = (name,value)=>fs.writeFile(path.join(runDir,name),JSON.stringify(value));
+  try {
+    await write('candidates.json',candidates); await write('draft.json',draft);
+    await write('diagnostics.json',{plan:{...plan,date:'2026-09-03'}});
+    await assert.rejects(publishCodexDraft({root,runDir,draftFile,now}),/Stale/);
+    await write('diagnostics.json',{plan});
+    await write('draft.json',{...draft,items:draft.items.map((item,index)=>index===0?{...item,url:'https://invented.example/'}:item)});
+    await assert.rejects(publishCodexDraft({root,runDir,draftFile,now}),/changed source URL/);
+    await write('draft.json',draft);
+    const file = await publishCodexDraft({root,runDir,draftFile,now});
+    const bytes = await fs.readFile(file,'utf8');
+    assert.equal(JSON.parse(bytes).items.length,3);
+    await assert.rejects(publishCodexDraft({root,runDir,draftFile,now}),/Stale or already published/);
+    assert.equal(await fs.readFile(file,'utf8'),bytes);
+  } finally {
+    // Only delete the exact temporary fixture directory created above.
+    assert.equal(path.dirname(root),os.tmpdir());
+    await fs.rm(root,{recursive:true});
+  }
+});
 
 const feed = {
   name: 'Fixture AI Feed',

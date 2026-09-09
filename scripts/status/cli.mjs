@@ -19,7 +19,7 @@ async function readJson(file) {
 async function main() {
   const args = process.argv.slice(2);
   if (args.length === 1 && ['--help', '-h'].includes(args[0])) {
-    console.log('Usage: node scripts/status/cli.mjs\nRefresh public/data/model-board.json from public OpenRouter and Terminal-Bench pages. No API key is required.');
+    console.log('Usage: node scripts/status/cli.mjs\nRefresh public/data/model-board.json from public Artificial Analysis, OpenRouter and Terminal-Bench pages. No API key is required.');
     return;
   }
   if (args.length) throw new Error(`Unknown argument: ${args[0]}`);
@@ -38,7 +38,7 @@ async function main() {
   console.log(JSON.stringify({
     fetchedAt: snapshot.fetchedAt, models: snapshot.models.length,
     terminalBenchRows: snapshot.terminalBench?.rows.length ?? 0, measuredSpeed: snapshot.models.filter((model) => model.speed !== null).length,
-    sources: snapshot.sources.map(({ id, status, observedAt, note }) => ({ id, status, observedAt, note })),
+    sources: snapshot.sources.map(({ id, status, version, observedAt, note }) => ({ id, status, version, observedAt, note })),
   }, null, 2));
 }
 

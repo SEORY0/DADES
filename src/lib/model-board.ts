@@ -1,17 +1,20 @@
 import { z } from 'astro/zod';
-import { ASCENDING, AXES, METRICS, rankBy, valueSet, metricValue as metricNumber, type Axis, type Metric } from './model-board-rules.mjs';
+import { ASCENDING, AXES, METRICS, rankBy, paretoFrontier, taskCost, metricValue as metricNumber, type Axis, type Metric } from './model-board-rules.mjs';
 
 export type { Axis, CanonicalModel, Metric, Strength, Variant } from './model-board-rules.mjs';
 export { axisMaxima, canonicalModels, fingerprint, metricValue as metricNumber, paretoFrontier, rankBy as ranked, strengthMap, valuePick, valueSet, variantChip } from './model-board-rules.mjs';
+export { taskCost } from './model-board-rules.mjs';
 
 const https = z.string().url().refine((url) => new URL(url).protocol === 'https:');
 const number = z.number().finite().nonnegative().nullable();
 const percentage = z.number().min(0).max(100);
+const aaEvaluation = z.object({ id: z.string(), name: z.string(), provider: z.string(), version: z.string(), url: https, costPerTask: number });
 export const boardSchema = z.object({
-  schemaVersion: z.literal(2),
+  schemaVersion: z.literal(3),
   fetchedAt: z.string().datetime(),
   sources: z.array(z.object({
     id: z.string(), label: z.string(), url: https,
+    version: z.string().nullable().optional(),
     observedAt: z.string().datetime().nullable(), status: z.enum(['ok', 'unavailable']), note: z.string(),
   })),
   terminalBench: z.object({
@@ -25,6 +28,8 @@ export const boardSchema = z.object({
     id: z.string(), name: z.string(), provider: z.string(), url: https,
     context: number, inputPrice: number, outputPrice: number,
     intelligence: number, coding: number, agentic: number,
+    aaIntelligence: aaEvaluation.extend({ intelligence: number, agentic: number, slug: z.string(), openrouterId: z.string().nullable() }).nullable(),
+    aaCoding: aaEvaluation.extend({ score: number, agent: z.string(), timePerTask: number }).nullable(),
     speed: number, latency: number, speedProvider: z.string().nullable(), speedRequests: number, speedWindow: number,
     terminalBench: z.object({ accuracy: percentage, ci95: number, agent: z.string(), effort: z.string().nullable(), date: z.string() }).nullable(),
     tokens7d: number, previousTokens7d: number,
@@ -36,9 +41,9 @@ export type Model = ModelBoard['models'][number];
 export type TerminalBenchRow = NonNullable<ModelBoard['terminalBench']>['rows'][number];
 
 export const metrics: Record<Metric, { label: string; unit: string; title: string; ascending: boolean }> = {
-  intelligence: { label: '종합', unit: 'AA', title: '종합 1위', ascending: ASCENDING.has('intelligence') },
-  coding: { label: '코딩', unit: 'AA', title: '코딩 1위', ascending: ASCENDING.has('coding') },
-  agentic: { label: '에이전트', unit: 'AA', title: '에이전트 1위', ascending: ASCENDING.has('agentic') },
+  intelligence: { label: '종합', unit: 'AAII', title: '종합 선두', ascending: ASCENDING.has('intelligence') },
+  coding: { label: '코딩', unit: 'AA', title: '코딩 에이전트', ascending: ASCENDING.has('coding') },
+  agentic: { label: '에이전트', unit: 'AA', title: '에이전트 선두', ascending: ASCENDING.has('agentic') },
   terminalBench: { label: 'TB 4.0', unit: '%', title: 'Terminal-Bench 1위', ascending: ASCENDING.has('terminalBench') },
   speed: { label: '속도', unit: 'tok/s', title: '속도 1위', ascending: ASCENDING.has('speed') },
   cost: { label: '비용', unit: '$ / 1M+1M', title: '가성비', ascending: ASCENDING.has('cost') },
@@ -75,10 +80,11 @@ export function observedAt(board: ModelBoard) {
   return new Intl.DateTimeFormat('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Seoul' }).format(date);
 }
 export function scatter(models: readonly Model[], axis: Axis = 'intelligence') {
-  const cost = (model: Model) => estimate(model, 1, 1) ?? 0;
-  const candidates = rankBy(models, axis).filter((model) => estimate(model, 1, 1) !== null);
+  axis = axis === 'coding' ? 'coding' : 'intelligence';
+  const cost = (model: Model) => taskCost(model, axis) ?? 0;
+  const candidates = rankBy(models, axis).filter((model) => taskCost(model, axis) !== null);
   const leader = candidates[0];
-  const frontier = axis === 'intelligence' && leader ? [...valueSet(models).filter((model) => estimate(model, 1, 1) !== null), leader].sort((a, b) => cost(a) - cost(b)) : [];
+  const frontier = leader ? paretoFrontier(models, axis) : [];
   const chosen = [...new Map([...candidates.slice(0, 14), ...[...candidates].sort((a, b) => cost(a) - cost(b)).slice(0, 6), ...frontier].map((model) => [model.id, model])).values()];
   const maxCost = Math.max(10, ...chosen.map(cost));
   const maxScore = Math.max(20, Math.ceil(Math.max(...chosen.map((model) => model[axis] ?? 0), 0) / 10) * 10);
@@ -86,9 +92,9 @@ export function scatter(models: readonly Model[], axis: Axis = 'intelligence') {
   const y = (score: number) => 260 - score / maxScore * 220;
   const frontierPoints = frontier.flatMap((model, index) => {
     const px = x(cost(model));
-    const py = y(model.intelligence ?? 0);
+    const py = y(model[axis] ?? 0);
     const previous = frontier[index - 1];
-    return previous ? [`${px},${y(previous.intelligence ?? 0)}`, `${px},${py}`] : [`${px},${py}`];
+    return previous ? [`${px},${y(previous[axis] ?? 0)}`, `${px},${py}`] : [`${px},${py}`];
   }).join(' ');
   return { axis, models: chosen, x, y, maxScore, ticks: [0, 1, 5, 10, 25, 50, 100, 250].filter((tick) => tick <= maxCost), frontier, frontierPoints };
 }
@@ -104,24 +110,38 @@ export function sourceCopy(source: ModelBoard['sources'][number]) {
   const retained = source.status !== 'ok' && source.observedAt ? ' 이전 관측값을 유지하고 있습니다.' : '';
   switch (source.id) {
     case 'openrouter-catalog': return '텍스트 출력 모델의 기본 단가와 컨텍스트입니다. 별칭·무료·배치 경로가 포함되며, 제공 경로와 입력 길이에 따라 가격이 달라질 수 있습니다.' + retained;
-    case 'artificial-analysis': return 'OpenRouter가 전달하는 AA 종합·코딩·에이전트 지수를 원래 단위로 표시합니다. 확인 시각은 벤치마크 실행일과 다릅니다.' + retained;
+    case 'aa-intelligence': return 'AA 원본의 AAII와 에이전트 하위 지수입니다. 추정 점수는 제외하고, 모델별 최고 관측 설정과 해당 작업 비용을 함께 보관합니다. OpenRouter에 대응하는 모델 범위입니다.' + retained;
+    case 'aa-coding': return 'AA Coding Agent Index 원본입니다. 전체 구성 평가를 완료한 모델·실행 도구 조합의 최고 점수와 같은 조합의 작업당 비용을 표시합니다.' + retained;
     case 'terminal-bench': return 'tbench.ai 공식 4.0 리더보드의 에이전트+모델 조합 결과입니다. 모델 값은 조합 중 최고 정확도 하나이며 에이전트명을 함께 둡니다.' + retained;
     case 'openrouter-performance': return '종합·사용량 상위 최대 32개 모델의 OpenRouter 페이지에서 요청 수가 가장 많은 표준 경로의 최근 p50 속도·지연입니다. 미제공은 0이 아닙니다.' + retained;
     case 'openrouter-usage': return '공개 주간 순위의 입력+출력 토큰 합계입니다. 집계 기간은 아래 UTC 기준일까지의 7일이며, 공개된 상위 모델만 포함합니다. 비공개·직접 API 사용량은 포함하지 않습니다.' + retained;
     default: return source.status === 'ok' ? '출처의 공개 관측값을 표시합니다.' : '현재 이 출처의 새 관측값을 확인하지 못했습니다.';
   }
 }
-const metricSources: Record<Metric, string> = { intelligence: 'artificial-analysis', coding: 'artificial-analysis', agentic: 'artificial-analysis', terminalBench: 'terminal-bench', speed: 'openrouter-performance', cost: 'openrouter-catalog', tokens7d: 'openrouter-usage' };
+const metricSources: Record<Metric, string> = { intelligence: 'aa-intelligence', coding: 'aa-coding', agentic: 'aa-intelligence', terminalBench: 'terminal-bench', speed: 'openrouter-performance', cost: 'openrouter-catalog', tokens7d: 'openrouter-usage' };
 export function sourceForMetric(board: ModelBoard, metric: Metric) {
   const source = board.sources.find((entry) => entry.id === metricSources[metric]);
   if (!source?.observedAt) return '관측값 미제공';
   return (source.status === 'ok' ? '기준 ' : '이전 관측 ') + new Intl.DateTimeFormat('ko-KR', { month: 'numeric', day: 'numeric', timeZone: 'UTC' }).format(new Date(source.observedAt)) + ' UTC';
 }
+export function metricContext(board: ModelBoard, metric: Metric) {
+  const source = board.sources.find((entry) => entry.id === metricSources[metric]);
+  const label = metric === 'coding' ? 'Coding Agent Index' : metric === 'intelligence' ? 'AAII' : metric === 'agentic' ? 'AA Agents' : metrics[metric].label;
+  return `${label}${source?.version ? ` v${source.version}` : ''}${source?.status === 'unavailable' ? ' · 이전 관측' : ''}`;
+}
+
+export function evaluationNote(model: Model, metric: Metric) {
+  const evaluation = metric === 'coding' ? model.aaCoding : model.aaIntelligence;
+  if (!evaluation) return '평가 미제공';
+  return `${evaluation.name}${metric === 'coding' && model.aaCoding ? ` · ${model.aaCoding.agent}` : ''} · v${evaluation.version}`;
+}
 export function leaderNote(board: ModelBoard, leader: Model | undefined, metric: Metric) {
   const stamp = sourceForMetric(board, metric);
   if (!leader) return stamp;
-  const detail = metric === 'coding' && leader.terminalBench ? `Terminal-Bench 4.0 · ${percent(leader.terminalBench.accuracy)}` : metric === 'speed' && leader.speedProvider ? leader.speedProvider : leader.provider;
-  return `${detail} · ${stamp}`;
+  if (metric === 'coding') return `AA CAI v${leader.aaCoding?.version ?? '?'} · ${leader.aaCoding?.agent ?? ''}`;
+  if (metric === 'intelligence') return `AAII v${leader.aaIntelligence?.version ?? '?'}`;
+  if (metric === 'agentic') return `AAII v${leader.aaIntelligence?.version ?? '?'} · Agents`;
+  return metric === 'speed' ? 'OpenRouter · p50' : stamp;
 }
 export function valueNote(models: readonly Model[], pick: Model) {
   const leader = rankBy(models, 'intelligence')[0];

@@ -2,7 +2,7 @@
 export const AXES = Object.freeze(['intelligence', 'coding', 'agentic']);
 export const METRICS = Object.freeze(['intelligence', 'coding', 'agentic', 'terminalBench', 'speed', 'cost', 'tokens7d']);
 export const ASCENDING = new Set(['cost']);
-export const VALUE_FLOOR = 0.8;
+export const VALUE_FLOOR = 0.75;
 export const TOP_STRENGTH = 3;
 
 export const baseId = (id) => id.replace(/^~/, '').replace(/:.*$/, '');
@@ -46,18 +46,22 @@ export function variantChip(primary, variant) {
   return variant.kind;
 }
 
-export function paretoFrontier(models) {
-  const cost = (model) => metricValue(model, 'cost');
-  const candidates = models.filter((model) => model.intelligence !== null && cost(model) !== null);
+export function taskCost(model, axis = 'intelligence') {
+  return (axis === 'coding' ? model.aaCoding : model.aaIntelligence)?.costPerTask ?? null;
+}
+
+export function paretoFrontier(models, axis = 'intelligence') {
+  const cost = (model) => taskCost(model, axis);
+  const candidates = models.filter((model) => model[axis] !== null && cost(model) !== null);
   return candidates
-    .filter((model) => !candidates.some((other) => other !== model && ((other.intelligence > model.intelligence && cost(other) <= cost(model)) || (other.intelligence >= model.intelligence && cost(other) < cost(model)))))
-    .sort((a, b) => cost(a) - cost(b) || b.intelligence - a.intelligence);
+    .filter((model) => !candidates.some((other) => other !== model && ((other[axis] > model[axis] && cost(other) <= cost(model)) || (other[axis] >= model[axis] && cost(other) < cost(model)))))
+    .sort((a, b) => cost(a) - cost(b) || b[axis] - a[axis]);
 }
 
 export function valueSet(models) {
   const leader = rankBy(models, 'intelligence')[0];
   if (!leader) return [];
-  return paretoFrontier(models).filter((model) => model.id !== leader.id && model.intelligence >= leader.intelligence * VALUE_FLOOR);
+  return paretoFrontier(models).filter((model) => model.intelligence >= leader.intelligence * VALUE_FLOOR);
 }
 
 export function valuePick(models) {
@@ -70,7 +74,8 @@ export function strengthMap(models) {
   for (const [metric, label] of [['intelligence', '종합'], ['coding', '코딩'], ['agentic', '에이전트'], ['speed', '빠름']]) {
     for (const model of rankBy(models, metric).slice(0, TOP_STRENGTH)) add(model, label);
   }
-  for (const model of valueSet(models)) add(model, '가성비');
+  const pick = valuePick(models);
+  if (pick) add(pick, '가성비');
   return map;
 }
 

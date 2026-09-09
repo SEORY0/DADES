@@ -55,9 +55,9 @@ test('flight parser joins split push chunks into JSON records and skips transpor
   assert.throws(() => flightRecords(null), /not HTML/);
 });
 
-test('catalog preserves published benchmark scale and converts token prices to USD per million', () => {
+test('catalog converts token prices but does not import secondary benchmark scores', () => {
   const [model] = parseCatalog({ data: [catalogRow()] });
-  assert.deepEqual([model.inputPrice, model.outputPrice, model.intelligence, model.coding, model.agentic], [2.5, 0, 123.4, 57, null]);
+  assert.deepEqual([model.inputPrice, model.outputPrice, model.intelligence, model.coding, model.agentic], [2.5, 0, null, null, null]);
 });
 
 test('catalog retains stable variant IDs and only includes text-output records', () => {
@@ -98,8 +98,8 @@ test('catalog refuses a truncated upstream page instead of dropping existing mod
 function previousSnapshot() {
   const observedAt = '2026-09-01T00:00:00.000Z';
   return {
-    schemaVersion: 2, fetchedAt: observedAt,
-    sources: ['openrouter-catalog', 'artificial-analysis', 'terminal-bench', 'openrouter-performance', 'openrouter-usage'].map((id) => ({ id, label: id, url: 'https://openrouter.ai/rankings', status: 'ok', observedAt, note: '' })),
+    schemaVersion: 3, fetchedAt: observedAt,
+    sources: ['openrouter-catalog', 'aa-intelligence', 'aa-coding', 'terminal-bench', 'openrouter-performance', 'openrouter-usage'].map((id) => ({ id, label: id, url: 'https://openrouter.ai/rankings', status: 'ok', observedAt, note: '' })),
     terminalBench: { title: 'Terminal-Bench 4.0', url: 'https://www.tbench.ai/leaderboard/terminal-bench/4.0', updatedAt: observedAt, rows: [] },
     models: parseCatalog({ data: [catalogRow()] }).map((model) => ({
       ...model, intelligence: 40, speed: 55, latency: 1.2, speedProvider: 'Example Cloud', speedRequests: 12, speedWindow: 30,
@@ -115,7 +115,7 @@ test('a partial outage refreshes catalog values while retaining failed sources a
     ? new Response(JSON.stringify({ data: [catalogRow({ pricing: { prompt: '0.000004', completion: '0.000008' } })] }))
     : new Response('Unavailable', { status: 503 });
   const result = await refreshSnapshot({ previous, transport, now: new Date('2026-09-07T00:00:00.000Z') });
-  assert.deepEqual([result.models[0].inputPrice, result.models[0].outputPrice, result.models[0].intelligence], [4, 8, 123.4]);
+  assert.deepEqual([result.models[0].inputPrice, result.models[0].outputPrice, result.models[0].intelligence], [4, 8, 40]);
   for (const field of ['tokens7d', 'previousTokens7d', 'dailyTokens', 'speed', 'latency', 'speedProvider', 'speedRequests', 'speedWindow', 'terminalBench']) assert.deepEqual(result.models[0][field], previous.models[0][field]);
   for (const id of ['terminal-bench', 'openrouter-performance', 'openrouter-usage']) {
     const source = result.sources.find((entry) => entry.id === id);
@@ -141,7 +141,7 @@ test('missing benchmark feed preserves earlier indices without marking them fres
     ? new Response(JSON.stringify({ data: [catalogRow({ benchmarks: {} })] })) : new Response('', { status: 503 });
   const result = await refreshSnapshot({ previous, transport });
   assert.equal(result.models[0].intelligence, 40);
-  const source = result.sources.find((entry) => entry.id === 'artificial-analysis');
+  const source = result.sources.find((entry) => entry.id === 'aa-intelligence');
   assert.equal(source.status, 'unavailable');
   assert.equal(source.observedAt, previous.fetchedAt);
 });
@@ -364,11 +364,11 @@ test('aliases resolve Terminal-Bench labels the name matcher cannot', async () =
 test('upgradeSnapshot converts a v1 snapshot and rejects unknown versions', () => {
   const v1 = { schemaVersion: 1, fetchedAt: '2026-09-01T00:00:00.000Z', sources: [], models: [{ id: 'example/model', speed: 1 }] };
   const upgraded = upgradeSnapshot(v1);
-  assert.equal(upgraded.schemaVersion, 2);
+  assert.equal(upgraded.schemaVersion, 3);
   assert.equal(upgraded.terminalBench, null);
-  assert.deepEqual(upgraded.models[0], { terminalBench: null, speedRequests: null, speedWindow: null, id: 'example/model', speed: 1 });
+  assert.deepEqual(upgraded.models[0], { terminalBench: null, speedRequests: null, speedWindow: null, id: 'example/model', speed: 1, intelligence: null, coding: null, agentic: null, aaIntelligence: null, aaCoding: null });
   assert.equal(upgradeSnapshot(upgraded), upgraded);
-  assert.throws(() => upgradeSnapshot({ schemaVersion: 3, sources: [], models: [] }), /unsupported/);
+  assert.throws(() => upgradeSnapshot({ schemaVersion: 4, sources: [], models: [] }), /unsupported/);
   assert.throws(() => upgradeSnapshot({ schemaVersion: 2, models: [] }), /unsupported/);
 });
 

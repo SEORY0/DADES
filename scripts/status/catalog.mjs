@@ -31,7 +31,6 @@ export function parseCatalog(payload) {
       const amount = numberOrNull(value);
       return amount === null ? null : numberOrNull(amount * 1_000_000);
     };
-    const benchmarks = row.benchmarks?.artificial_analysis;
     const namespace = row.id.split('/')[0].replace(/^~/, '').toLowerCase();
     return {
       id: row.id,
@@ -41,9 +40,11 @@ export function parseCatalog(payload) {
       context: numberOrNull(row.context_length),
       inputPrice: price(row.pricing?.prompt),
       outputPrice: price(row.pricing?.completion),
-      intelligence: numberOrNull(benchmarks?.intelligence_index),
-      coding: numberOrNull(benchmarks?.coding_index),
-      agentic: numberOrNull(benchmarks?.agentic_index),
+      intelligence: null,
+      coding: null,
+      agentic: null,
+      aaIntelligence: null,
+      aaCoding: null,
       speed: null,
       latency: null,
       speedProvider: null,

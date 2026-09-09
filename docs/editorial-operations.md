@@ -1,5 +1,7 @@
 # DADES Editorial Operations
 
+현재 기본 운영은 [Codex 매일 브리핑](codex-daily-briefing.md)이다. 매일 08:00 KST에 Codex가 수집·원문 검증·요약·배포를 수행한다. 아래 Anthropic API 경로는 수동 대체 경로로 유지하며 GitHub 주간 스케줄은 제거했다.
+
 The automated editorial pipeline builds a weekly Korean DADES issue from allowlisted RSS and Atom sources. It does not read inboxes, email, GitHub issues, or arbitrary web pages. Source text is treated as untrusted data, and the model is only asked to write short grounded summaries from the collected candidates.
 
 ## Local Commands
@@ -28,11 +30,11 @@ Add this repository variable only when scheduled auto-publishing should be live:
 
 - `EDITORIAL_AUTOPUBLISH=true`
 
-Without that variable, the weekly schedule stays collect-only. Manual `workflow_dispatch` also defaults to dry-run; set the `publish` input to true for a manual publish run.
+Manual `workflow_dispatch` defaults to dry-run; set the `publish` input to true for a manual publish run. There is no GitHub scheduled editorial run.
 
 ## Schedule
 
-The workflow runs at `20 23 * * 4` UTC, which is Friday 08:20 KST. The workflow uses one `editorial` concurrency group so overlapping runs do not race issue numbers.
+Codex owns the daily 08:00 Asia/Seoul schedule. The manual workflow retains its `editorial` concurrency group.
 
 ## Failure And Retry
 

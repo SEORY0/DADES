@@ -15,20 +15,19 @@ async function readPage(pathname) {
   return response.text();
 }
 
-test('homepage lists every published issue as an image and title link', async () => {
+test('homepage exposes a concise sourced briefing and the issue archive', async () => {
   const html = await readPage('/DADES/');
-  assert.equal((html.match(/<li[^>]*data-issue-card/g) ?? []).length, issues.length);
-  assert.match(html, /data-gallery-query/);
-  assert.match(html, /data-gallery-empty/);
-  for (const issue of issues) {
-    assert.ok(html.includes(`href="/DADES/issues/${issue.number}/"`));
-    assert.ok(html.includes(issue.title));
-  }
-  const cards = [...html.matchAll(/<li[^>]*data-issue-card[\s\S]*?<\/li>/g)];
-  for (const [card] of cards) {
-    if (!card.includes('has-no-image')) assert.match(card, /<img[^>]+src=/);
-    assert.match(card, /<h2/);
-    assert.doesNotMatch(card, /<p[ >]/);
+  assert.match(html, /data-brief-query/);
+  assert.match(html, /data-brief-empty/);
+  assert.match(html, /data-brief-more/);
+  assert.ok(html.includes(issues[0].title));
+  assert.ok(html.includes('href="/DADES/archive/"'));
+  const seen = new Set();
+  const entries = issues.flatMap(issue => issue.items).filter(item => { if(seen.has(item.url)) return false; seen.add(item.url); return item.signal !== 'noise'; });
+  assert.equal((html.match(/<li[^>]+data-brief-row/g) ?? []).length, entries.length);
+  for (const item of entries) {
+    assert.ok(html.includes(`id="brief-${item.id}"`));
+    assert.ok(html.includes(`data-clip-id="${item.id}"`));
   }
 });
 
@@ -164,7 +163,7 @@ test('status exposes sourced model comparisons while wiki remains a searchable f
   assert.ok(serialized);
   const snapshot = JSON.parse(serialized);
   assert.ok(snapshot.models.length > 0);
-  assert.equal(snapshot.schemaVersion, 2);
+  assert.equal(snapshot.schemaVersion, 3);
   assert.ok(snapshot.sources.every((source) => source.url.startsWith('https://')));
 
   // 그리고 위키 첫 지면은 이야기 카드 더미가 아니라 찾아보기 지면이다 —
@@ -192,7 +191,7 @@ test('status exposes sourced model comparisons while wiki remains a searchable f
   assert.match(article, /data-copy-link/);
 });
 
-test('gallery photographs and existing editorial SVG assets are served locally', async () => {
+test('shared artwork remains local while the briefing avoids cover downloads', async () => {
   const home = await readPage('/DADES/');
   const patternFiles = [
     'dades-flow-lines.svg',
@@ -211,7 +210,7 @@ test('gallery photographs and existing editorial SVG assets are served locally',
 
   assert.equal(home.includes('/DADES/media/'), false);
   const covers = [...home.matchAll(/<img[^>]+src="([^"]+)"/g)].map((match) => match[1]);
-  assert.ok(covers.length >= issues.filter((issue) => issue.cover).length);
+  assert.doesNotMatch(home, /class="gallery-card/);
   for (const src of covers) {
     assert.ok(src.startsWith('/DADES/'));
     const response = await fetch(`${origin}${src}`);

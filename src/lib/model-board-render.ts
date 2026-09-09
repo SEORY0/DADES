@@ -1,4 +1,4 @@
-import { amount, compact, dollars, EMPTY, estimate, fingerprint, isAxis, metricValue, metrics, modelName, percent, variantChip, type Axis, type CanonicalModel, type Metric, type Model, type Strength } from './model-board';
+import { amount, compact, dollars, EMPTY, estimate, evaluationNote, fingerprint, isAxis, metricValue, metrics, modelName, percent, taskCost, variantChip, type Axis, type CanonicalModel, type Metric, type Model, type Strength } from './model-board';
 
 export function element<K extends keyof HTMLElementTagNameMap>(tag: K, text = '', className = '') {
   const node = document.createElement(tag);
@@ -9,14 +9,19 @@ export function element<K extends keyof HTMLElementTagNameMap>(tag: K, text = ''
 
 export function fingerprintNode(model: Model, maxima: Record<Axis, number>, metric: Metric) {
   const bars = fingerprint(model, maxima);
-  const summary = bars.map((bar) => `${metrics[bar.axis].label} ${amount(bar.value)}`).join(' · ');
+  const summary = bars.map((bar) => `${metrics[bar.axis].label} ${amount(bar.value)} (${evaluationNote(model, bar.axis)})`).join(' · ');
   const node = element('span', '', 'fingerprint');
   node.setAttribute('role', 'img');
   node.setAttribute('aria-label', summary);
   node.title = summary;
   for (const bar of bars) {
-    const item = element('i', '', `fp-bar${bar.axis === metric ? ' fp-active' : ''}${bar.ratio === null ? ' fp-missing' : ''}`);
+    const item = element('span', '', `fp-axis${bar.axis === metric ? ' fp-active' : ''}${bar.ratio === null ? ' fp-missing' : ''}`);
+    item.dataset.axis = bar.axis;
+    item.setAttribute('aria-hidden', 'true');
     item.style.setProperty('--fp', `${Math.round((bar.ratio ?? 0) * 100)}%`);
+    const track = element('span', '', 'fp-track');
+    track.append(element('i', '', 'fp-bar'));
+    item.append(element('span', amount(bar.value), 'fp-number'), track);
     node.append(item);
   }
   return node;
@@ -73,7 +78,9 @@ export function comparisonCard(model: Model, budget: { input: number; output: nu
   const tb = model.terminalBench;
   const values: [string, string][] = [
     ['예상 토큰 비용', dollars(estimate(model, budget.input, budget.output))],
-    ['종합 · AA 지수', amount(model.intelligence)], ['코딩 · AA 지수', amount(model.coding)], ['에이전트 · AA 지수', amount(model.agentic)],
+    ['종합 · AAII', amount(model.intelligence)], ['코딩 · AA CAI', amount(model.coding)], ['에이전트 · AA', amount(model.agentic)],
+    ['종합 평가 설정', evaluationNote(model, 'intelligence')], ['코딩 평가 설정', evaluationNote(model, 'coding')],
+    ['AAII 작업당 비용', dollars(taskCost(model))], ['코딩 작업당 비용', dollars(taskCost(model, 'coding'))],
     ['Terminal-Bench 4.0', tb ? `${percent(tb.accuracy)} · ${tb.agent}` : EMPTY],
     ['입력 / 100만 토큰', dollars(model.inputPrice)], ['출력 / 100만 토큰', dollars(model.outputPrice)],
     ['생성 속도 · tok/s', model.speedProvider ? `${amount(model.speed, 0)} · ${model.speedProvider}` : amount(model.speed, 0)],

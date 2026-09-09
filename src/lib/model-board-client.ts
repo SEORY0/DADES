@@ -1,4 +1,4 @@
-import { axisMaxima, boardSchema, canonicalModels, cardMetrics, EMPTY, isAxis, isMetric, leaderNote, metrics, metricValue, modelName, observedAt, ranked, sourceCopy, strengthMap, valueNote, valuePick, type Axis, type CanonicalModel, type Metric, type Strength } from './model-board';
+import { axisMaxima, boardSchema, canonicalModels, cardMetrics, dollars, taskCost, metricContext, EMPTY, isAxis, isMetric, leaderNote, metrics, metricValue, modelName, observedAt, ranked, sourceCopy, strengthMap, valueNote, valuePick, type Axis, type CanonicalModel, type Metric, type Strength } from './model-board';
 import { comparisonCard, element, modelRow } from './model-board-render';
 import { updateCharts } from './model-board-charts';
 import { modelArtwork } from './model-artwork';
@@ -68,11 +68,13 @@ function mount(root: HTMLElement) {
     const value = root.querySelector('[data-leader-value="value"]');
     const name = root.querySelector('[data-leader-name="value"]');
     const note = root.querySelector('[data-leader-note="value"]');
-    if (value) value.textContent = pick ? metricValue(pick, 'cost') : EMPTY;
+    if (value) value.textContent = pick ? dollars(taskCost(pick)) : EMPTY;
     if (name) name.textContent = pick ? modelName(pick) : '관측 대기';
     if (note) note.textContent = pick ? valueNote(canonical, pick) : '';
   };
   const renderComparison = () => {
+    const section = root.querySelector<HTMLElement>('[data-comparison-section]');
+    if (section) section.hidden = selected.size === 0;
     const models = canonical.filter((model) => selected.has(model.id));
     root.querySelector('[data-comparison]')?.replaceChildren(...models.map((model) => comparisonCard(model, budget)));
     const count = root.querySelector('[data-selection-count]');
@@ -94,7 +96,7 @@ function mount(root: HTMLElement) {
     if (heading) heading.textContent = filtered.length && sorted.length === 0 ? '이 지표는 아직 관측값이 없습니다' : '일치하는 모델이 없습니다';
     if (text) text.textContent = filtered.length && sorted.length === 0 ? '출처가 값을 제공하면 자동으로 순위에 반영합니다. 다른 지표를 살펴보세요.' : '검색어 또는 개발사를 바꿔 보세요.';
     const count = root.querySelector('[data-ranking-count]');
-    if (count) count.textContent = `${metrics[metric].label} · ${sorted.length}개 · ${metrics[metric].ascending ? '낮은' : '높은'} 순`;
+    if (count) count.textContent = `${metricContext(board, metric)} · ${sorted.length}개`;
     root.querySelectorAll<HTMLButtonElement>('[data-metric]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.metric === metric)));
     if (axisHead) {
       axisHead.dataset.column = axis;
@@ -118,7 +120,8 @@ function mount(root: HTMLElement) {
     const source = board.sources.find((entry) => entry.id === 'openrouter-catalog');
     const age = source?.status === 'ok' && source.observedAt ? Date.now() - new Date(source.observedAt).getTime() : Infinity;
     const state = root.querySelector<HTMLElement>('[data-freshness]');
-    if (state) { state.textContent = age > 2 * 60 * 60 * 1000 ? '갱신 지연' : '관측값'; state.dataset.stale = String(age > 2 * 60 * 60 * 1000); }
+    const partial = board.sources.some((entry) => entry.status === 'unavailable');
+    if (state) { state.textContent = age > 2 * 60 * 60 * 1000 ? '갱신 지연' : partial ? '일부 이전 관측' : '관측값'; state.dataset.stale = String(age > 2 * 60 * 60 * 1000 || partial); }
   };
   const restore = () => {
     const params = new URLSearchParams(location.search);
@@ -187,7 +190,7 @@ function mount(root: HTMLElement) {
         maxima = axisMaxima(canonical);
         strengths = strengthMap(canonical);
         const author = provider.value;
-        provider.replaceChildren(...['all', ...new Set(canonical.map((model) => model.provider))].sort().map((name) => { const option = element('option', name === 'all' ? '모든 개발사' : name); option.value = name; return option; }));
+        provider.replaceChildren(...['all', ...new Set(canonical.map((model) => model.provider))].sort().map((name) => { const option = element('option', name === 'all' ? '개발사' : name); option.value = name; return option; }));
         provider.value = [...provider.options].some((option) => option.value === author) ? author : 'all';
         for (const id of selected) if (!canonical.some((model) => model.id === id)) selected.delete(id);
         renderCards();

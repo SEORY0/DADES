@@ -1,4 +1,4 @@
-import { amount, compact, dollars, estimate, metrics, modelName, providerTone, ranked, scatter, terminalRows, terminalUpdated, type Axis, type CanonicalModel, type Model, type ModelBoard } from './model-board';
+import { amount, compact, dollars, taskCost, metrics, modelName, providerTone, ranked, scatter, terminalRows, terminalUpdated, type Axis, type CanonicalModel, type Model, type ModelBoard } from './model-board';
 import { element } from './model-board-render';
 
 function svgNode(tag: string, attributes: Record<string, string | number>, text = '') {
@@ -10,7 +10,7 @@ function svgNode(tag: string, attributes: Record<string, string | number>, text 
 
 export function updateCharts(root: HTMLElement, board: ModelBoard, models: readonly CanonicalModel[], axis: Axis) {
   const chart = scatter(models, axis);
-  const readout = (model: Model) => `${modelName(model)} · ${metrics[axis].label} ${amount(model[axis])} · 기준 비용 ${dollars(estimate(model, 1, 1))}`;
+  const readout = (model: Model) => `${modelName(model)} · ${metrics[chart.axis].label} ${amount(model[chart.axis])} · 작업당 ${dollars(taskCost(model, chart.axis))}`;
   const svg = root.querySelector<SVGElement>('.scatter-chart');
   if (svg) {
     const items: SVGElement[] = [];
@@ -19,17 +19,17 @@ export function updateCharts(root: HTMLElement, board: ModelBoard, models: reado
       items.push(svgNode('line', { x1: 55, x2: 605, y1: chart.y(score), y2: chart.y(score), class: 'chart-grid' }), svgNode('text', { x: 42, y: chart.y(score) + 4, 'text-anchor': 'end' }, amount(score, 0)));
     }
     for (const tick of chart.ticks) items.push(svgNode('text', { x: chart.x(tick), y: 285, 'text-anchor': 'middle' }, `$${tick}`));
-    items.push(svgNode('text', { x: 55, y: 17, class: 'axis-title', 'data-axis-title': '' }, `${metrics[axis].label} · AA 지수 ↑`), svgNode('text', { x: 605, y: 305, 'text-anchor': 'end' }, '비용 USD · 로그 눈금 →'));
+    items.push(svgNode('text', { x: 55, y: 17, class: 'axis-title', 'data-axis-title': '' }, `${metrics[chart.axis].label} · AA 지수 ↑`), svgNode('text', { x: 605, y: 305, 'text-anchor': 'end' }, '$ / 작업 · 로그 눈금 →'));
     if (chart.frontierPoints) items.push(svgNode('polyline', { class: 'frontier-line', points: chart.frontierPoints, 'data-frontier': '' }));
     for (const model of chart.models) {
       const label = readout(model);
-      const dot = svgNode('circle', { cx: chart.x(estimate(model, 1, 1) ?? 0), cy: chart.y(model[axis] ?? 0), r: 6, class: `chart-dot tone-${providerTone(model.provider)}`, tabindex: 0, role: 'img', 'aria-label': label });
+      const dot = svgNode('circle', { cx: chart.x(taskCost(model, chart.axis) ?? 0), cy: chart.y(model[chart.axis] ?? 0), r: 6, class: `chart-dot tone-${providerTone(model.provider)}`, tabindex: 0, role: 'img', 'aria-label': label });
       dot.append(svgNode('title', {}, label));
       items.push(dot);
     }
     const labelled = [chart.models[0], chart.frontier[0]].filter((model, index, list): model is Model => Boolean(model) && list.indexOf(model) === index);
     labelled.forEach((model, index) => {
-      items.push(svgNode('text', { class: 'point-label', x: chart.x(estimate(model, 1, 1) ?? 0) + (index === 0 ? -8 : 8), y: chart.y(model[axis] ?? 0) - 12, 'text-anchor': index === 0 ? 'end' : 'start' }, modelName(model)));
+      items.push(svgNode('text', { class: 'point-label', x: chart.x(taskCost(model, chart.axis) ?? 0) + (index === 0 ? -8 : 8), y: chart.y(model[chart.axis] ?? 0) - 12, 'text-anchor': index === 0 ? 'end' : 'start' }, modelName(model)));
     });
     svg.replaceChildren(...items);
     const readoutNode = root.querySelector('[data-chart-readout]');

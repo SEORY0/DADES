@@ -5,9 +5,9 @@
     "timeoutMs": 30000
   },
   "collection": {
-    "windowDays": 10,
-    "maxCandidates": 18,
-    "maxItems": 8,
+    "windowDays": 2,
+    "maxCandidates": 40,
+    "maxItems": 6,
     "minItems": 3,
     "minOrigins": 2,
     "timeoutMs": 12000,

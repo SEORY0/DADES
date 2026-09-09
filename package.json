@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
-    "test": "node --test tests/editorial.test.mjs tests/editorial-cover.test.mjs tests/status-data.test.mjs tests/model-board-rules.test.mjs",
+    "test": "node --test tests/editorial.test.mjs tests/editorial-cover.test.mjs tests/status-data.test.mjs tests/model-board-rules.test.mjs tests/artificial-analysis.test.mjs",
     "test:site": "node --test tests/site-contract.test.mjs",
     "editorial:dry-run": "node scripts/editorial/cli.mjs --collect-only",
     "editorial:draft": "node scripts/editorial/cli.mjs",
@@ -15,7 +15,7 @@
     "test:editorial": "node --test tests/editorial.test.mjs tests/editorial-cover.test.mjs",
     "test:editorial:smoke": "node --test tests/editorial-smoke.test.mjs",
     "status:refresh": "node scripts/status/cli.mjs",
-    "test:status": "node --test tests/status-data.test.mjs tests/model-board-rules.test.mjs"
+    "test:status": "node --test tests/status-data.test.mjs tests/model-board-rules.test.mjs tests/artificial-analysis.test.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",

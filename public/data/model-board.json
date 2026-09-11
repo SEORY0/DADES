@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-11T15:10:47.833Z",
+  "fetchedAt": "2026-09-11T18:44:05.300Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-11T15:10:47.833Z",
+      "observedAt": "2026-09-11T18:44:05.300Z",
       "status": "ok",
       "note": "443 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -25,7 +25,7 @@
       "label": "Artificial Analysis Coding Agent Index",
       "url": "https://artificialanalysis.ai/agents/coding-agents",
       "version": "1.5",
-      "observedAt": "2026-09-11T15:10:47.833Z",
+      "observedAt": "2026-09-11T18:44:05.300Z",
       "status": "ok",
       "note": "Direct AA public leaderboard v1.5; 11 catalog models matched from 13 evaluation variants. Each model retains its highest measured score with that exact configuration and task cost. Unmatched or incomplete evaluations are excluded. Observation time is collection time, not evaluation time."
     },
@@ -45,7 +45,7 @@
       "version": null,
       "observedAt": "2026-09-11T01:02:53.583Z",
       "status": "unavailable",
-      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for anthropic/claude-fable-5.1 has no endpoint statistics."
+      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for meta/muse-spark-1.2 has no endpoint statistics."
     },
     {
       "id": "openrouter-usage",
@@ -668,8 +668,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/~z-ai/glm-latest",
       "context": 1310720,
-      "inputPrice": 0.7,
-      "outputPrice": 2.2,
+      "inputPrice": 0.8727,
+      "outputPrice": 3.36,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -2298,8 +2298,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-flash",
       "context": 1048576,
-      "inputPrice": 0.08652,
-      "outputPrice": 0.17304,
+      "inputPrice": 0.08567999999999999,
+      "outputPrice": 0.17135999999999998,
       "intelligence": 24.8441069152521,
       "coding": null,
       "agentic": 27.8734278350516,
@@ -2356,7 +2356,7 @@
         "agent": "Codex",
         "version": "1.5",
         "score": 38.74247758775307,
-        "costPerTask": 0.08278622901034095,
+        "costPerTask": 0.0827862290103409,
         "timePerTask": 1097.0404400440034,
         "url": "https://artificialanalysis.ai/agents/coding-agents"
       },
@@ -10527,8 +10527,8 @@
       "provider": "Tencent",
       "url": "https://openrouter.ai/tencent/hy3",
       "context": 262144,
-      "inputPrice": 0.13199999999999998,
-      "outputPrice": 0.5279999999999999,
+      "inputPrice": 0.0825,
+      "outputPrice": 0.33,
       "intelligence": 25.7716025731571,
       "coding": null,
       "agentic": 25.6410163230241,
@@ -11453,8 +11453,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/z-ai/glm-5.2",
       "context": 1048576,
-      "inputPrice": 0.966,
-      "outputPrice": 3.036,
+      "inputPrice": 0.6,
+      "outputPrice": 2,
       "intelligence": null,
       "coding": null,
       "agentic": null,

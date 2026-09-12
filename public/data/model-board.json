@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-12T09:13:58.117Z",
+  "fetchedAt": "2026-09-12T13:05:59.836Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-12T09:13:58.117Z",
+      "observedAt": "2026-09-12T13:05:59.836Z",
       "status": "ok",
       "note": "445 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -44,8 +44,8 @@
       "url": "https://openrouter.ai/models",
       "version": null,
       "observedAt": "2026-09-12T09:13:58.117Z",
-      "status": "ok",
-      "note": "32/32 sampled models publish provider p50 statistics on their OpenRouter pages. Sample combines leading intelligence and usage models. Each value is the p50 output tokens/second and p50 latency of the standard endpoint with the most requests in the published window, not a provider average."
+      "status": "unavailable",
+      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for meta/muse-spark-1.3 has no endpoint statistics."
     },
     {
       "id": "openrouter-usage",
@@ -342,7 +342,7 @@
     },
     {
       "id": "~anthropic/claude-haiku-latest",
-      "name": "Anthropic Claude Haiku Latest",
+      "name": "Anthropic: Claude Haiku Latest",
       "provider": "Anthropic",
       "url": "https://openrouter.ai/~anthropic/claude-haiku-latest",
       "context": 200000,
@@ -388,7 +388,7 @@
     },
     {
       "id": "~anthropic/claude-sonnet-latest",
-      "name": "Anthropic Claude Sonnet Latest",
+      "name": "Anthropic: Claude Sonnet Latest",
       "provider": "Anthropic",
       "url": "https://openrouter.ai/~anthropic/claude-sonnet-latest",
       "context": 1000000,
@@ -411,7 +411,7 @@
     },
     {
       "id": "~deepseek/deepseek-v4-flash-latest",
-      "name": "DeepSeek V4 Flash Latest",
+      "name": "DeepSeek: DeepSeek V4 Flash Latest",
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/~deepseek/deepseek-v4-flash-latest",
       "context": 1310720,
@@ -434,7 +434,7 @@
     },
     {
       "id": "~google/gemini-flash-latest",
-      "name": "Google Gemini Flash Latest",
+      "name": "Google: Gemini Flash Latest",
       "provider": "Google",
       "url": "https://openrouter.ai/~google/gemini-flash-latest",
       "context": 1048576,
@@ -457,7 +457,7 @@
     },
     {
       "id": "~google/gemini-pro-latest",
-      "name": "Google Gemini Pro Latest",
+      "name": "Google: Gemini Pro Latest",
       "provider": "Google",
       "url": "https://openrouter.ai/~google/gemini-pro-latest",
       "context": 1048576,
@@ -480,7 +480,7 @@
     },
     {
       "id": "~moonshotai/kimi-latest",
-      "name": "MoonshotAI Kimi Latest",
+      "name": "MoonshotAI: Kimi Latest",
       "provider": "Moonshot AI",
       "url": "https://openrouter.ai/~moonshotai/kimi-latest",
       "context": 1048576,
@@ -503,7 +503,7 @@
     },
     {
       "id": "~openai/gpt-astra-latest",
-      "name": "OpenAI GPT Astra Latest",
+      "name": "OpenAI: GPT Astra Latest",
       "provider": "OpenAI",
       "url": "https://openrouter.ai/~openai/gpt-astra-latest",
       "context": 1050000,
@@ -526,7 +526,7 @@
     },
     {
       "id": "~openai/gpt-luna-latest",
-      "name": "OpenAI GPT Luna Latest",
+      "name": "OpenAI: GPT Luna Latest",
       "provider": "OpenAI",
       "url": "https://openrouter.ai/~openai/gpt-luna-latest",
       "context": 1050000,
@@ -549,7 +549,7 @@
     },
     {
       "id": "~openai/gpt-mini-latest",
-      "name": "OpenAI GPT Mini Latest",
+      "name": "OpenAI: GPT Mini Latest",
       "provider": "OpenAI",
       "url": "https://openrouter.ai/~openai/gpt-mini-latest",
       "context": 400000,
@@ -572,7 +572,7 @@
     },
     {
       "id": "~openai/gpt-sol-latest",
-      "name": "OpenAI GPT Sol Latest",
+      "name": "OpenAI: GPT Sol Latest",
       "provider": "OpenAI",
       "url": "https://openrouter.ai/~openai/gpt-sol-latest",
       "context": 1050000,
@@ -595,7 +595,7 @@
     },
     {
       "id": "~openai/gpt-terra-latest",
-      "name": "OpenAI GPT Terra Latest",
+      "name": "OpenAI: GPT Terra Latest",
       "provider": "OpenAI",
       "url": "https://openrouter.ai/~openai/gpt-terra-latest",
       "context": 1050000,
@@ -2298,8 +2298,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-flash",
       "context": 1048576,
-      "inputPrice": 0.06678,
-      "outputPrice": 0.13356,
+      "inputPrice": 0.0665,
+      "outputPrice": 0.133,
       "intelligence": 24.8441069152521,
       "coding": null,
       "agentic": 27.8734278350516,
@@ -2445,8 +2445,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-pro",
       "context": 1048576,
-      "inputPrice": 0.809274,
-      "outputPrice": 1.618548,
+      "inputPrice": 0.768732,
+      "outputPrice": 1.537464,
       "intelligence": 30.8650601315524,
       "coding": null,
       "agentic": 27.6915987972509,
@@ -4731,8 +4731,8 @@
       "provider": "MiniMax",
       "url": "https://openrouter.ai/minimax/minimax-m2.5",
       "context": 204800,
-      "inputPrice": 0.3,
-      "outputPrice": 1.2,
+      "inputPrice": 0.27,
+      "outputPrice": 1.08,
       "intelligence": null,
       "coding": null,
       "agentic": null,

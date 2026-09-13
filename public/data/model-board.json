@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-12T23:16:50.917Z",
+  "fetchedAt": "2026-09-13T01:23:13.365Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-12T23:16:50.917Z",
+      "observedAt": "2026-09-13T01:23:13.365Z",
       "status": "ok",
       "note": "445 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -44,17 +44,17 @@
       "url": "https://openrouter.ai/models",
       "version": null,
       "observedAt": "2026-09-12T23:16:50.917Z",
-      "status": "ok",
-      "note": "32/32 sampled models publish provider p50 statistics on their OpenRouter pages. Sample combines leading intelligence and usage models. Each value is the p50 output tokens/second and p50 latency of the standard endpoint with the most requests in the published window, not a provider average."
+      "status": "unavailable",
+      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for openai/gpt-5.6-luna has no endpoint statistics."
     },
     {
       "id": "openrouter-usage",
       "label": "OpenRouter usage rankings",
       "url": "https://openrouter.ai/rankings",
       "version": null,
-      "observedAt": "2026-09-07T00:00:00.000Z",
-      "status": "unavailable",
-      "note": "Published usage could not be refreshed; last successful observations, if any, are retained. No history is estimated. Ranking has inconsistent dates or no mapped model identities."
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "status": "ok",
+      "note": "Published seven-day OpenRouter prompt + completion tokens through 2026-09-12 (UTC daily buckets). 20/20 published ranking rows mapped; unlisted models are unknown, not zero. Private and provider-direct traffic are excluded. Previous-week totals and daily history are not supplied."
     }
   ],
   "terminalBench": {
@@ -1447,7 +1447,7 @@
         "effort": "max",
         "date": "2026-07-24"
       },
-      "tokens7d": 1869335071556,
+      "tokens7d": 1401244233835,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -1647,7 +1647,7 @@
         "effort": "max",
         "date": "2026-06-30"
       },
-      "tokens7d": 1317438098450,
+      "tokens7d": 1376580092830,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2322,7 +2322,7 @@
       "speedRequests": 474761,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 5109835013729,
+      "tokens7d": 4465107204042,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2366,7 +2366,7 @@
       "speedRequests": 271400,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 12344611693493,
+      "tokens7d": 11641643771359,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2469,7 +2469,7 @@
       "speedRequests": 41047,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": null,
+      "tokens7d": 1252488823705,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2479,8 +2479,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-pro-0813",
       "context": 1048576,
-      "inputPrice": 0.57948,
-      "outputPrice": 1.73844,
+      "inputPrice": 0.57816,
+      "outputPrice": 1.73448,
       "intelligence": 36.2828791278402,
       "coding": 43.05203524444174,
       "agentic": 42.2733548109966,
@@ -2559,7 +2559,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": null,
+      "tokens7d": 3643120348884,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -3332,7 +3332,7 @@
         "effort": "high",
         "date": "2026-08-13"
       },
-      "tokens7d": 1898208874697,
+      "tokens7d": null,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -3405,7 +3405,7 @@
         "effort": "high",
         "date": "2026-09-02"
       },
-      "tokens7d": 1344188113046,
+      "tokens7d": 2561067860085,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -3552,8 +3552,8 @@
       "provider": "Google",
       "url": "https://openrouter.ai/google/gemma-4-26b-a4b-it",
       "context": 262144,
-      "inputPrice": 0.041999999999999996,
-      "outputPrice": 0.22,
+      "inputPrice": 0.09,
+      "outputPrice": 0.3,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -4366,8 +4366,8 @@
       "provider": "Meta",
       "url": "https://openrouter.ai/meta/muse-glimmer-30b",
       "context": 131072,
-      "inputPrice": 0.3,
-      "outputPrice": 1.1,
+      "inputPrice": 0.35,
+      "outputPrice": 1.5,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -4560,7 +4560,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": null,
+      "tokens7d": 1996546969701,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -4812,7 +4812,7 @@
       "speedRequests": 38489,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 1451953447896,
+      "tokens7d": 1464927505468,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -5702,7 +5702,7 @@
       "speedRequests": 20941,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 1962643272360,
+      "tokens7d": 1484020357341,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -6046,7 +6046,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 3711381309659,
+      "tokens7d": 3613959140186,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -7567,7 +7567,7 @@
         "effort": "max",
         "date": "2026-06-26"
       },
-      "tokens7d": 14190874798934,
+      "tokens7d": 16439672165912,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -7686,7 +7686,7 @@
         "effort": "max",
         "date": "2026-06-26"
       },
-      "tokens7d": 1982342389529,
+      "tokens7d": 1641010565172,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -8775,7 +8775,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 1293580148363,
+      "tokens7d": null,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -10573,8 +10573,8 @@
       "provider": "Tencent",
       "url": "https://openrouter.ai/tencent/hy3",
       "context": 262144,
-      "inputPrice": 0.0825,
-      "outputPrice": 0.33,
+      "inputPrice": 0.13199999999999998,
+      "outputPrice": 0.5279999999999999,
       "intelligence": 25.7716025731571,
       "coding": null,
       "agentic": 25.6410163230241,
@@ -10597,7 +10597,7 @@
       "speedRequests": 42489,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 3662549745260,
+      "tokens7d": 3640802828901,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -10643,7 +10643,7 @@
       "speedRequests": 113866,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 17057946941329,
+      "tokens7d": 17202768277908,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -10952,7 +10952,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 1296437861301,
+      "tokens7d": 1724574668905,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11225,7 +11225,7 @@
       "speedRequests": 151669,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 2533112210465,
+      "tokens7d": 6911102747435,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11512,7 +11512,7 @@
       "speedRequests": 12619,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 2412679120575,
+      "tokens7d": 1890970043664,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11545,8 +11545,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/z-ai/glm-5.3",
       "context": 1310720,
-      "inputPrice": 1.4,
-      "outputPrice": 4.4,
+      "inputPrice": 1.092,
+      "outputPrice": 3.432,
       "intelligence": 44.855717385614,
       "coding": 53.55484140097326,
       "agentic": 53.3842963917526,
@@ -11585,7 +11585,7 @@
         "effort": "max",
         "date": "2026-08-14"
       },
-      "tokens7d": 3295856579545,
+      "tokens7d": 2645766195907,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11619,7 +11619,7 @@
       "speedRequests": 146058,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 12236025209453,
+      "tokens7d": 11953766324811,
       "previousTokens7d": null,
       "dailyTokens": []
     },

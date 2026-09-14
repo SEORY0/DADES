@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-14T04:51:08.450Z",
+  "fetchedAt": "2026-09-14T10:33:14.285Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-14T04:51:08.450Z",
+      "observedAt": "2026-09-14T10:33:14.285Z",
       "status": "ok",
       "note": "445 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -11512,7 +11512,7 @@
       "speedRequests": 12619,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 1732385118925,
+      "tokens7d": 1732385734184,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11619,7 +11619,7 @@
       "speedRequests": 146058,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 11889774186727,
+      "tokens7d": 11889774258650,
       "previousTokens7d": null,
       "dailyTokens": []
     },

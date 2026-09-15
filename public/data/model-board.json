@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-14T23:24:51.077Z",
+  "fetchedAt": "2026-09-15T01:52:45.184Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-14T23:24:51.077Z",
+      "observedAt": "2026-09-15T01:52:45.184Z",
       "status": "ok",
       "note": "445 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -52,9 +52,9 @@
       "label": "OpenRouter usage rankings",
       "url": "https://openrouter.ai/rankings",
       "version": null,
-      "observedAt": "2026-09-13T00:00:00.000Z",
+      "observedAt": "2026-09-14T00:00:00.000Z",
       "status": "ok",
-      "note": "Published seven-day OpenRouter prompt + completion tokens through 2026-09-13 (UTC daily buckets). 20/20 published ranking rows mapped; unlisted models are unknown, not zero. Private and provider-direct traffic are excluded. Previous-week totals and daily history are not supplied."
+      "note": "Published seven-day OpenRouter prompt + completion tokens through 2026-09-14 (UTC daily buckets). 20/20 published ranking rows mapped; unlisted models are unknown, not zero. Private and provider-direct traffic are excluded. Previous-week totals and daily history are not supplied."
     }
   ],
   "terminalBench": {
@@ -438,8 +438,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/~deepseek/deepseek-pro-latest",
       "context": 1048576,
-      "inputPrice": 0.57948,
-      "outputPrice": 1.73844,
+      "inputPrice": 0.96,
+      "outputPrice": 2.88,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -1493,7 +1493,7 @@
         "effort": "max",
         "date": "2026-07-24"
       },
-      "tokens7d": 1243330273957,
+      "tokens7d": null,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -1693,7 +1693,7 @@
         "effort": "max",
         "date": "2026-06-30"
       },
-      "tokens7d": 1376565282386,
+      "tokens7d": 1434529379661,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2344,8 +2344,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-flash",
       "context": 1048576,
-      "inputPrice": 0.07476000000000001,
-      "outputPrice": 0.14952000000000001,
+      "inputPrice": 0.088606,
+      "outputPrice": 0.177212,
       "intelligence": 24.8441069152521,
       "coding": null,
       "agentic": 27.8734278350516,
@@ -2368,7 +2368,7 @@
       "speedRequests": 474761,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 4357735509201,
+      "tokens7d": 4329738103867,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2412,7 +2412,7 @@
       "speedRequests": 271400,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 11562877018745,
+      "tokens7d": 11723740835268,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2515,7 +2515,7 @@
       "speedRequests": 41047,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 1314511276156,
+      "tokens7d": 1375511012309,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2525,8 +2525,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-pro-0813",
       "context": 1048576,
-      "inputPrice": 0.57948,
-      "outputPrice": 1.73844,
+      "inputPrice": 0.9833999999999999,
+      "outputPrice": 2.9502,
       "intelligence": 36.2828791278402,
       "coding": 43.05203524444174,
       "agentic": 42.2733548109966,
@@ -2592,8 +2592,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4.1-flash",
       "context": 1048576,
-      "inputPrice": 0.15,
-      "outputPrice": 0.6,
+      "inputPrice": 0.3,
+      "outputPrice": 1.2,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -2605,7 +2605,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 4937738614053,
+      "tokens7d": 6220983435957,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -3428,7 +3428,7 @@
         "effort": "high",
         "date": "2026-09-02"
       },
-      "tokens7d": 2555597937931,
+      "tokens7d": 2577963978756,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -4583,7 +4583,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 1979590360002,
+      "tokens7d": 1964661930159,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -4835,7 +4835,7 @@
       "speedRequests": 38489,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 1460823817590,
+      "tokens7d": 1449631337393,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -5725,7 +5725,7 @@
       "speedRequests": 20941,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 1471545323506,
+      "tokens7d": 1451929761230,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -6069,7 +6069,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 3560545223417,
+      "tokens7d": 3446593765727,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -7567,7 +7567,7 @@
         "effort": "max",
         "date": "2026-06-26"
       },
-      "tokens7d": 18180069685336,
+      "tokens7d": 18188512261196,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -7686,7 +7686,7 @@
         "effort": "max",
         "date": "2026-06-26"
       },
-      "tokens7d": 1643769803307,
+      "tokens7d": 1631962042949,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -8775,7 +8775,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": null,
+      "tokens7d": 1141178578855,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -9667,8 +9667,8 @@
       "provider": "Qwen",
       "url": "https://openrouter.ai/qwen/qwen3.5-35b-a3b",
       "context": 262144,
-      "inputPrice": 0.3125,
-      "outputPrice": 1.25,
+      "inputPrice": 0.1625,
+      "outputPrice": 1.3,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -10573,8 +10573,8 @@
       "provider": "Tencent",
       "url": "https://openrouter.ai/tencent/hy3",
       "context": 262144,
-      "inputPrice": 0.0825,
-      "outputPrice": 0.33,
+      "inputPrice": 0.13199999999999998,
+      "outputPrice": 0.5279999999999999,
       "intelligence": 25.7716025731571,
       "coding": null,
       "agentic": 25.6410163230241,
@@ -10597,7 +10597,7 @@
       "speedRequests": 42489,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 3797478551822,
+      "tokens7d": 4078206950967,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -10643,7 +10643,7 @@
       "speedRequests": 113866,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 16816059139299,
+      "tokens7d": 15216103093096,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -10952,7 +10952,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 1712735505376,
+      "tokens7d": 1694918438413,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11225,7 +11225,7 @@
       "speedRequests": 151669,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 7771681918558,
+      "tokens7d": 8195834223477,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11499,8 +11499,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/z-ai/glm-5.2",
       "context": 1048576,
-      "inputPrice": 0.6832,
-      "outputPrice": 2.1471999999999998,
+      "inputPrice": 1.4,
+      "outputPrice": 4.4,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -11512,7 +11512,7 @@
       "speedRequests": 12619,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 1732385734184,
+      "tokens7d": 1606531424075,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11585,7 +11585,7 @@
         "effort": "max",
         "date": "2026-08-14"
       },
-      "tokens7d": 2520314453558,
+      "tokens7d": 2275921361337,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11619,7 +11619,7 @@
       "speedRequests": 146058,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 11889774258650,
+      "tokens7d": 11645379969834,
       "previousTokens7d": null,
       "dailyTokens": []
     },

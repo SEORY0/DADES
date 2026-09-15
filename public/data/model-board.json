@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-15T17:45:22.005Z",
+  "fetchedAt": "2026-09-15T21:15:32.006Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-15T17:45:22.005Z",
+      "observedAt": "2026-09-15T21:15:32.006Z",
       "status": "ok",
       "note": "446 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -1449,7 +1449,7 @@
     },
     {
       "id": "anthropic/claude-opus-5",
-      "name": "Claude Opus 5",
+      "name": "Anthropic: Claude Opus 5",
       "provider": "Anthropic",
       "url": "https://openrouter.ai/anthropic/claude-opus-5",
       "context": 1000000,
@@ -1499,7 +1499,7 @@
     },
     {
       "id": "anthropic/claude-opus-5:batch",
-      "name": "Claude Opus 5 (batch)",
+      "name": "Anthropic: Claude Opus 5 (batch)",
       "provider": "Anthropic",
       "url": "https://openrouter.ai/anthropic/claude-opus-5:batch",
       "context": 1000000,
@@ -2344,8 +2344,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-flash",
       "context": 1048576,
-      "inputPrice": 0.08399999999999999,
-      "outputPrice": 0.16799999999999998,
+      "inputPrice": 0.07938,
+      "outputPrice": 0.15876,
       "intelligence": 24.8441069152521,
       "coding": null,
       "agentic": 27.8734278350516,

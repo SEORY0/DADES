@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-15T01:52:45.184Z",
+  "fetchedAt": "2026-09-15T07:39:20.944Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-15T01:52:45.184Z",
+      "observedAt": "2026-09-15T07:39:20.944Z",
       "status": "ok",
       "note": "445 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -45,7 +45,7 @@
       "version": null,
       "observedAt": "2026-09-12T23:16:50.917Z",
       "status": "unavailable",
-      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for deepseek/deepseek-v4.1-flash has no endpoint statistics."
+      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for anthropic/claude-fable-5 has no endpoint statistics."
     },
     {
       "id": "openrouter-usage",
@@ -530,8 +530,8 @@
       "provider": "Moonshot AI",
       "url": "https://openrouter.ai/~moonshotai/kimi-latest",
       "context": 1048576,
-      "inputPrice": 2.0999999999999996,
-      "outputPrice": 10.950000000000001,
+      "inputPrice": 1.875,
+      "outputPrice": 10.5,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -714,8 +714,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/~z-ai/glm-latest",
       "context": 1310720,
-      "inputPrice": 0.8999999999999999,
-      "outputPrice": 3,
+      "inputPrice": 0.8775,
+      "outputPrice": 2.9699999999999998,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -2378,8 +2378,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-flash-0731",
       "context": 1310720,
-      "inputPrice": 0.06,
-      "outputPrice": 0.12,
+      "inputPrice": 0.055,
+      "outputPrice": 0.11,
       "intelligence": 34.5281879347816,
       "coding": 38.74247758775307,
       "agentic": 41.6754905498282,
@@ -11225,7 +11225,7 @@
       "speedRequests": 151669,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 8195834223477,
+      "tokens7d": 8195834354787,
       "previousTokens7d": null,
       "dailyTokens": []
     },

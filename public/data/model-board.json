@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-17T00:26:50.022Z",
+  "fetchedAt": "2026-09-17T05:17:38.259Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-17T00:26:50.022Z",
+      "observedAt": "2026-09-17T05:17:38.259Z",
       "status": "ok",
       "note": "444 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -45,7 +45,7 @@
       "version": null,
       "observedAt": "2026-09-12T23:16:50.917Z",
       "status": "unavailable",
-      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for openai/gpt-5.6-sol has no endpoint statistics."
+      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for deepseek/deepseek-v4.1-flash has no endpoint statistics."
     },
     {
       "id": "openrouter-usage",
@@ -461,8 +461,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/~deepseek/deepseek-v4-flash-latest",
       "context": 1310720,
-      "inputPrice": 0.04,
-      "outputPrice": 0.09999999999999999,
+      "inputPrice": 0.03,
+      "outputPrice": 0.13,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -691,8 +691,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/~z-ai/glm-flash-latest",
       "context": 1310720,
-      "inputPrice": 0.07,
-      "outputPrice": 0.2333,
+      "inputPrice": 0.075,
+      "outputPrice": 0.25,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -714,8 +714,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/~z-ai/glm-latest",
       "context": 1310720,
-      "inputPrice": 0.833,
-      "outputPrice": 2.6180000000000003,
+      "inputPrice": 0.8775,
+      "outputPrice": 2.9699999999999998,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -11572,8 +11572,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/z-ai/glm-5.3-flash",
       "context": 1310720,
-      "inputPrice": 0.07,
-      "outputPrice": 0.2333,
+      "inputPrice": 0.09,
+      "outputPrice": 0.3,
       "intelligence": 41.907366113455,
       "coding": null,
       "agentic": 51.2282491408935,

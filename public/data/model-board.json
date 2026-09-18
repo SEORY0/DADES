@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-18T05:50:57.319Z",
+  "fetchedAt": "2026-09-18T11:06:24.613Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-18T05:50:57.319Z",
+      "observedAt": "2026-09-18T11:06:24.613Z",
       "status": "ok",
       "note": "445 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -45,7 +45,7 @@
       "version": null,
       "observedAt": "2026-09-12T23:16:50.917Z",
       "status": "unavailable",
-      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for anthropic/claude-fable-5 has no endpoint statistics."
+      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for google/gemini-3.7-flash has no endpoint statistics."
     },
     {
       "id": "openrouter-usage",
@@ -2626,8 +2626,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-pro",
       "context": 1048576,
-      "inputPrice": 0.94336,
-      "outputPrice": 1.88672,
+      "inputPrice": 1.5999999999999999,
+      "outputPrice": 3.1999999999999997,
       "intelligence": 30.8650601315524,
       "coding": null,
       "agentic": 27.6915987972509,
@@ -11577,8 +11577,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/z-ai/glm-5.2",
       "context": 1048576,
-      "inputPrice": 0.4875,
-      "outputPrice": 1.56,
+      "inputPrice": 0.5625,
+      "outputPrice": 1.7999999999999998,
       "intelligence": null,
       "coding": null,
       "agentic": null,

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-19T20:33:37.253Z",
+  "fetchedAt": "2026-09-19T22:29:06.537Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-19T20:33:37.253Z",
+      "observedAt": "2026-09-19T22:29:06.537Z",
       "status": "ok",
       "note": "447 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -2456,8 +2456,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-flash",
       "context": 1048576,
-      "inputPrice": 0.03948,
-      "outputPrice": 0.07896,
+      "inputPrice": 0.03864,
+      "outputPrice": 0.07728,
       "intelligence": 24.8441069152521,
       "coding": null,
       "agentic": 27.8734278350516,

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-19T11:29:51.479Z",
+  "fetchedAt": "2026-09-19T14:44:42.892Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-19T11:29:51.479Z",
+      "observedAt": "2026-09-19T14:44:42.892Z",
       "status": "ok",
       "note": "447 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -45,7 +45,7 @@
       "version": null,
       "observedAt": "2026-09-12T23:16:50.917Z",
       "status": "unavailable",
-      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for z-ai/glm-5.3-flash has no endpoint statistics."
+      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for z-ai/glm-5.3 has no endpoint statistics."
     },
     {
       "id": "openrouter-usage",
@@ -2456,8 +2456,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-flash",
       "context": 1048576,
-      "inputPrice": 0.044239999999999995,
-      "outputPrice": 0.08847999999999999,
+      "inputPrice": 0.04256,
+      "outputPrice": 0.08512,
       "intelligence": 24.8441069152521,
       "coding": null,
       "agentic": 27.8734278350516,
@@ -2626,8 +2626,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-pro",
       "context": 1048576,
-      "inputPrice": 0.46284,
-      "outputPrice": 0.92568,
+      "inputPrice": 0.422298,
+      "outputPrice": 0.844596,
       "intelligence": 30.8650601315524,
       "coding": null,
       "agentic": 27.6915987972509,
@@ -11439,8 +11439,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/z-ai/glm-4.6",
       "context": 204800,
-      "inputPrice": 0.43,
-      "outputPrice": 1.75,
+      "inputPrice": 0.5,
+      "outputPrice": 2,
       "intelligence": null,
       "coding": null,
       "agentic": null,

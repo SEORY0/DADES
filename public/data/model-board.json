@@ -1,15 +1,15 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-21T19:42:50.089Z",
+  "fetchedAt": "2026-09-21T23:13:35.113Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-21T19:42:50.089Z",
+      "observedAt": "2026-09-21T23:13:35.113Z",
       "status": "ok",
-      "note": "440 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
+      "note": "443 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
     {
       "id": "aa-intelligence",
@@ -34,9 +34,9 @@
       "label": "Terminal-Bench 4.0 leaderboard",
       "url": "https://www.tbench.ai/leaderboard/terminal-bench/4.0",
       "version": null,
-      "observedAt": "2026-09-17T23:52:40.302Z",
+      "observedAt": "2026-09-21T21:28:10.802Z",
       "status": "ok",
-      "note": "26/26 published Terminal-Bench 4.0 rows map to catalog models; each model keeps its best accuracy across agents and reasoning efforts, and unmapped rows stay in the board list only. Results depend on the agent harness. Leaderboard updated 2026-09-17 UTC."
+      "note": "27/27 published Terminal-Bench 4.0 rows map to catalog models; each model keeps its best accuracy across agents and reasoning efforts, and unmapped rows stay in the board list only. Results depend on the agent harness. Leaderboard updated 2026-09-21 UTC."
     },
     {
       "id": "openrouter-performance",
@@ -45,7 +45,7 @@
       "version": null,
       "observedAt": "2026-09-12T23:16:50.917Z",
       "status": "unavailable",
-      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for deepseek/deepseek-v4.1-flash has no endpoint statistics."
+      "note": "Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. Model page for meta/muse-spark-1.2 has no endpoint statistics."
     },
     {
       "id": "openrouter-usage",
@@ -60,7 +60,7 @@
   "terminalBench": {
     "title": "Terminal-Bench 4.0",
     "url": "https://www.tbench.ai/leaderboard/terminal-bench/4.0",
-    "updatedAt": "2026-09-17T23:52:40.302Z",
+    "updatedAt": "2026-09-21T21:28:10.802Z",
     "rows": [
       {
         "rank": 1,
@@ -288,6 +288,20 @@
       },
       {
         "rank": 17,
+        "model": "Grok 4.7",
+        "modelUrl": "https://docs.x.ai/developers/models/grok-4.7",
+        "agent": "Grok Build",
+        "agentOrg": "xAI",
+        "modelOrg": "xAI",
+        "effort": "xhigh",
+        "accuracy": 37.58,
+        "ci95": 3.54,
+        "date": "2026-09-21",
+        "trials": 330,
+        "modelId": "x-ai/grok-4.7"
+      },
+      {
+        "rank": 18,
         "model": "GPT-5.6 Sol",
         "modelUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
         "agent": "Codex",
@@ -301,7 +315,7 @@
         "modelId": "openai/gpt-5.6-sol"
       },
       {
-        "rank": 18,
+        "rank": 19,
         "model": "Opus 5",
         "modelUrl": "https://www.anthropic.com/news/claude-opus-5",
         "agent": "Claude Code",
@@ -315,7 +329,7 @@
         "modelId": "anthropic/claude-opus-5"
       },
       {
-        "rank": 19,
+        "rank": 20,
         "model": "Opus 4.8",
         "modelUrl": "https://www.anthropic.com/news/claude-opus-4-8",
         "agent": "Claude Code",
@@ -329,7 +343,7 @@
         "modelId": "anthropic/claude-opus-4.8"
       },
       {
-        "rank": 20,
+        "rank": 21,
         "model": "GPT-5.6 Terra",
         "modelUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
         "agent": "Codex",
@@ -343,7 +357,7 @@
         "modelId": "openai/gpt-5.6-terra"
       },
       {
-        "rank": 21,
+        "rank": 22,
         "model": "Grok 4.6",
         "modelUrl": "https://docs.x.ai/developers/models/grok-4.6",
         "agent": "Grok Build",
@@ -357,7 +371,7 @@
         "modelId": "x-ai/grok-4.6"
       },
       {
-        "rank": 22,
+        "rank": 23,
         "model": "Gemini 3.8 Flash",
         "modelUrl": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash",
         "agent": "mini-SWE-agent",
@@ -371,7 +385,7 @@
         "modelId": "google/gemini-3.8-flash"
       },
       {
-        "rank": 23,
+        "rank": 24,
         "model": "GPT-5.6 Luna",
         "modelUrl": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
         "agent": "Codex",
@@ -385,7 +399,7 @@
         "modelId": "openai/gpt-5.6-luna"
       },
       {
-        "rank": 24,
+        "rank": 25,
         "model": "Grok 4.5",
         "modelUrl": "https://docs.x.ai/developers/models/grok-4.5",
         "agent": "Grok Build",
@@ -399,7 +413,7 @@
         "modelId": "x-ai/grok-4.5"
       },
       {
-        "rank": 24,
+        "rank": 25,
         "model": "Sonnet 5",
         "modelUrl": "https://www.anthropic.com/news/claude-sonnet-5",
         "agent": "Claude Code",
@@ -413,7 +427,7 @@
         "modelId": "anthropic/claude-sonnet-5"
       },
       {
-        "rank": 26,
+        "rank": 27,
         "model": "Gemini 3.7 Flash",
         "modelUrl": "https://ai.google.dev/gemini-api/docs/models/gemini-3.7-flash",
         "agent": "mini-SWE-agent",
@@ -550,8 +564,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/~deepseek/deepseek-pro-latest",
       "context": 1048576,
-      "inputPrice": 0.55836,
-      "outputPrice": 1.67508,
+      "inputPrice": 0.53328,
+      "outputPrice": 1.59984,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -574,7 +588,7 @@
       "url": "https://openrouter.ai/~deepseek/deepseek-v4-flash-latest",
       "context": 1310720,
       "inputPrice": 0.04,
-      "outputPrice": 0.19999999999999998,
+      "outputPrice": 0.39999999999999997,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -642,8 +656,8 @@
       "provider": "Moonshot AI",
       "url": "https://openrouter.ai/~moonshotai/kimi-latest",
       "context": 1048576,
-      "inputPrice": 1.7,
-      "outputPrice": 8.5,
+      "inputPrice": 1.5,
+      "outputPrice": 7.5,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -2468,7 +2482,7 @@
       "url": "https://openrouter.ai/deepseek/deepseek-v4-flash-0731",
       "context": 1310720,
       "inputPrice": 0.04,
-      "outputPrice": 0.32,
+      "outputPrice": 0.64,
       "intelligence": 34.5281879347816,
       "coding": 38.74247758775307,
       "agentic": 41.6754905498282,
@@ -2580,8 +2594,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-pro",
       "context": 1048576,
-      "inputPrice": 0.919242,
-      "outputPrice": 1.838484,
+      "inputPrice": 0.8872260000000001,
+      "outputPrice": 1.7744520000000001,
       "intelligence": 30.8650601315524,
       "coding": null,
       "agentic": 27.6915987972509,
@@ -4364,8 +4378,8 @@
       "provider": "Meta",
       "url": "https://openrouter.ai/meta-llama/llama-4-maverick",
       "context": 1048576,
-      "inputPrice": 0.19999999999999998,
-      "outputPrice": 0.7999999999999999,
+      "inputPrice": 0.1875,
+      "outputPrice": 0.6525,
       "intelligence": 9.29902687437199,
       "coding": null,
       "agentic": 0.618556701030928,
@@ -11107,7 +11121,13 @@
       "speedProvider": null,
       "speedRequests": null,
       "speedWindow": null,
-      "terminalBench": null,
+      "terminalBench": {
+        "accuracy": 37.58,
+        "ci95": 3.54,
+        "agent": "Grok Build",
+        "effort": "xhigh",
+        "date": "2026-09-21"
+      },
       "tokens7d": null,
       "previousTokens7d": null,
       "dailyTokens": []
@@ -11192,6 +11212,75 @@
         "costPerTask": 0.054072740415336835,
         "url": "https://artificialanalysis.ai/models/mimo-v2-5-pro"
       },
+      "aaCoding": null,
+      "speed": null,
+      "latency": null,
+      "speedProvider": null,
+      "speedRequests": null,
+      "speedWindow": null,
+      "terminalBench": null,
+      "tokens7d": null,
+      "previousTokens7d": null,
+      "dailyTokens": []
+    },
+    {
+      "id": "xiaomi/mimo-v2.6-flash",
+      "name": "Xiaomi: MiMo-V2.6-Flash",
+      "provider": "Xiaomi",
+      "url": "https://openrouter.ai/xiaomi/mimo-v2.6-flash",
+      "context": 1048576,
+      "inputPrice": 0.14,
+      "outputPrice": 0.28,
+      "intelligence": null,
+      "coding": null,
+      "agentic": null,
+      "aaIntelligence": null,
+      "aaCoding": null,
+      "speed": null,
+      "latency": null,
+      "speedProvider": null,
+      "speedRequests": null,
+      "speedWindow": null,
+      "terminalBench": null,
+      "tokens7d": null,
+      "previousTokens7d": null,
+      "dailyTokens": []
+    },
+    {
+      "id": "xiaomi/mimo-v2.6-pro",
+      "name": "Xiaomi: MiMo-V2.6-Pro",
+      "provider": "Xiaomi",
+      "url": "https://openrouter.ai/xiaomi/mimo-v2.6-pro",
+      "context": 1048576,
+      "inputPrice": 0.435,
+      "outputPrice": 0.87,
+      "intelligence": null,
+      "coding": null,
+      "agentic": null,
+      "aaIntelligence": null,
+      "aaCoding": null,
+      "speed": null,
+      "latency": null,
+      "speedProvider": null,
+      "speedRequests": null,
+      "speedWindow": null,
+      "terminalBench": null,
+      "tokens7d": null,
+      "previousTokens7d": null,
+      "dailyTokens": []
+    },
+    {
+      "id": "xiaomi/mimo-v2.6-pro-ultraspeed",
+      "name": "Xiaomi: MiMo-V2.6-Pro-UltraSpeed",
+      "provider": "Xiaomi",
+      "url": "https://openrouter.ai/xiaomi/mimo-v2.6-pro-ultraspeed",
+      "context": 1048576,
+      "inputPrice": 4.35,
+      "outputPrice": 8.7,
+      "intelligence": null,
+      "coding": null,
+      "agentic": null,
+      "aaIntelligence": null,
       "aaCoding": null,
       "speed": null,
       "latency": null,
@@ -11558,8 +11647,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/z-ai/glm-5.3-flash",
       "context": 1310720,
-      "inputPrice": 0.075,
-      "outputPrice": 0.25,
+      "inputPrice": 0.15,
+      "outputPrice": 0.5,
       "intelligence": 41.907366113455,
       "coding": null,
       "agentic": 51.2282491408935,

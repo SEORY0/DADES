@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-09-24T06:06:14.223Z",
+  "fetchedAt": "2026-09-24T11:40:24.081Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-09-24T06:06:14.223Z",
+      "observedAt": "2026-09-24T11:40:24.081Z",
       "status": "ok",
       "note": "458 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -5669,7 +5669,7 @@
       "provider": "Moonshot AI",
       "url": "https://openrouter.ai/moonshotai/kimi-k2.7-code",
       "context": 262144,
-      "inputPrice": 0.7062,
+      "inputPrice": 0.6562,
       "outputPrice": 3.3000000000000003,
       "intelligence": 26.2686562401836,
       "coding": null,
@@ -10791,7 +10791,7 @@
       "name": "Tencent: Hy-MT2-30B-A3B",
       "provider": "Tencent",
       "url": "https://openrouter.ai/tencent/hy-mt2-30b-a3b",
-      "context": 32768,
+      "context": 8192,
       "inputPrice": 0.074,
       "outputPrice": 0.295,
       "intelligence": null,

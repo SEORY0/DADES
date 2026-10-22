@@ -1,13 +1,13 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-10-22T17:04:55.229Z",
+  "fetchedAt": "2026-10-22T20:32:26.044Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-10-22T17:04:55.229Z",
+      "observedAt": "2026-10-22T20:32:26.044Z",
       "status": "ok",
       "note": "468 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -769,7 +769,7 @@
       "url": "https://openrouter.ai/~moonshotai/kimi-latest",
       "context": 1048576,
       "inputPrice": 0.238,
-      "outputPrice": 16,
+      "outputPrice": 24,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -3929,8 +3929,8 @@
       "provider": "Google",
       "url": "https://openrouter.ai/google/gemma-4-26b-a4b-it",
       "context": 262144,
-      "inputPrice": 0.09,
-      "outputPrice": 0.3,
+      "inputPrice": 0.0765,
+      "outputPrice": 0.255,
       "intelligence": null,
       "coding": null,
       "agentic": null,

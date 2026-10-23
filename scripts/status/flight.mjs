@@ -6,15 +6,37 @@ export function flightRecords(html) {
     const push = JSON.parse(match[1]);
     return push[0] === 1 && typeof push[1] === 'string' ? [push[1]] : [];
   });
+  const stream = Buffer.from(chunks.join(''), 'utf8');
   const records = new Map();
-  for (const line of chunks.join('').split('\n')) {
-    const match = /^([\da-f]+):(\[.*|\{.*)$/.exec(line);
-    if (!match) continue;
-    try {
-      records.set(match[1], JSON.parse(match[2]));
-    } catch {
-      // React's stream also contains transport records; only JSON records are data.
+  let position = 0;
+  while (position < stream.length) {
+    const colon = stream.indexOf(0x3a, position);
+    const newline = stream.indexOf(0x0a, position);
+    if (colon === -1) break;
+    const lineEnd = newline === -1 ? stream.length : newline;
+    const id = stream.toString('latin1', position, colon);
+    if (lineEnd < colon || !/^[\da-f]+$/.test(id)) {
+      position = lineEnd + 1;
+      continue;
     }
+    // Text rows declare a UTF-8 byte length and are not newline-terminated; the next row follows directly.
+    const text = /^T([\da-f]+),/.exec(stream.toString('latin1', colon + 1, colon + 24));
+    if (text) {
+      const start = colon + 1 + text[0].length;
+      const end = Math.min(start + parseInt(text[1], 16), stream.length);
+      records.set(id, stream.toString('utf8', start, end));
+      position = end;
+      continue;
+    }
+    const body = stream.toString('utf8', colon + 1, lineEnd);
+    if (body.startsWith('[') || body.startsWith('{')) {
+      try {
+        records.set(id, JSON.parse(body));
+      } catch {
+        // React's stream also contains transport records; only JSON records are data.
+      }
+    }
+    position = lineEnd + 1;
   }
   return records;
 }

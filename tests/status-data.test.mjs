@@ -7,6 +7,7 @@ import { parseRankings } from '../scripts/status/rankings.mjs';
 import { findInRecords, flightRecords } from '../scripts/status/flight.mjs';
 import { matchTerminalBench, parseTerminalBench } from '../scripts/status/terminal-bench.mjs';
 import { parseModelPage, performanceSample } from '../scripts/status/performance.mjs';
+import { staleSources } from '../scripts/status/check.mjs';
 
 const openRouterHtml = await readFile(new URL('./fixtures/status/openrouter-claude-opus-5.html', import.meta.url), 'utf8');
 const tbenchHtml = await readFile(new URL('./fixtures/status/tbench-4.0.html', import.meta.url), 'utf8');
@@ -46,6 +47,14 @@ const catalogRow = (overrides = {}) => ({
 function flightHtml(stream, splitAt = 7) {
   return [stream.slice(0, splitAt), stream.slice(splitAt)].map((chunk) => `<script>self.__next_f.push(${JSON.stringify([1, chunk])})</script>`).join('<script>self.__next_f.push([0])</script>');
 }
+
+test('flight parser reads a data row that directly follows a length-prefixed text row', () => {
+  const text = 'Multi-line\ndescription — 한국어';
+  const stream = `5:T${Buffer.byteLength(text).toString(16)},${text}6:{"state":{"queries":[{"queryKey":["model-page"],"state":{"data":[3]}}]}}\n`;
+  const records = flightRecords(flightHtml(stream, 9));
+  assert.equal(records.get('5'), text);
+  assert.deepEqual(findInRecords(records, (value) => Array.isArray(value.queryKey)).state.data, [3]);
+});
 
 test('flight parser joins split push chunks into JSON records and skips transport lines', () => {
   const records = flightRecords(flightHtml('1:"$Sreact.fragment"\na:{"state":{"queries":[{"queryKey":["x"],"state":{"data":[1,2]}}]}}\nb:I[123,[]]\n'));
@@ -146,6 +155,38 @@ test('missing benchmark feed preserves earlier indices without marking them fres
   assert.equal(source.observedAt, previous.fetchedAt);
 });
 
+test('each source records its last successful collection apart from the publisher data date', async () => {
+  const previous = previousSnapshot();
+  previous.sources.find((entry) => entry.id === 'openrouter-usage').observedAt = '2026-08-30T00:00:00.000Z';
+  const catalogOnly = async (url) => url === 'https://openrouter.ai/api/v1/models'
+    ? new Response(JSON.stringify({ data: [catalogRow()] })) : new Response('', { status: 503 });
+  const first = await refreshSnapshot({ previous, transport: catalogOnly, now: new Date('2026-09-07T00:00:00.000Z') });
+  const lastSuccessOf = (snapshot, id) => snapshot.sources.find((entry) => entry.id === id).lastSuccessAt;
+  assert.equal(lastSuccessOf(first, 'openrouter-catalog'), '2026-09-07T00:00:00.000Z');
+  assert.equal(lastSuccessOf(first, 'openrouter-usage'), previous.fetchedAt);
+  const second = await refreshSnapshot({ previous: first, transport: catalogOnly, now: new Date('2026-09-08T00:00:00.000Z') });
+  assert.equal(lastSuccessOf(second, 'openrouter-usage'), previous.fetchedAt);
+  assert.equal(lastSuccessOf(second, 'openrouter-catalog'), '2026-09-08T00:00:00.000Z');
+});
+
+test('the freshness check flags only sources whose last success is older than the limit', () => {
+  const snapshot = {
+    fetchedAt: '2026-09-10T00:00:00.000Z',
+    sources: [
+      { id: 'fresh', status: 'ok', lastSuccessAt: '2026-09-10T00:00:00.000Z', observedAt: '2026-09-01T00:00:00.000Z', note: '' },
+      { id: 'brief-outage', status: 'unavailable', lastSuccessAt: '2026-09-09T06:00:00.000Z', observedAt: null, note: '' },
+      { id: 'stale', status: 'unavailable', lastSuccessAt: '2026-09-08T00:00:00.000Z', observedAt: null, note: 'Page changed.' },
+      { id: 'legacy-ok', status: 'ok', observedAt: '2026-08-01T00:00:00.000Z', note: '' },
+      { id: 'legacy-failed', status: 'unavailable', observedAt: '2026-09-01T00:00:00.000Z', note: '' },
+      { id: 'never', status: 'unavailable', lastSuccessAt: null, observedAt: null, note: '' },
+    ],
+  };
+  const stale = staleSources(snapshot, { now: new Date('2026-09-10T00:00:00.000Z'), maxAgeHours: 24 });
+  assert.deepEqual(stale.map((entry) => entry.id), ['stale', 'legacy-failed', 'never']);
+  assert.equal(stale[0].ageHours, 48);
+  assert.equal(stale[2].ageHours, Infinity);
+});
+
 test('first refresh fails without a usable catalog instead of publishing an empty board', async () => {
   await assert.rejects(refreshSnapshot({ transport: async () => new Response('', { status: 503 }) }), /No usable catalog/);
 });
@@ -162,10 +203,11 @@ const rankingRow = (overrides = {}) => ({
   total_prompt_tokens: 800, total_completion_tokens: 200, change: 0.5, ...overrides,
 });
 
-function rankingsHtml({ rows = [rankingRow()], view = 'week', links = { 'example/model-20260101': { href: '/example/model' } } } = {}) {
+function rankingsHtml({ rows = [rankingRow()], view = 'week', links = { 'example/model-20260101': { href: '/example/model' } }, nested = false } = {}) {
   const query = { queryKey: ['rankings', 'models', { view }], state: { data: rows } };
   const state = ['$', '$State', null, { state: { queries: [query] } }];
-  const rank = ['$', '$Rank', null, { initialRanking: { rankingType: 'week', rankingData: '$a:props:state:queries:0:state:data', modelLinks: links } }];
+  const element = ['$', '$Rank', null, { initialRanking: { rankingType: 'week', rankingData: '$a:props:state:queries:0:state:data', modelLinks: links } }];
+  const rank = nested ? [['$', 'script', null, { type: 'application/ld+json' }], element] : element;
   const stream = `a:${JSON.stringify(state)}\nb:${JSON.stringify(rank)}\n`;
   return [stream.slice(0, 101), stream.slice(101)].map((chunk) => `<script>self.__next_f.push(${JSON.stringify([1, chunk])})</script>`).join('');
 }
@@ -174,6 +216,10 @@ test('weekly rankings sum published prompt and completion counts without inventi
   const result = parseRankings(rankingsHtml());
   assert.deepEqual(result.byId.get('example/model'), { tokens7d: 1000, previousTokens7d: null, dailyTokens: [] });
   assert.equal(result.observedAt, '2026-09-06T00:00:00.000Z');
+});
+
+test('weekly rankings find the ranking props when the page nests them beside other elements', () => {
+  assert.equal(parseRankings(rankingsHtml({ nested: true })).byId.get('example/model').tokens7d, 1000);
 });
 
 test('weekly rankings use exact canonical catalog identities when page links are absent', () => {
@@ -208,7 +254,7 @@ test('a usable usage source refreshes independently when performance has no obse
   assert.equal(result.sources.find((source) => source.id === 'terminal-bench').status, 'unavailable');
 });
 
-test('one failed model page retains the entire earlier measurement batch even after a retry', async () => {
+test('one unreadable model page is left empty while the rest of the sample refreshes', async () => {
   const previous = previousSnapshot();
   const second = catalogRow({ id: 'example/second', canonical_slug: 'example/second-20260101' });
   previous.models.push({ ...parseCatalog({ data: [second] })[0], speed: 66, latency: 2, speedProvider: 'Second Cloud', speedRequests: 5, speedWindow: 30 });
@@ -219,10 +265,31 @@ test('one failed model page retains the entire earlier measurement batch even af
     if (url === 'https://openrouter.ai/example/second') secondCalls += 1;
     return new Response('', { status: 503 });
   };
-  const result = await refreshSnapshot({ previous, transport });
+  const now = new Date('2026-09-07T00:00:00.000Z');
+  const result = await refreshSnapshot({ previous, transport, now });
   assert.equal(secondCalls, 2);
-  assert.deepEqual(result.models.map((model) => model.speed), [55, 66]);
-  assert.equal(result.sources.find((source) => source.id === 'openrouter-performance').observedAt, previous.fetchedAt);
+  assert.deepEqual(result.models.map((model) => model.speed), [999, null]);
+  const source = result.sources.find((entry) => entry.id === 'openrouter-performance');
+  assert.equal(source.status, 'ok');
+  assert.equal(source.observedAt, now.toISOString());
+  assert.match(source.note, /1 unreadable page\(s\).*example\/second/);
+});
+
+test('losing most sampled model pages keeps the entire earlier measurement batch', async () => {
+  const previous = previousSnapshot();
+  const extra = ['second', 'third'].map((name) => catalogRow({ id: `example/${name}`, canonical_slug: `example/${name}-20260101` }));
+  previous.models.push(...parseCatalog({ data: extra }).map((model, index) => ({ ...model, speed: 66 + index, latency: 2, speedProvider: 'Other Cloud', speedRequests: 5, speedWindow: 30 })));
+  const transport = async (url) => {
+    if (url === 'https://openrouter.ai/api/v1/models') return new Response(JSON.stringify({ data: [catalogRow(), ...extra] }));
+    if (url === 'https://openrouter.ai/example/model') return new Response(modelPageHtml('example/model', [endpoint({ stats: stats({ p50_throughput: 999 }) })]));
+    return new Response('<html></html>');
+  };
+  const result = await refreshSnapshot({ previous, transport });
+  assert.deepEqual(result.models.map((model) => model.speed), [55, 66, 67]);
+  const source = result.sources.find((entry) => entry.id === 'openrouter-performance');
+  assert.equal(source.status, 'unavailable');
+  assert.equal(source.observedAt, previous.fetchedAt);
+  assert.match(source.note, /2\/3 sampled model pages could not be read/);
 });
 
 test('terminal-bench parser reads the published 4.0 leaderboard rows with their agent and confidence interval', () => {

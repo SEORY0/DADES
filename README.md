@@ -74,9 +74,10 @@ GitHub Pages에서 구독 링크를 사용하려면 `PUBLIC_NEWSLETTER_URL` repo
 
 - White·Ink 두 테마를 지원합니다. 저장된 Paper 설정은 White로 이전합니다.
 - 선두 모델의 실제 개발사 아이콘을 nav와 동일한 유리판 뒤에 배치합니다. 선두가 바뀌면 이미지도 갱신하며 모르는 모델에는 임의의 아이콘을 붙이지 않습니다. [이미지 출처](docs/status-images.md).
-- 종합은 AAII 원본, 코딩은 AA Coding Agent Index 원본을 사용합니다. 가격·속도·사용량은 OpenRouter에서 수집하며, 평가 버전·설정·작업당 비용과 이전 관측을 구분합니다.
+- 종합은 AAII 원본, 코딩은 AA Coding Agent Index 원본, 에이전트는 AA의 GDPval-AA를 사용합니다(AA가 Agentic Index 공개를 중단). 가격·속도·사용량은 OpenRouter에서 수집하며, 평가 버전·설정·작업당 비용과 이전 관측을 구분합니다.
 - `npm run status:refresh`: 원문을 새로 수집하여 `public/data/model-board.json`을 원자적으로 교체합니다.
 - `npm run test:status`: 수집·단위·모델 식별·p50·실패 보존 테스트.
+- `npm run status:check`: 출처가 24시간 넘게 갱신되지 않았으면 실패합니다. 갱신 워크플로 마지막 단계에서 실행합니다.
 - 페이지는60초마다 같은 출처 JSON의 새 버전을 확인합니다. 원문 수집은 `model-board.yml`이 main에 반영된 뒤30분 간격으로 요청하며, Actions/Pages 지연이 있을 수 있습니다.
 - 현 스냅샷의 속도는 공개 제공처가 값을 주지 않아 미제공입니다. 임의의 속도·과거 추세는 생성하지 않습니다.
 - [리더보드 조사와 설계](docs/status-research.md) · [데이터 운영](docs/status-data.md) · [검증](docs/status-verification.md).

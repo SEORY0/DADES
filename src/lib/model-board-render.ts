@@ -78,7 +78,7 @@ export function comparisonCard(model: Model, budget: { input: number; output: nu
   const tb = model.terminalBench;
   const values: [string, string][] = [
     ['예상 토큰 비용', dollars(estimate(model, budget.input, budget.output))],
-    ['종합 · AAII', amount(model.intelligence)], ['코딩 · AA CAI', amount(model.coding)], ['에이전트 · AA', amount(model.agentic)],
+    ['종합 · AAII', amount(model.intelligence)], ['코딩 · AA CAI', amount(model.coding)], ['에이전트 · GDPval-AA', amount(model.agentic)],
     ['종합 평가 설정', evaluationNote(model, 'intelligence')], ['코딩 평가 설정', evaluationNote(model, 'coding')],
     ['AAII 작업당 비용', dollars(taskCost(model))], ['코딩 작업당 비용', dollars(taskCost(model, 'coding'))],
     ['Terminal-Bench 4.0', tb ? `${percent(tb.accuracy)} · ${tb.agent}` : EMPTY],

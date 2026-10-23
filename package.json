@@ -15,6 +15,7 @@
     "test:editorial": "node --test tests/editorial.test.mjs tests/editorial-cover.test.mjs",
     "test:editorial:smoke": "node --test tests/editorial-smoke.test.mjs",
     "status:refresh": "node scripts/status/cli.mjs",
+    "status:check": "node scripts/status/check.mjs",
     "test:status": "node --test tests/status-data.test.mjs tests/model-board-rules.test.mjs tests/artificial-analysis.test.mjs"
   },
   "dependencies": {

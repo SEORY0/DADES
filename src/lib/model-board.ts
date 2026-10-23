@@ -15,7 +15,7 @@ export const boardSchema = z.object({
   sources: z.array(z.object({
     id: z.string(), label: z.string(), url: https,
     version: z.string().nullable().optional(),
-    observedAt: z.string().datetime().nullable(), status: z.enum(['ok', 'unavailable']), note: z.string(),
+    observedAt: z.string().datetime().nullable(), lastSuccessAt: z.string().datetime().nullable().optional(), status: z.enum(['ok', 'unavailable']), note: z.string(),
   })),
   terminalBench: z.object({
     title: z.string(), url: https, updatedAt: z.string().datetime(),
@@ -43,7 +43,7 @@ export type TerminalBenchRow = NonNullable<ModelBoard['terminalBench']>['rows'][
 export const metrics: Record<Metric, { label: string; unit: string; title: string; ascending: boolean }> = {
   intelligence: { label: '종합', unit: 'AAII', title: '종합 선두', ascending: ASCENDING.has('intelligence') },
   coding: { label: '코딩', unit: 'AA', title: '코딩 에이전트', ascending: ASCENDING.has('coding') },
-  agentic: { label: '에이전트', unit: 'AA', title: '에이전트 선두', ascending: ASCENDING.has('agentic') },
+  agentic: { label: '에이전트', unit: 'GDPval', title: '에이전트 선두', ascending: ASCENDING.has('agentic') },
   terminalBench: { label: 'TB 4.0', unit: '%', title: 'Terminal-Bench 1위', ascending: ASCENDING.has('terminalBench') },
   speed: { label: '속도', unit: 'tok/s', title: '속도 1위', ascending: ASCENDING.has('speed') },
   cost: { label: '비용', unit: '$ / 1M+1M', title: '가성비', ascending: ASCENDING.has('cost') },
@@ -110,7 +110,7 @@ export function sourceCopy(source: ModelBoard['sources'][number]) {
   const retained = source.status !== 'ok' && source.observedAt ? ' 이전 관측값을 유지하고 있습니다.' : '';
   switch (source.id) {
     case 'openrouter-catalog': return '텍스트 출력 모델의 기본 단가와 컨텍스트입니다. 별칭·무료·배치 경로가 포함되며, 제공 경로와 입력 길이에 따라 가격이 달라질 수 있습니다.' + retained;
-    case 'aa-intelligence': return 'AA 원본의 AAII와 에이전트 하위 지수입니다. 추정 점수는 제외하고, 모델별 최고 관측 설정과 해당 작업 비용을 함께 보관합니다. OpenRouter에 대응하는 모델 범위입니다.' + retained;
+    case 'aa-intelligence': return 'AA 원본의 AAII와, 에이전트 축에 쓰는 GDPval-AA(에이전트 실무 과제) 점수입니다. AA가 Agentic Index 공개를 멈춰 에이전트 축을 GDPval-AA로 바꿨습니다. 추정 점수는 제외하고, 모델별 최고 관측 설정과 해당 작업 비용을 함께 보관합니다. OpenRouter에 대응하는 모델 범위입니다.' + retained;
     case 'aa-coding': return 'AA Coding Agent Index 원본입니다. 전체 구성 평가를 완료한 모델·실행 도구 조합의 최고 점수와 같은 조합의 작업당 비용을 표시합니다.' + retained;
     case 'terminal-bench': return 'tbench.ai 공식 4.0 리더보드의 에이전트+모델 조합 결과입니다. 모델 값은 조합 중 최고 정확도 하나이며 에이전트명을 함께 둡니다.' + retained;
     case 'openrouter-performance': return '종합·사용량 상위 최대 32개 모델의 OpenRouter 페이지에서 요청 수가 가장 많은 표준 경로의 최근 p50 속도·지연입니다. 미제공은 0이 아닙니다.' + retained;
@@ -126,7 +126,7 @@ export function sourceForMetric(board: ModelBoard, metric: Metric) {
 }
 export function metricContext(board: ModelBoard, metric: Metric) {
   const source = board.sources.find((entry) => entry.id === metricSources[metric]);
-  const label = metric === 'coding' ? 'Coding Agent Index' : metric === 'intelligence' ? 'AAII' : metric === 'agentic' ? 'AA Agents' : metrics[metric].label;
+  const label = metric === 'coding' ? 'Coding Agent Index' : metric === 'intelligence' ? 'AAII' : metric === 'agentic' ? 'GDPval-AA' : metrics[metric].label;
   return `${label}${source?.version ? ` v${source.version}` : ''}${source?.status === 'unavailable' ? ' · 이전 관측' : ''}`;
 }
 
@@ -140,7 +140,7 @@ export function leaderNote(board: ModelBoard, leader: Model | undefined, metric:
   if (!leader) return stamp;
   if (metric === 'coding') return `AA CAI v${leader.aaCoding?.version ?? '?'} · ${leader.aaCoding?.agent ?? ''}`;
   if (metric === 'intelligence') return `AAII v${leader.aaIntelligence?.version ?? '?'}`;
-  if (metric === 'agentic') return `AAII v${leader.aaIntelligence?.version ?? '?'} · Agents`;
+  if (metric === 'agentic') return `GDPval-AA · AAII v${leader.aaIntelligence?.version ?? '?'}`;
   return metric === 'speed' ? 'OpenRouter · p50' : stamp;
 }
 export function valueNote(models: readonly Model[], pick: Model) {

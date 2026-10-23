@@ -52,3 +52,6 @@ jobs:
           git commit -m "Refresh model board data"
           git push origin HEAD:main
           gh workflow run deploy.yml --ref main
+      # Runs after publishing so fresh sources still ship; a source failing for a day turns the run red.
+      - name: Check source freshness
+        run: node scripts/status/check.mjs --max-age-hours 24

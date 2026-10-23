@@ -43,6 +43,14 @@ export function upgradeSnapshot(snapshot) {
     })) };
 }
 
+// observedAt can be the publisher's data date, so collection success is tracked separately.
+// Snapshots written before lastSuccessAt fall back to the earliest time the success could have happened.
+export function lastSuccess(source, snapshot) {
+  if (!source) return null;
+  if (source.lastSuccessAt !== undefined) return source.lastSuccessAt;
+  return source.status === 'ok' ? snapshot?.fetchedAt ?? null : source.observedAt ?? null;
+}
+
 function keepFields(models, previous, fields) {
   const oldModels = new Map((previous?.models ?? []).map((model) => [model.id, model]));
   for (const model of models) {
@@ -59,22 +67,28 @@ async function fetchWithRetry(url, transport) {
   }
 }
 
+// One unreadable model page leaves only that model empty; the rest of the sample still refreshes.
 async function collectPerformance(models, transport) {
   const observations = new Map();
+  const failures = [];
   for (let index = 0; index < models.length; index += 4) {
     const batch = models.slice(index, index + 4);
     const results = await Promise.allSettled(batch.map(async (model) => parseModelPage(await fetchWithRetry(model.url, transport), model.id)));
-    const failed = results.find((result) => result.status === 'rejected');
-    if (failed) throw failed.reason;
-    results.forEach((result, offset) => observations.set(batch[offset].id, result.value));
+    results.forEach((result, offset) => {
+      if (result.status === 'fulfilled') observations.set(batch[offset].id, result.value);
+      else failures.push({ id: batch[offset].id, message: result.reason?.message ?? String(result.reason) });
+    });
   }
-  return observations;
+  return { observations, failures };
 }
 
 export async function refreshSnapshot({ previous = null, transport = fetch, now = new Date(), aliases = {} } = {}) {
   if (previous) previous = upgradeSnapshot(previous);
   const fetchedAt = now.toISOString();
-  const sources = SOURCE_DETAILS.map((details) => ({ ...details, version: previous?.sources.find((source) => source.id === details.id)?.version ?? null, observedAt: previous?.sources.find((source) => source.id === details.id)?.observedAt ?? null, status: 'unavailable', note: '' }));
+  const sources = SOURCE_DETAILS.map((details) => {
+    const prior = previous?.sources.find((source) => source.id === details.id);
+    return { ...details, version: prior?.version ?? null, observedAt: prior?.observedAt ?? null, lastSuccessAt: lastSuccess(prior, previous), status: 'unavailable', note: '' };
+  });
   const source = (id) => sources.find((entry) => entry.id === id);
   const results = await Promise.allSettled([fetchSource(CATALOG_URL, transport), fetchSource(RANKINGS_URL, transport), fetchSource(TERMINAL_BENCH_URL, transport), fetchSource(AA_MODELS_URL, transport), fetchSource(AA_CODING_URL, transport)]);
   let payload = null;
@@ -138,15 +152,19 @@ export async function refreshSnapshot({ previous = null, transport = fetch, now 
   try {
     if (!payload) throw new Error('Current catalog is unavailable, so model page sampling was skipped.');
     const sample = performanceSample(models);
-    const observations = await collectPerformance(sample, transport);
+    const { observations, failures } = await collectPerformance(sample, transport);
+    // Losing most pages at once points to a page format change, so keep the earlier batch instead.
+    if (failures.length * 2 > sample.length) throw new Error(`${failures.length}/${sample.length} sampled model pages could not be read. ${failures[0].message}`);
     const measured = [...observations.values()].filter((observation) => observation.speed !== null).length;
     if (!measured) throw new Error(`No provider throughput was published for the ${sample.length} sampled model pages.`);
     for (const model of models) Object.assign(model, observations.get(model.id) ?? EMPTY_PERFORMANCE);
-    Object.assign(source('openrouter-performance'), { status: 'ok', observedAt: fetchedAt, note: `${measured}/${sample.length} sampled models publish provider p50 statistics on their OpenRouter pages. Sample combines leading intelligence and usage models. Each value is the p50 output tokens/second and p50 latency of the standard endpoint with the most requests in the published window, not a provider average.` });
+    const skipped = failures.length ? ` ${failures.length} unreadable page(s) show no value this run: ${failures.map((failure) => failure.id).join(', ')}.` : '';
+    Object.assign(source('openrouter-performance'), { status: 'ok', observedAt: fetchedAt, note: `${measured}/${sample.length} sampled models publish provider p50 statistics on their OpenRouter pages. Sample combines leading intelligence and usage models. Each value is the p50 output tokens/second and p50 latency of the standard endpoint with the most requests in the published window, not a provider average.${skipped}` });
   } catch (error) {
     keepFields(models, previous, PERFORMANCE_FIELDS);
     source('openrouter-performance').note = `Performance p50 unavailable; retained last successful observations, if any, at their earlier timestamp. ${error.message}`;
   }
 
+  for (const entry of sources) if (entry.status === 'ok') entry.lastSuccessAt = fetchedAt;
   return { schemaVersion: SCHEMA_VERSION, fetchedAt, sources, terminalBench, models };
 }

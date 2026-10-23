@@ -9,8 +9,22 @@ const score = (value) => {
   const result = numberOrNull(value);
   return result !== null && result <= 100 ? result : null;
 };
-const nameKey = (value) => String(value).replace(/^[^:]+:\s*/, '').replace(/\([^)]*\)/g, '').replace(/^Claude\s+/i, '').toLowerCase().replace(/[^a-z0-9]/g, '');
-const providerKey = (value) => String(value).toLowerCase().replace(/[^a-z0-9]/g, '').replace(/^zai$/, 'z').replace(/^space[x]?ai$/, 'xai');
+// AA and OpenRouter label some creators differently; both sides normalise to one key.
+const PROVIDER_KEYS = new Map(Object.entries({ zai: 'z', spaceai: 'xai', spacexai: 'xai', kimi: 'moonshotai', alibaba: 'qwen', longcat: 'meituan' }));
+const providerKey = (value) => {
+  const key = String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+  return PROVIDER_KEYS.get(key) ?? key;
+};
+// Drop the "Provider: " catalog prefix and settings in parentheses; also try without a leading creator name.
+const nameKeys = (value, provider) => {
+  const key = String(value).replace(/^[^:]+:\s*/, '').replace(/\([^)]*\)/g, '').replace(/^Claude\s+/i, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const prefix = String(provider ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return prefix && key.startsWith(prefix) && key.length > prefix.length ? [key, key.slice(prefix.length)] : [key];
+};
+const sameName = (model, row) => {
+  const keys = new Set(nameKeys(model.name, model.provider));
+  return nameKeys(row.name, row.provider).some((key) => keys.has(key));
+};
 
 function versionFrom(html, label) {
   const versions = [...new Set([...html.matchAll(new RegExp(`${label} v(\\d+\\.\\d+(?:\\.\\d+)?)`, 'g'))].map((match) => match[1]))];
@@ -36,20 +50,24 @@ function resolve(value, records, depth = 0) {
 
 export function parseAAIntelligence(html) {
   const records = flightRecords(html);
-  const props = findInRecords(records, (value) => Array.isArray(value.models) && value.models.some((model) => model && Object.hasOwn(model, 'intelligenceIndex')));
-  if (!props?.models.length) throw new Error('AA model leaderboard data is missing.');
+  const props = findInRecords(records, (value) => Array.isArray(value.initialModels) && value.initialModels.some((model) => model && Object.hasOwn(model, 'intelligenceIndex')));
+  if (!props?.initialModels.length) throw new Error('AA model leaderboard data is missing.');
   const version = versionFrom(html, 'Intelligence Index');
   const seen = new Set();
-  const rows = props.models.map((raw) => {
+  const rows = props.initialModels.map((raw) => {
     const row = resolve(raw, records);
-    if (!text(row.id) || !text(row.name) || !text(row.slug) || !text(row.modelCreatorName) || seen.has(row.id)) throw new Error('AA model identity is missing or duplicated.');
-    seen.add(row.id);
+    if (!text(row.slug) || !text(row.name) || !text(row.modelCreatorName) || seen.has(row.slug)) throw new Error('AA model identity is missing or duplicated.');
+    seen.add(row.slug);
+    const measured = row.intelligenceIndexIsEstimated === false;
+    const gdpval = numberOrNull(row.gdpvalNormalized);
+    if (gdpval !== null && gdpval > 1) throw new Error('AA GDPval score is outside the published 0–1 scale.');
     return {
-      id: row.id, name: row.name, slug: row.slug, provider: row.modelCreatorName,
-      openrouterId: text(row.openrouterApiId), version,
-      intelligence: row.intelligenceIndexIsEstimated === false ? score(row.intelligenceIndex) : null,
-      agentic: row.intelligenceIndexIsEstimated === false ? score(row.agenticIndex) : null,
-      costPerTask: numberOrNull(row.intelligenceIndexCostPerTask?.cost?.total),
+      id: row.slug, name: row.name, slug: row.slug, provider: row.modelCreatorName,
+      openrouterId: null, version,
+      intelligence: measured ? score(row.intelligenceIndex) : null,
+      // AA stopped publishing its Agentic Index; the agent axis is GDPval-AA, an agentic knowledge-work benchmark on the same page.
+      agentic: measured && gdpval !== null ? gdpval * 100 : null,
+      costPerTask: numberOrNull(row.intelligenceIndexCostPerTask),
       url: `https://artificialanalysis.ai/models/${encodeURIComponent(row.slug)}`,
     };
   });
@@ -63,19 +81,21 @@ export function parseAACoding(html) {
   if (!props?.benchmarkRows.length) throw new Error('AA full coding leaderboard is missing.');
   const version = versionFrom(html, 'Coding Agent Index');
   const seen = new Set();
-  const rows = props.benchmarkRows.map((raw) => {
-    const row = resolve(raw, records);
-    if (!text(row.id) || !text(row.display?.model) || !text(row.agentName) || !text(row.display?.creator?.model) || seen.has(row.id)) throw new Error('AA coding identity is missing or duplicated.');
+  const rows = props.benchmarkRows.map((raw) => resolve(raw, records)).flatMap((row) => {
+    if (!text(row.id) || !text(row.display?.model) || !text(row.agentName) || seen.has(row.id)) throw new Error('AA coding identity is missing or duplicated.');
     seen.add(row.id);
+    // Router rows combine several models, so they cannot stand for one catalog model.
+    const creators = Array.isArray(row.modelCreators) ? row.modelCreators.map((creator) => text(creator?.name)) : [];
+    if (row.isRouter !== false || creators.length !== 1 || !creators[0]) return [];
     const rawScore = numberOrNull(row.indexScore);
     if (rawScore !== null && rawScore > 1) throw new Error('AA coding score is outside the published 0–1 scale.');
     const complete = row.indexComponentCount === 3 && row.evalCount === 3 && Array.isArray(row.evals) && row.evals.length === 3;
-    return {
-      id: row.id, name: row.display.model, provider: row.display.creator.model, agent: row.agentName,
+    return [{
+      id: row.id, name: row.display.model, provider: creators[0], agent: row.agentName,
       version, score: complete && row.isUnavailable === false && rawScore !== null ? rawScore * 100 : null,
       costPerTask: numberOrNull(row.mean?.costUsd), timePerTask: numberOrNull(row.mean?.agentWallTimeSec),
       url: AA_CODING_URL,
-    };
+    }];
   });
   if (!rows.some((row) => row.score !== null)) throw new Error('AA has no complete coding evaluations.');
   return { version, rows };
@@ -92,7 +112,7 @@ export function matchAA(board, models, kind, aliases = {}) {
     const explicit = aliases[row.slug ?? row.id] ?? row.openrouterId;
     let id = identities.has(explicit) ? explicit : null;
     if (!id && !explicit) {
-      const matches = canonical.filter((model) => nameKey(model.name) === nameKey(row.name) && providerKey(model.provider) === providerKey(row.provider));
+      const matches = canonical.filter((model) => sameName(model, row) && providerKey(model.provider) === providerKey(row.provider));
       if (matches.length === 1) id = matches[0].id;
     }
     if (!id) continue;

@@ -1,3 +1,14 @@
 {
+  "intelligence": {
+    "command-a-plus": "cohere/command-a-plus",
+    "ministral-3-14b": "mistralai/ministral-14b-2512",
+    "ministral-3-8b": "mistralai/ministral-8b-2512",
+    "ministral-3-3b": "mistralai/ministral-3b-2512",
+    "nvidia-nemotron-3-ultra-550b-a55b": "nvidia/nemotron-3-ultra-550b-a55b",
+    "reflection-beam": "reflection/beam-1.0-501b-a23b"
+  },
+  "coding": {
+    "accfbb12d349c0f2c93547ce814534b2": "reflection/beam-1.0-501b-a23b"
+  },
   "terminalBench": {}
 }

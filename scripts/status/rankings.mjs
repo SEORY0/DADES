@@ -1,5 +1,5 @@
 import { numberOrNull } from './catalog.mjs';
-import { flightRecords } from './flight.mjs';
+import { findInRecords, flightRecords } from './flight.mjs';
 
 export const RANKINGS_URL = 'https://openrouter.ai/rankings';
 
@@ -18,7 +18,8 @@ function catalogIdentities(catalog) {
 
 export function parseRankings(html, catalog = null) {
   const records = flightRecords(html);
-  const ranking = [...records.values()].map((value) => value?.[3]?.initialRanking).find((value) => value?.rankingType === 'week');
+  // The ranking props may sit at the top of a record or inside a list of sibling elements.
+  const ranking = findInRecords(records, (value) => value.initialRanking?.rankingType === 'week')?.initialRanking;
   const reference = /^\$([\da-f]+):props:state:queries:(\d+):state:data$/.exec(ranking?.rankingData ?? '');
   if (!reference) throw new Error('Published weekly ranking reference is unavailable.');
   const query = records.get(reference[1])?.[3]?.state?.queries?.[Number(reference[2])];

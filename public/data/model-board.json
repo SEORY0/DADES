@@ -1,14 +1,14 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-11-14T02:40:01.735Z",
+  "fetchedAt": "2026-11-14T10:11:45.819Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-11-14T02:40:01.735Z",
-      "lastSuccessAt": "2026-11-14T02:40:01.735Z",
+      "observedAt": "2026-11-14T10:11:45.819Z",
+      "lastSuccessAt": "2026-11-14T10:11:45.819Z",
       "status": "ok",
       "note": "471 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -20,15 +20,15 @@
       "observedAt": "2026-11-02T19:44:46.531Z",
       "lastSuccessAt": "2026-11-02T19:44:46.531Z",
       "status": "unavailable",
-      "note": "Direct AA refresh failed; last direct AA observations retained. No OpenRouter benchmark fallback. AA has no measured intelligence scores."
+      "note": "Direct AA refresh failed; last direct AA observations retained. No OpenRouter benchmark fallback. AA model identity is missing or duplicated."
     },
     {
       "id": "aa-coding",
       "label": "Artificial Analysis Coding Agent Index",
       "url": "https://artificialanalysis.ai/agents/coding-agents",
       "version": "2.1",
-      "observedAt": "2026-11-14T02:40:01.735Z",
-      "lastSuccessAt": "2026-11-14T02:40:01.735Z",
+      "observedAt": "2026-11-14T10:11:45.819Z",
+      "lastSuccessAt": "2026-11-14T10:11:45.819Z",
       "status": "ok",
       "note": "Direct AA public leaderboard v2.1; 21 catalog models matched from 28 evaluation variants. Each model retains its highest measured score with that exact configuration and task cost. Unmatched or incomplete evaluations are excluded. Observation time is collection time, not evaluation time."
     },
@@ -9716,8 +9716,8 @@
       "provider": "Qwen",
       "url": "https://openrouter.ai/qwen/qwen3.5-9b",
       "context": 262144,
-      "inputPrice": 0.081,
-      "outputPrice": 0.118,
+      "inputPrice": 0.16999999999999998,
+      "outputPrice": 0.25,
       "intelligence": null,
       "coding": null,
       "agentic": null,

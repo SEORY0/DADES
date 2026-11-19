@@ -1,14 +1,14 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-11-19T01:06:18.870Z",
+  "fetchedAt": "2026-11-19T08:44:27.702Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-11-19T01:06:18.870Z",
-      "lastSuccessAt": "2026-11-19T01:06:18.870Z",
+      "observedAt": "2026-11-19T08:44:27.702Z",
+      "lastSuccessAt": "2026-11-19T08:44:27.702Z",
       "status": "ok",
       "note": "480 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -27,8 +27,8 @@
       "label": "Artificial Analysis Coding Agent Index",
       "url": "https://artificialanalysis.ai/agents/coding-agents",
       "version": "2.1",
-      "observedAt": "2026-11-19T01:06:18.870Z",
-      "lastSuccessAt": "2026-11-19T01:06:18.870Z",
+      "observedAt": "2026-11-19T08:44:27.702Z",
+      "lastSuccessAt": "2026-11-19T08:44:27.702Z",
       "status": "ok",
       "note": "Direct AA public leaderboard v2.1; 25 catalog models matched from 40 evaluation variants. Each model retains its highest measured score with that exact configuration and task cost. Unmatched or incomplete evaluations are excluded. Observation time is collection time, not evaluation time."
     },
@@ -58,7 +58,7 @@
       "url": "https://openrouter.ai/rankings",
       "version": null,
       "observedAt": "2026-11-18T00:00:00.000Z",
-      "lastSuccessAt": "2026-11-19T01:06:18.870Z",
+      "lastSuccessAt": "2026-11-19T08:44:27.702Z",
       "status": "ok",
       "note": "Published seven-day OpenRouter prompt + completion tokens through 2026-11-18 (UTC daily buckets). 19/20 published ranking rows mapped; unlisted models are unknown, not zero. Private and provider-direct traffic are excluded. Previous-week totals and daily history are not supplied."
     }
@@ -705,8 +705,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/~deepseek/deepseek-v4-flash-latest",
       "context": 1048576,
-      "inputPrice": 0.047,
-      "outputPrice": 0.3,
+      "inputPrice": 0.06,
+      "outputPrice": 0.18,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -1902,7 +1902,7 @@
         "effort": "max",
         "date": "2026-09-22"
       },
-      "tokens7d": 7631701037835,
+      "tokens7d": 7631710839859,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2119,7 +2119,7 @@
         "effort": "max",
         "date": "2026-09-28"
       },
-      "tokens7d": 2835657257933,
+      "tokens7d": 2835660468042,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2165,7 +2165,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 3370751739398,
+      "tokens7d": 3370751968550,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2646,7 +2646,7 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4-flash-0731",
       "context": 1048576,
-      "inputPrice": 0.047,
+      "inputPrice": 0.065,
       "outputPrice": 0.3,
       "intelligence": null,
       "coding": null,
@@ -2659,7 +2659,7 @@
       "speedRequests": 255951,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 2879813663865,
+      "tokens7d": 2879825968437,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2785,7 +2785,7 @@
       "speedRequests": 138038,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 16012142269687,
+      "tokens7d": 16012166290506,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2829,7 +2829,7 @@
       "speedRequests": 369806,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 62137325141579,
+      "tokens7d": 62137473651995,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -3712,7 +3712,7 @@
         "agent": "Antigravity CLI",
         "version": "2.1",
         "score": 55.465927826653605,
-        "costPerTask": 6.293511245445177,
+        "costPerTask": 9.750051288560172,
         "timePerTask": 2015.47322678397,
         "url": "https://artificialanalysis.ai/agents/coding-agents"
       },
@@ -4028,8 +4028,8 @@
       "provider": "Google",
       "url": "https://openrouter.ai/google/gemma-4-26b-a4b-it",
       "context": 262144,
-      "inputPrice": 0.0765,
-      "outputPrice": 0.255,
+      "inputPrice": 0.09,
+      "outputPrice": 0.3,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -4906,7 +4906,7 @@
       "speedRequests": 81809,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 2954440749251,
+      "tokens7d": 2954441579455,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -5144,7 +5144,7 @@
       "speedRequests": 12786,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 3671985189462,
+      "tokens7d": 3671993607902,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -5933,7 +5933,7 @@
       "speedRequests": 30765,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 3549014028828,
+      "tokens7d": 3549022725589,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -6289,7 +6289,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 3324962575713,
+      "tokens7d": 3324972131197,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -6426,7 +6426,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 2914799254632,
+      "tokens7d": 2914800962467,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -8131,7 +8131,7 @@
         "effort": "max",
         "date": "2026-09-22"
       },
-      "tokens7d": 8616187749305,
+      "tokens7d": 8616192509646,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -8348,7 +8348,7 @@
         "effort": "max",
         "date": "2026-09-29"
       },
-      "tokens7d": 3287401592302,
+      "tokens7d": 3287406120775,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11035,7 +11035,7 @@
       "speedRequests": 806484,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 12966650401243,
+      "tokens7d": 12966662144096,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11058,7 +11058,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 46628878045836,
+      "tokens7d": 46628881102734,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11820,7 +11820,7 @@
       "speedRequests": 117023,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 4045752665338,
+      "tokens7d": 4045800005008,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -12094,8 +12094,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/z-ai/glm-5.1",
       "context": 204800,
-      "inputPrice": 1.4,
-      "outputPrice": 4.4,
+      "inputPrice": 1.19,
+      "outputPrice": 3.74,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -12117,8 +12117,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/z-ai/glm-5.2",
       "context": 1048576,
-      "inputPrice": 0.007,
-      "outputPrice": 6.8,
+      "inputPrice": 0.62,
+      "outputPrice": 2.42,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -12203,7 +12203,7 @@
         "effort": "max",
         "date": "2026-08-14"
       },
-      "tokens7d": 3428490664233,
+      "tokens7d": 3428506426651,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -12243,7 +12243,7 @@
         "effort": "none",
         "date": "2026-08-26"
       },
-      "tokens7d": 10864350502402,
+      "tokens7d": 10864472706195,
       "previousTokens7d": null,
       "dailyTokens": []
     },

@@ -1,14 +1,14 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-11-21T04:15:22.044Z",
+  "fetchedAt": "2026-11-21T12:58:17.449Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-11-21T04:15:22.044Z",
-      "lastSuccessAt": "2026-11-21T04:15:22.044Z",
+      "observedAt": "2026-11-21T12:58:17.449Z",
+      "lastSuccessAt": "2026-11-21T12:58:17.449Z",
       "status": "ok",
       "note": "476 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -27,8 +27,8 @@
       "label": "Artificial Analysis Coding Agent Index",
       "url": "https://artificialanalysis.ai/agents/coding-agents",
       "version": "2.1",
-      "observedAt": "2026-11-21T04:15:22.044Z",
-      "lastSuccessAt": "2026-11-21T04:15:22.044Z",
+      "observedAt": "2026-11-21T12:58:17.449Z",
+      "lastSuccessAt": "2026-11-21T12:58:17.449Z",
       "status": "ok",
       "note": "Direct AA public leaderboard v2.1; 25 catalog models matched from 40 evaluation variants. Each model retains its highest measured score with that exact configuration and task cost. Unmatched or incomplete evaluations are excluded. Observation time is collection time, not evaluation time."
     },
@@ -58,7 +58,7 @@
       "url": "https://openrouter.ai/rankings",
       "version": null,
       "observedAt": "2026-11-20T00:00:00.000Z",
-      "lastSuccessAt": "2026-11-21T04:15:22.044Z",
+      "lastSuccessAt": "2026-11-21T12:58:17.449Z",
       "status": "ok",
       "note": "Published seven-day OpenRouter prompt + completion tokens through 2026-11-20 (UTC daily buckets). 18/20 published ranking rows mapped; unlisted models are unknown, not zero. Private and provider-direct traffic are excluded. Previous-week totals and daily history are not supplied."
     }
@@ -2749,8 +2749,8 @@
       "provider": "DeepSeek",
       "url": "https://openrouter.ai/deepseek/deepseek-v4.1-flash",
       "context": 1048576,
-      "inputPrice": 0.050699999999999995,
-      "outputPrice": 0.20279999999999998,
+      "inputPrice": 0.049800000000000004,
+      "outputPrice": 0.19920000000000002,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -12002,8 +12002,8 @@
       "provider": "Z.AI",
       "url": "https://openrouter.ai/z-ai/glm-5.1",
       "context": 204800,
-      "inputPrice": 1.19,
-      "outputPrice": 3.74,
+      "inputPrice": 1.4,
+      "outputPrice": 4.4,
       "intelligence": null,
       "coding": null,
       "agentic": null,

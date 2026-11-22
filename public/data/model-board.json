@@ -1,14 +1,14 @@
 {
   "schemaVersion": 3,
-  "fetchedAt": "2026-11-22T00:17:16.126Z",
+  "fetchedAt": "2026-11-22T07:24:14.748Z",
   "sources": [
     {
       "id": "openrouter-catalog",
       "label": "OpenRouter catalog",
       "url": "https://openrouter.ai/api/v1/models",
       "version": null,
-      "observedAt": "2026-11-22T00:17:16.126Z",
-      "lastSuccessAt": "2026-11-22T00:17:16.126Z",
+      "observedAt": "2026-11-22T07:24:14.748Z",
+      "lastSuccessAt": "2026-11-22T07:24:14.748Z",
       "status": "ok",
       "note": "476 text-output OpenRouter entries, including aliases and variants; not the whole market. Base prices are USD per million tokens; provider and context-tier prices can differ."
     },
@@ -27,8 +27,8 @@
       "label": "Artificial Analysis Coding Agent Index",
       "url": "https://artificialanalysis.ai/agents/coding-agents",
       "version": "2.1",
-      "observedAt": "2026-11-22T00:17:16.126Z",
-      "lastSuccessAt": "2026-11-22T00:17:16.126Z",
+      "observedAt": "2026-11-22T07:24:14.748Z",
+      "lastSuccessAt": "2026-11-22T07:24:14.748Z",
       "status": "ok",
       "note": "Direct AA public leaderboard v2.1; 25 catalog models matched from 40 evaluation variants. Each model retains its highest measured score with that exact configuration and task cost. Unmatched or incomplete evaluations are excluded. Observation time is collection time, not evaluation time."
     },
@@ -57,10 +57,10 @@
       "label": "OpenRouter usage rankings",
       "url": "https://openrouter.ai/rankings",
       "version": null,
-      "observedAt": "2026-11-20T00:00:00.000Z",
-      "lastSuccessAt": "2026-11-22T00:17:16.126Z",
+      "observedAt": "2026-11-21T00:00:00.000Z",
+      "lastSuccessAt": "2026-11-22T07:24:14.748Z",
       "status": "ok",
-      "note": "Published seven-day OpenRouter prompt + completion tokens through 2026-11-20 (UTC daily buckets). 18/20 published ranking rows mapped; unlisted models are unknown, not zero. Private and provider-direct traffic are excluded. Previous-week totals and daily history are not supplied."
+      "note": "Published seven-day OpenRouter prompt + completion tokens through 2026-11-21 (UTC daily buckets). 19/20 published ranking rows mapped; unlisted models are unknown, not zero. Private and provider-direct traffic are excluded. Previous-week totals and daily history are not supplied."
     }
   ],
   "terminalBench": {
@@ -775,7 +775,7 @@
       "url": "https://openrouter.ai/~moonshotai/kimi-latest",
       "context": 1048576,
       "inputPrice": 0.18239999999999998,
-      "outputPrice": 10.6066,
+      "outputPrice": 11.0055,
       "intelligence": null,
       "coding": null,
       "agentic": null,
@@ -1541,7 +1541,7 @@
       "speedRequests": 341436,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 2769470632741,
+      "tokens7d": 2838416038209,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -1902,7 +1902,7 @@
         "effort": "max",
         "date": "2026-09-22"
       },
-      "tokens7d": 7252631595256,
+      "tokens7d": 7056977548871,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2119,7 +2119,7 @@
         "effort": "max",
         "date": "2026-09-28"
       },
-      "tokens7d": 2875594119806,
+      "tokens7d": 2834357242732,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2165,7 +2165,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 3500715594079,
+      "tokens7d": 3503215939731,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2636,7 +2636,7 @@
       "speedRequests": 255951,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 2679449574781,
+      "tokens7d": 2571401453992,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2762,7 +2762,7 @@
       "speedRequests": 138038,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 15646647841850,
+      "tokens7d": 15337011369114,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -2806,7 +2806,7 @@
       "speedRequests": 369806,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 62381923593551,
+      "tokens7d": 63323750106049,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -4814,7 +4814,7 @@
       "speedRequests": 81809,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 3051990977688,
+      "tokens7d": 3110798975235,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -5028,8 +5028,8 @@
       "provider": "MiniMax",
       "url": "https://openrouter.ai/minimax/minimax-m3.1-flash",
       "context": 1048576,
-      "inputPrice": 0.075,
-      "outputPrice": 0.3,
+      "inputPrice": 0.15,
+      "outputPrice": 0.6,
       "intelligence": 28.9095214290458,
       "coding": null,
       "agentic": null,
@@ -5052,7 +5052,7 @@
       "speedRequests": 12786,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 4105125988199,
+      "tokens7d": 4200494270254,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -5864,7 +5864,7 @@
       "speedRequests": 30765,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 3540062363142,
+      "tokens7d": 3881902926301,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -6220,7 +6220,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 3564731171047,
+      "tokens7d": 3718026279064,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -6357,7 +6357,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": 2865106863273,
+      "tokens7d": 2882622137811,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -8062,7 +8062,7 @@
         "effort": "max",
         "date": "2026-09-22"
       },
-      "tokens7d": 8743244577963,
+      "tokens7d": 8505497218771,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -8279,7 +8279,7 @@
         "effort": "max",
         "date": "2026-09-29"
       },
-      "tokens7d": 2720778870856,
+      "tokens7d": 2567253175586,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -10193,8 +10193,8 @@
       "provider": "Qwen",
       "url": "https://openrouter.ai/qwen/qwen3.8-27b",
       "context": 1024000,
-      "inputPrice": 0.06,
-      "outputPrice": 1.96,
+      "inputPrice": 0.035,
+      "outputPrice": 1.5,
       "intelligence": 20.1068756031705,
       "coding": null,
       "agentic": null,
@@ -10851,7 +10851,7 @@
       "speedRequests": 132092,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 4800292258439,
+      "tokens7d": 3841924878469,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -10989,7 +10989,7 @@
       "speedRequests": null,
       "speedWindow": null,
       "terminalBench": null,
-      "tokens7d": null,
+      "tokens7d": 6513057914319,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -11728,7 +11728,7 @@
       "speedRequests": 117023,
       "speedWindow": 30,
       "terminalBench": null,
-      "tokens7d": 3911309670766,
+      "tokens7d": 3826713919620,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -12111,7 +12111,7 @@
         "effort": "max",
         "date": "2026-08-14"
       },
-      "tokens7d": 3390455167213,
+      "tokens7d": 3444521893003,
       "previousTokens7d": null,
       "dailyTokens": []
     },
@@ -12151,7 +12151,7 @@
         "effort": "none",
         "date": "2026-08-26"
       },
-      "tokens7d": 10777761627846,
+      "tokens7d": 11626743968398,
       "previousTokens7d": null,
       "dailyTokens": []
     },
